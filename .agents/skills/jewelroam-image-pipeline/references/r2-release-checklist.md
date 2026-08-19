@@ -1,0 +1,44 @@
+# JewelRoam R2 Release Checklist
+
+## Project contract
+
+- Bucket: `jewelroam-media`
+- Public custom domain: `https://images.zer.dpdns.org`
+- Image transformation prefix: `https://images.zer.dpdns.org/cdn-cgi/image/width=640,format=auto,quality=82/...`
+- Staging directory: `content/inbox/`
+- Formal photo records: `content/photos/*.json`
+- Formal articles: `content/posts/*.mdx`
+
+## Required photo record
+
+```json
+{
+  "id": "stable-id",
+  "title": "confirmed display title",
+  "alt": "confirmed accessible description",
+  "takenAt": "YYYY-MM-DD",
+  "location": "confirmed location",
+  "dimensions": { "width": 1600, "height": 1067 },
+  "media": {
+    "path": "photos/YYYY/stable-id.webp",
+    "fallbackPath": "photos/YYYY/stable-id.jpg"
+  },
+  "series": "confirmed series",
+  "rights": {
+    "notice": "confirmed copyright notice",
+    "licenseUrl": "https://jewelroam.github.io/rights"
+  }
+}
+```
+
+Generate WebP or other release derivatives only after preserving the original and confirming the intended public quality. Keep original and release paths explicit.
+
+## Release order
+
+1. Confirm article text, description, dates, image metadata, rights, and the exact set of files to publish.
+2. Generate formal manifests and MDX references.
+3. Run `npm run content:validate`, `npm run typecheck`, and `npm run build`.
+4. Upload only the approved release files to `jewelroam-media`.
+5. Verify each public URL and transformed URL.
+6. Publish the GitHub change after the R2 objects are available, so the site never points at missing objects.
+7. Archive or remove inbox copies only after verification and only with explicit authorization.

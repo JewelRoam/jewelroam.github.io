@@ -1,0 +1,4 @@
+interface:
+  display_name: "JewelRoam Image Pipeline"
+  short_description: "Stage and validate article images"
+  default_prompt: "Use $jewelroam-image-pipeline to stage and validate these article images before publication."

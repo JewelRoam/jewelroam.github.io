@@ -1,0 +1,17 @@
+{
+  "id": "2026-coast-window",
+  "title": "海岸线旁的车窗",
+  "alt": "清晨列车车窗外的雾岛与平静海面",
+  "takenAt": "2026-04-16",
+  "location": "Seto Inland Sea, Japan",
+  "dimensions": { "width": 1600, "height": 1067 },
+  "media": {
+    "path": "photos/2026/coast-window.webp",
+    "fallbackPath": "photos/2026/coast-window.jpg"
+  },
+  "series": "潮湿的春日",
+  "rights": {
+    "notice": "© 2026 JewelRoam. All rights reserved.",
+    "licenseUrl": "https://jewelroam.github.io/rights"
+  }
+}

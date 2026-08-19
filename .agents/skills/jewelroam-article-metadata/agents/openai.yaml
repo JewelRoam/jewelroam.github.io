@@ -1,0 +1,4 @@
+interface:
+  display_name: "JewelRoam Article Metadata"
+  short_description: "Draft article summaries and metadata"
+  default_prompt: "Use $jewelroam-article-metadata to prepare this article summary and metadata for review."

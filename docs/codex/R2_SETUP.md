@@ -1,0 +1,90 @@
+# Cloudflare R2 图片配置
+
+这份说明对应当前项目中的 `src/lib/media.ts` 和 `content/photos/*.json`。R2 存放公开发行图，Cloudflare Image Transformations 按请求生成并缓存缩略图。
+
+## 1. 创建 bucket
+
+在 Cloudflare Dashboard 创建一个 R2 bucket，例如：
+
+```text
+jewelroam-media
+```
+
+只上传适合网页展示的公开发行图。RAW、完整 EXIF/XMP、编辑工程和高分辨率母版放在私有备份位置，不上传到这个 bucket。
+
+## 2. 绑定图片域名
+
+在 bucket 的 **Settings → Custom Domains** 绑定：
+
+```text
+images.zer.dpdns.org
+```
+
+该域名必须属于当前 Cloudflare zone，并保持代理状态。不要把 `r2.dev` 作为正式站点的图片域名。
+
+## 3. 启用图片转换
+
+在 `zer.dpdns.org` 对应的 zone 启用 **Image Transformations**。当前已启用，来源限制为该 zone 及其子域。项目会生成如下 URL：
+
+```text
+https://images.zer.dpdns.org/cdn-cgi/image/width=640,format=auto,quality=82/photos/2026/coast-window.webp
+```
+
+组件会自动提供 640、1280、2048 三个候选宽度，浏览器根据视口和像素密度选择合适版本。转换结果由 Cloudflare 缓存，不需要在 R2 中保存每种尺寸的副本。
+
+## 4. 配置本地环境
+
+复制 `.env.example` 为 `.env`，填入实际图片域名：
+
+```bash
+VITE_MEDIA_BASE_URL=https://images.zer.dpdns.org
+```
+
+修改图片时，只需要更新 `content/photos/*.json` 中的 `media.path` 和尺寸。React 组件不应直接硬编码 R2 URL。
+
+## 5. 单一环境与发布循环
+
+项目不区分 staging 和 production，只使用一个 R2 bucket 和一个图片域名。R2 是发布目标，GitHub 仓库仍然是文章、图片 manifest 和代码的来源。
+
+每次新增或替换图片时按这个顺序操作：
+
+```text
+本地整理图片和 metadata
+    ↓
+本地运行页面和检查构图
+    ↓
+上传最终发行图到 R2（使用稳定、不可变的路径）
+    ↓
+检查原图 URL 和 Image Transformations URL
+    ↓
+把 photo JSON / MDX 和已确认的 R2 路径提交到 GitHub
+    ↓
+GitHub Actions 校验并部署站点
+```
+
+不要在 manifest 已经提交后才上传图片，否则 GitHub Pages 可能先发布一个指向不存在资源的页面。图片上传失败时不要提交该 manifest；图片替换时使用新的文件路径或版本号，不要依赖 CDN 立刻刷新被覆盖的旧对象。
+
+本地调试阶段可以使用 `public/media` 中的临时图片；只有图片、尺寸、替代文本和版权字段确认后，才进入 R2 并写入正式 manifest。
+
+## 6. 发布和权限
+
+当前代码仓库不保存 Cloudflare 密钥。若后续增加 GitHub Actions 自动上传图片，使用 GitHub Secrets 保存：
+
+```text
+CLOUDFLARE_ACCOUNT_ID
+R2_ACCESS_KEY_ID
+R2_SECRET_ACCESS_KEY
+```
+
+令牌只授予目标 bucket 的对象读写权限，不要使用账户级全权限 Token。R2 和 Image Transformations 的免费额度、计费规则可能变化，正式启用前应在 Cloudflare Dashboard 核对当前计划。
+
+## 7. 发布检查
+
+上传一张公开发行图后，将它的路径写入一个 photo JSON，并执行：
+
+```bash
+npm run content:validate
+npm run dev
+```
+
+然后在浏览器中检查原图 URL 和 `/cdn-cgi/image/width=640,format=auto/...` 转换 URL。首次绑定域名后，证书和 DNS 记录可能需要几分钟传播。若转换 URL 返回 404，优先检查自定义域名是否已绑定到 R2、DNS 是否代理，以及 Image Transformations 是否对该 zone 开启。
