@@ -1,0 +1,19 @@
+{
+  "id": "keshigten-2026-08-04",
+  "title": "草原上的天光",
+  "alt": "乌云下的金色阳光穿过云隙，照向开阔草原与远山",
+  "takenAt": "2026-08-15",
+  "placeId": "keshigten-banner",
+  "dimensions": {
+    "width": 1086,
+    "height": 724
+  },
+  "media": {
+    "path": "upload/photos/2026/keshigten-2026-08-04.webp",
+    "fallbackPath": "upload/photos/2026/keshigten-2026-08-04.jpg"
+  },
+  "rights": {
+    "notice": "© 2026 JewelRoam. All rights reserved.",
+    "licenseUrl": "https://jewelroam.github.io/rights"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "id": "keshigten-2026-08-12",
+  "title": "草原上的同行者",
+  "alt": "两幅拼接照片分别拍到一人拉弓和一人站在山坡上查看相机",
+  "takenAt": "2026-08-16",
+  "placeId": "keshigten-banner",
+  "dimensions": {
+    "width": 1022,
+    "height": 768
+  },
+  "media": {
+    "path": "upload/photos/2026/keshigten-2026-08-12.webp",
+    "fallbackPath": "upload/photos/2026/keshigten-2026-08-12.jpg"
+  },
+  "rights": {
+    "notice": "© 2026 JewelRoam. All rights reserved.",
+    "licenseUrl": "https://jewelroam.github.io/rights"
+  }
+}

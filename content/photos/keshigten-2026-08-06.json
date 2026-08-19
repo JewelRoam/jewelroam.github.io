@@ -1,0 +1,19 @@
+{
+  "id": "keshigten-2026-08-06",
+  "title": "晨光里的羊群",
+  "alt": "晨光掠过起伏的绿色草坡，一小群羊散落在山坡中央",
+  "takenAt": "2026-08-16",
+  "placeId": "keshigten-banner",
+  "dimensions": {
+    "width": 1086,
+    "height": 724
+  },
+  "media": {
+    "path": "upload/photos/2026/keshigten-2026-08-06.webp",
+    "fallbackPath": "upload/photos/2026/keshigten-2026-08-06.jpg"
+  },
+  "rights": {
+    "notice": "© 2026 JewelRoam. All rights reserved.",
+    "licenseUrl": "https://jewelroam.github.io/rights"
+  }
+}

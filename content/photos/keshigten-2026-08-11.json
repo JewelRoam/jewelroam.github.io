@@ -1,0 +1,19 @@
+{
+  "id": "keshigten-2026-08-11",
+  "title": "牧场的四个片段",
+  "alt": "四幅拼接照片记录草原上的牛群、河谷、岩石和围栏旁卧着的牛",
+  "takenAt": "2026-08-16",
+  "placeId": "keshigten-banner",
+  "dimensions": {
+    "width": 1704,
+    "height": 1842
+  },
+  "media": {
+    "path": "upload/photos/2026/keshigten-2026-08-11.webp",
+    "fallbackPath": "upload/photos/2026/keshigten-2026-08-11.jpg"
+  },
+  "rights": {
+    "notice": "© 2026 JewelRoam. All rights reserved.",
+    "licenseUrl": "https://jewelroam.github.io/rights"
+  }
+}

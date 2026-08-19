@@ -1,0 +1,19 @@
+{
+  "id": "keshigten-2026-08-02",
+  "title": "冲毁的山路",
+  "alt": "白色汽车停在被雨水冲毁的山路旁，右侧护栏外的路基已经塌陷",
+  "takenAt": "2026-08-15",
+  "placeId": "keshigten-banner",
+  "dimensions": {
+    "width": 1086,
+    "height": 724
+  },
+  "media": {
+    "path": "upload/photos/2026/keshigten-2026-08-02.webp",
+    "fallbackPath": "upload/photos/2026/keshigten-2026-08-02.jpg"
+  },
+  "rights": {
+    "notice": "© 2026 JewelRoam. All rights reserved.",
+    "licenseUrl": "https://jewelroam.github.io/rights"
+  }
+}

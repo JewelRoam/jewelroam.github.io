@@ -1,0 +1,19 @@
+{
+  "id": "keshigten-2026-08-01",
+  "title": "克什克腾的山谷",
+  "alt": "四幅拼接照片展示绿色丘陵、山谷、裸露岩坡和被冲沟切开的草坡",
+  "takenAt": "2026-08-15",
+  "placeId": "keshigten-banner",
+  "dimensions": {
+    "width": 1372,
+    "height": 2048
+  },
+  "media": {
+    "path": "upload/photos/2026/keshigten-2026-08-01.webp",
+    "fallbackPath": "upload/photos/2026/keshigten-2026-08-01.jpg"
+  },
+  "rights": {
+    "notice": "© 2026 JewelRoam. All rights reserved.",
+    "licenseUrl": "https://jewelroam.github.io/rights"
+  }
+}

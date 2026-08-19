@@ -1,0 +1,19 @@
+{
+  "id": "keshigten-2026-08-10",
+  "title": "阿斯哈图石林",
+  "alt": "阴云下的岩石柱群立在绿色山坡上，前景是深色树林",
+  "takenAt": "2026-08-16",
+  "placeId": "keshigten-banner",
+  "dimensions": {
+    "width": 724,
+    "height": 1086
+  },
+  "media": {
+    "path": "upload/photos/2026/keshigten-2026-08-10.webp",
+    "fallbackPath": "upload/photos/2026/keshigten-2026-08-10.jpg"
+  },
+  "rights": {
+    "notice": "© 2026 JewelRoam. All rights reserved.",
+    "licenseUrl": "https://jewelroam.github.io/rights"
+  }
+}

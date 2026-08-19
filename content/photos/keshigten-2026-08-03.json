@@ -1,0 +1,19 @@
+{
+  "id": "keshigten-2026-08-03",
+  "title": "云隙下的丘陵",
+  "alt": "厚重云层下，阳光照亮起伏的绿色丘陵和山脚农田",
+  "takenAt": "2026-08-15",
+  "placeId": "keshigten-banner",
+  "dimensions": {
+    "width": 1086,
+    "height": 724
+  },
+  "media": {
+    "path": "upload/photos/2026/keshigten-2026-08-03.webp",
+    "fallbackPath": "upload/photos/2026/keshigten-2026-08-03.jpg"
+  },
+  "rights": {
+    "notice": "© 2026 JewelRoam. All rights reserved.",
+    "licenseUrl": "https://jewelroam.github.io/rights"
+  }
+}

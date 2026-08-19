@@ -1,0 +1,19 @@
+{
+  "id": "keshigten-2026-08-07",
+  "title": "牧场上的两位旅人",
+  "alt": "两人站在草原土路和围栏旁，面向层叠起伏的绿色丘陵",
+  "takenAt": "2026-08-16",
+  "placeId": "keshigten-banner",
+  "dimensions": {
+    "width": 1086,
+    "height": 724
+  },
+  "media": {
+    "path": "upload/photos/2026/keshigten-2026-08-07.webp",
+    "fallbackPath": "upload/photos/2026/keshigten-2026-08-07.jpg"
+  },
+  "rights": {
+    "notice": "© 2026 JewelRoam. All rights reserved.",
+    "licenseUrl": "https://jewelroam.github.io/rights"
+  }
+}

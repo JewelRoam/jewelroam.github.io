@@ -1,0 +1,19 @@
+{
+  "id": "keshigten-2026-08-05",
+  "title": "蒙古包窗外",
+  "alt": "从室内窗框望向草原上的白色蒙古包，远处是阴云和绿色山坡",
+  "takenAt": "2026-08-16",
+  "placeId": "keshigten-banner",
+  "dimensions": {
+    "width": 1086,
+    "height": 724
+  },
+  "media": {
+    "path": "upload/photos/2026/keshigten-2026-08-05.webp",
+    "fallbackPath": "upload/photos/2026/keshigten-2026-08-05.jpg"
+  },
+  "rights": {
+    "notice": "© 2026 JewelRoam. All rights reserved.",
+    "licenseUrl": "https://jewelroam.github.io/rights"
+  }
+}

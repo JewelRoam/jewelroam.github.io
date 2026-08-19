@@ -1,0 +1,19 @@
+{
+  "id": "keshigten-2026-08-08",
+  "title": "草坡上的裂谷",
+  "alt": "狭长冲沟穿过绿色草坡，几棵树沿沟壑生长",
+  "takenAt": "2026-08-16",
+  "placeId": "keshigten-banner",
+  "dimensions": {
+    "width": 1086,
+    "height": 724
+  },
+  "media": {
+    "path": "upload/photos/2026/keshigten-2026-08-08.webp",
+    "fallbackPath": "upload/photos/2026/keshigten-2026-08-08.jpg"
+  },
+  "rights": {
+    "notice": "© 2026 JewelRoam. All rights reserved.",
+    "licenseUrl": "https://jewelroam.github.io/rights"
+  }
+}
