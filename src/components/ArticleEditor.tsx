@@ -6,6 +6,7 @@ import Image from "@tiptap/extension-image";
 import Placeholder from "@tiptap/extension-placeholder";
 import { FileHandler } from "@tiptap/extension-file-handler";
 import { del, get, set } from "idb-keyval";
+import CreatableSelect from "react-select/creatable";
 import { places } from "../lib/content";
 
 const DRAFT_KEY = "jewelroam:article-draft";
@@ -16,16 +17,28 @@ type Draft = {
   title: string;
   description: string;
   placeId: string;
+  placeName: string;
   createdAt: string;
   updatedAt: string;
   html: string;
 };
 
-type StoredDraft = Omit<Draft, "createdAt" | "updatedAt"> & {
+type StoredDraft = Omit<Draft, "createdAt" | "updatedAt" | "placeId" | "placeName"> & {
   createdAt?: string;
   updatedAt?: string;
+  placeId?: string;
+  placeName?: string;
   savedAt?: string;
 };
+
+type PlaceOption = { value: string; label: string; name: string; existing: boolean };
+
+const PLACE_OPTIONS: PlaceOption[] = places.map((place) => ({
+  value: place.id,
+  label: [place.name, place.region].filter(Boolean).join(" · "),
+  name: place.name,
+  existing: true,
+}));
 
 function today() {
   const now = new Date();
@@ -34,10 +47,12 @@ function today() {
 
 function normalizeDraft(draft: StoredDraft): Draft {
   const updatedAt = draft.updatedAt ?? draft.savedAt ?? new Date().toISOString();
+  const existingPlace = places.find((place) => place.id === draft.placeId);
   return {
     title: draft.title,
     description: draft.description,
     placeId: draft.placeId ?? places[0]?.id ?? "",
+    placeName: draft.placeName ?? existingPlace?.name ?? places[0]?.name ?? "",
     createdAt: draft.createdAt ?? updatedAt.slice(0, 10),
     updatedAt,
     html: draft.html,
@@ -57,7 +72,7 @@ async function readDraft() {
   const draft = await get<StoredDraft>(DRAFT_KEY);
   if (draft) {
     const normalized = normalizeDraft(draft);
-    if (!draft.createdAt || !draft.updatedAt) await set(DRAFT_KEY, normalized);
+    if (!draft.createdAt || !draft.updatedAt || !draft.placeName) await set(DRAFT_KEY, normalized);
     return normalized;
   }
 
@@ -78,6 +93,7 @@ export function ArticleEditor() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [placeId, setPlaceId] = useState(places[0]?.id ?? "");
+  const [placeName, setPlaceName] = useState(places[0]?.name ?? "");
   const [createdAt, setCreatedAt] = useState(today);
   const [updatedAt, setUpdatedAt] = useState("");
   const [status, setStatus] = useState("正在读取本地草稿…");
@@ -143,6 +159,7 @@ export function ArticleEditor() {
         setTitle(draft.title);
         setDescription(draft.description);
         setPlaceId(draft.placeId);
+        setPlaceName(draft.placeName);
         setCreatedAt(draft.createdAt);
         setUpdatedAt(draft.updatedAt);
         editor.commands.setContent(draft.html, { emitUpdate: false });
@@ -165,7 +182,7 @@ export function ArticleEditor() {
     const timer = window.setTimeout(() => {
       const nextUpdatedAt = new Date().toISOString();
       const savingRevision = revision;
-      const draft: Draft = { title, description, placeId, createdAt, updatedAt: nextUpdatedAt, html: editor.getHTML() };
+      const draft: Draft = { title, description, placeId, placeName, createdAt, updatedAt: nextUpdatedAt, html: editor.getHTML() };
 
       void set(DRAFT_KEY, draft)
         .then(() => {
@@ -177,12 +194,16 @@ export function ArticleEditor() {
     }, 600);
 
     return () => window.clearTimeout(timer);
-  }, [createdAt, description, editor, hydrated, placeId, revision, title]);
+  }, [createdAt, description, editor, hydrated, placeId, placeName, revision, title]);
 
   const exportDraft = () => {
     if (!editor) return;
+    if (!placeName.trim()) {
+      setStatus("请先选择或输入一个地点");
+      return;
+    }
     const exportedAt = new Date().toISOString();
-    const payload = JSON.stringify({ title, description, placeId, createdAt, updatedAt: exportedAt, html: editor.getHTML(), exportedAt }, null, 2);
+    const payload = JSON.stringify({ title, description, placeId, placeName, placeStatus: placeId ? "existing" : "needs-place-record", createdAt, updatedAt: exportedAt, html: editor.getHTML(), exportedAt }, null, 2);
     const blob = new Blob([payload], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
@@ -201,6 +222,7 @@ export function ArticleEditor() {
     savedRevision.current = revision;
     setTitle("");
     setPlaceId(places[0]?.id ?? "");
+    setPlaceName(places[0]?.name ?? "");
     setDescription("");
     setCreatedAt(today());
     setUpdatedAt("");
@@ -238,7 +260,30 @@ export function ArticleEditor() {
       <div className="editor-meta">
         <input className="editor-title-input" value={title} onChange={(event) => { setTitle(event.target.value); markChanged(); }} placeholder="文章标题" aria-label="文章标题" />
         <input className="editor-description-input" value={description} onChange={(event) => { setDescription(event.target.value); markChanged(); }} placeholder="一句话摘要（可选）" aria-label="文章摘要" />
-        <label className="editor-place-field"><span>地点</span><select value={placeId} onChange={(event) => { setPlaceId(event.target.value); markChanged(); }} required aria-label="Journal 地点"><option value="" disabled>选择 Journal 所属地点</option>{places.map((place) => <option key={place.id} value={place.id}>{place.name}{place.region ? ` · ${place.region}` : ""}</option>)}</select></label>
+        <div className="editor-place-field"><label htmlFor="editor-place-select">地点</label><CreatableSelect<PlaceOption, false>
+          inputId="editor-place-select"
+          aria-label="Journal 地点"
+          className="editor-place-select"
+          classNamePrefix="place-select"
+          options={PLACE_OPTIONS}
+          value={placeName ? (PLACE_OPTIONS.find((option) => option.value === placeId) ?? { value: placeName, label: placeName, name: placeName, existing: false }) : null}
+          onChange={(option) => {
+            setPlaceId(option?.existing ? option.value : "");
+            setPlaceName(option?.name ?? "");
+            markChanged();
+          }}
+          onCreateOption={(input) => {
+            setPlaceId("");
+            setPlaceName(input.trim());
+            markChanged();
+          }}
+          formatCreateLabel={(input) => `新建地点“${input}”`}
+          noOptionsMessage={() => "输入新地点并按回车"}
+          placeholder="搜索或输入新地点"
+          isClearable
+          unstyled
+        /></div>
+        {!placeId && placeName && <p className="editor-place-note">新地点将在发布前由 Agent 补全坐标和地图区域。</p>}
         <div className="editor-dates">
           <label>
             <span>创建日期</span>

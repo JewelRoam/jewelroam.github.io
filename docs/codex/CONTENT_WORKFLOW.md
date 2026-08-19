@@ -26,7 +26,7 @@ node .agents/skills/jewelroam-image-pipeline/scripts/stage_article_draft.mjs \
 http://127.0.0.1:5174/editor
 ```
 
-编辑器支持标题、摘要、创建日期、段落、粗体、斜体、小标题、引用、列表，以及同时拖入、粘贴或选择多张图片。创建日期 `createdAt` 可以手动修改；修改日期 `updatedAt` 由编辑器在内容真实变化并自动保存时记录，不能手动修改。格式工具栏在编辑时固定在视口顶部。草稿经过防抖后自动保存在当前浏览器的 IndexedDB 中，图片先以内嵌预览保存，不会自动上传 R2；旧版 `localStorage` 草稿和只有 `savedAt` 的草稿会自动迁移。
+编辑器支持标题、摘要、创建日期、段落、粗体、斜体、小标题、引用、列表，以及同时拖入、粘贴或选择多张图片。地点控件可以搜索已有 Place，也可以直接输入新地点；新地点会以 `needs-place-record` 状态导出，等待 Agent 补全坐标和地图几何后再发布。创建日期 `createdAt` 可以手动修改；修改日期 `updatedAt` 由编辑器在内容真实变化并自动保存时记录，不能手动修改。格式工具栏在编辑时固定在视口顶部。草稿经过防抖后自动保存在当前浏览器的 IndexedDB 中，图片先以内嵌预览保存，不会自动上传 R2；旧版 `localStorage` 草稿和只有 `savedAt` 的草稿会自动迁移。
 
 点击“导出草稿”会下载一个 JSON 文件，其中包含 `createdAt` 和系统生成的 `updatedAt`。把这个文件交给 agent，agent 可以据此生成正式的 MDX、图片 manifest 和 R2 发布清单。正式文章 frontmatter 必须保留这两个字段，公开页面显示 `createdAt`，`updatedAt` 用于真实记录最近一次内容修改。
 

@@ -30,9 +30,19 @@ a { color: inherit; text-decoration: none; }
 .editor-meta input { background: transparent; border: 0; color: #20211f; outline: 0; padding: 0.35rem 0; }
 .editor-meta .editor-title-input { font-family: Georgia, "Times New Roman", serif; font-size: 2.35rem; }
 .editor-meta .editor-description-input { color: rgb(32 33 31 / 0.58); font-size: 0.98rem; }
-.editor-place-field { align-items: center; display: flex; gap: 0.7rem; margin-top: 0.45rem; }
-.editor-place-field span { color: rgb(32 33 31 / 0.48); font-size: 0.72rem; }
-.editor-place-field select { background: transparent; border: 1px solid rgb(32 33 31 / 0.16); color: rgb(32 33 31 / 0.78); font-size: 0.86rem; padding: 0.35rem 0.5rem; }
+.editor-place-field { align-items: center; display: grid; gap: 0.7rem; grid-template-columns: 4rem minmax(0, 1fr); margin-top: 0.45rem; }
+.editor-place-field > label { color: rgb(32 33 31 / 0.48); font-size: 0.72rem; }
+.editor-place-select { font-size: 0.86rem; min-width: 0; position: relative; z-index: 30; }
+.place-select__control { border: 1px solid rgb(32 33 31 / 0.16); cursor: text; min-height: 2.25rem; padding: 0 0.55rem; }
+.place-select__value-container { gap: 0.25rem; }
+.place-select__single-value { color: rgb(32 33 31 / 0.78); }
+.place-select__placeholder { color: rgb(32 33 31 / 0.38); }
+.place-select__indicators { color: rgb(32 33 31 / 0.45); }
+.place-select__indicator { cursor: pointer; padding: 0.35rem; }
+.place-select__menu { background: #fffdf8; border: 1px solid rgb(32 33 31 / 0.14); box-shadow: 0 8px 24px rgb(32 33 31 / 0.1); margin-top: 0.25rem; }
+.place-select__option { color: rgb(32 33 31 / 0.72); cursor: pointer; padding: 0.55rem 0.7rem; }
+.place-select__option--is-focused { background: rgb(32 33 31 / 0.07); color: #20211f; }
+.editor-place-note { color: rgb(32 33 31 / 0.46); font-size: 0.72rem; margin: 0 0 0 4.7rem; }
 .editor-dates { align-items: end; display: flex; flex-wrap: wrap; gap: 1rem 2rem; justify-content: space-between; margin-top: 0.8rem; }
 .editor-dates label { display: grid; gap: 0.25rem; }
 .editor-dates span, .editor-dates p { color: rgb(32 33 31 / 0.48); font-size: 0.72rem; margin: 0; }

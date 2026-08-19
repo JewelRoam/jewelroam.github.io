@@ -84,6 +84,7 @@ const sourceHtml = draft.html.replace(/<img\b[^>]*>/gi, (tag) => {
     alt: "",
     takenAt: "",
     placeId: draft.placeId ?? "",
+    placeName: draft.placeName ?? "",
     rights: { notice: "", licenseUrl: "" },
   });
   return `@@IMAGE_${String(imageIndex).padStart(2, "0")}@@`;
@@ -101,6 +102,7 @@ const source = {
   title: draft.title ?? "",
   description: draft.description ?? "",
   placeId: draft.placeId ?? "",
+  placeName: draft.placeName ?? "",
   createdAt: draft.createdAt ?? "",
   updatedAt: draft.updatedAt ?? "",
   exportedAt: draft.exportedAt ?? "",
@@ -113,6 +115,7 @@ const manifest = {
   description: source.description,
   createdAt: source.createdAt,
   updatedAt: source.updatedAt,
+  proposedPlace: { id: source.placeId || null, name: source.placeName, status: source.placeId ? "existing" : "needs-place-record" },
   images: images.map((image) => ({ ...image, id: `${slug}-${String(image.index).padStart(2, "0")}` })),
   missingFields: [
     ...(source.description ? [] : ["article.description"]),
@@ -120,7 +123,7 @@ const manifest = {
     "images[].title",
     "images[].alt",
     "images[].takenAt",
-    "images[].placeId",
+    ...(source.placeId ? [] : ["images[].placeId"]),
     "images[].rights.notice",
     "images[].rights.licenseUrl",
   ],

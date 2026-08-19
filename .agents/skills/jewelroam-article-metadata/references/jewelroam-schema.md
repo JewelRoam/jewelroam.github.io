@@ -19,6 +19,8 @@ Formal MDX under `content/journals/*.mdx` uses:
 
 `createdAt` is editable in the local editor. `updatedAt` is generated when a changed draft is saved and should not be manually changed during review.
 
+An editor export may contain a freely entered `placeName` with an empty `placeId` and `placeStatus: "needs-place-record"`. Treat this as a proposal: confirm the destination, create its formal Place record with coordinates and geometry, then replace it with the resulting `placeId` before publication.
+
 ## Photo manifest
 
 Each `content/photos/*.json` record requires:
