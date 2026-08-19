@@ -75,7 +75,6 @@ function styleFor(data: FeatureCollection<DestinationGeometry>): StyleSpecificat
   return {
     version: 8,
     glyphs: "https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf",
-    glyphs: "https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf",
     sources: {
       // OSM is only a visual reference layer; destinations remain a local GeoJSON source.
       osm: {
