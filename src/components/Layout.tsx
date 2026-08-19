@@ -2,8 +2,8 @@ import type { ReactNode } from "react";
 import { NavLink } from "react-router-dom";
 
 const navItems = [
-  ["/archive", "档案"],
-  ["/essays", "文字"],
+  ["/destinations", "Destinations"],
+  ["/journals", "Journals"],
   ["/about", "关于"],
 ] as const;
 

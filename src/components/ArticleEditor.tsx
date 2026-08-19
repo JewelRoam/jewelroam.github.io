@@ -6,6 +6,7 @@ import Image from "@tiptap/extension-image";
 import Placeholder from "@tiptap/extension-placeholder";
 import { FileHandler } from "@tiptap/extension-file-handler";
 import { del, get, set } from "idb-keyval";
+import { places } from "../lib/content";
 
 const DRAFT_KEY = "jewelroam:article-draft";
 const MAX_IMAGE_SIZE = 100 * 1024 * 1024;
@@ -14,6 +15,7 @@ const IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif", "imag
 type Draft = {
   title: string;
   description: string;
+  placeId: string;
   createdAt: string;
   updatedAt: string;
   html: string;
@@ -35,6 +37,7 @@ function normalizeDraft(draft: StoredDraft): Draft {
   return {
     title: draft.title,
     description: draft.description,
+    placeId: draft.placeId ?? places[0]?.id ?? "",
     createdAt: draft.createdAt ?? updatedAt.slice(0, 10),
     updatedAt,
     html: draft.html,
@@ -74,6 +77,7 @@ async function readDraft() {
 export function ArticleEditor() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [placeId, setPlaceId] = useState(places[0]?.id ?? "");
   const [createdAt, setCreatedAt] = useState(today);
   const [updatedAt, setUpdatedAt] = useState("");
   const [status, setStatus] = useState("正在读取本地草稿…");
@@ -138,6 +142,7 @@ export function ArticleEditor() {
       if (draft) {
         setTitle(draft.title);
         setDescription(draft.description);
+        setPlaceId(draft.placeId);
         setCreatedAt(draft.createdAt);
         setUpdatedAt(draft.updatedAt);
         editor.commands.setContent(draft.html, { emitUpdate: false });
@@ -160,7 +165,7 @@ export function ArticleEditor() {
     const timer = window.setTimeout(() => {
       const nextUpdatedAt = new Date().toISOString();
       const savingRevision = revision;
-      const draft: Draft = { title, description, createdAt, updatedAt: nextUpdatedAt, html: editor.getHTML() };
+      const draft: Draft = { title, description, placeId, createdAt, updatedAt: nextUpdatedAt, html: editor.getHTML() };
 
       void set(DRAFT_KEY, draft)
         .then(() => {
@@ -172,12 +177,12 @@ export function ArticleEditor() {
     }, 600);
 
     return () => window.clearTimeout(timer);
-  }, [createdAt, description, editor, hydrated, revision, title]);
+  }, [createdAt, description, editor, hydrated, placeId, revision, title]);
 
   const exportDraft = () => {
     if (!editor) return;
     const exportedAt = new Date().toISOString();
-    const payload = JSON.stringify({ title, description, createdAt, updatedAt: exportedAt, html: editor.getHTML(), exportedAt }, null, 2);
+    const payload = JSON.stringify({ title, description, placeId, createdAt, updatedAt: exportedAt, html: editor.getHTML(), exportedAt }, null, 2);
     const blob = new Blob([payload], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
@@ -195,6 +200,7 @@ export function ArticleEditor() {
     editor?.commands.clearContent(false);
     savedRevision.current = revision;
     setTitle("");
+    setPlaceId(places[0]?.id ?? "");
     setDescription("");
     setCreatedAt(today());
     setUpdatedAt("");
@@ -231,6 +237,7 @@ export function ArticleEditor() {
       <div className="editor-meta">
         <input className="editor-title-input" value={title} onChange={(event) => { setTitle(event.target.value); markChanged(); }} placeholder="文章标题" aria-label="文章标题" />
         <input className="editor-description-input" value={description} onChange={(event) => { setDescription(event.target.value); markChanged(); }} placeholder="一句话摘要（可选）" aria-label="文章摘要" />
+        <label className="editor-place-field"><span>地点</span><select value={placeId} onChange={(event) => { setPlaceId(event.target.value); markChanged(); }} required aria-label="Journal 地点"><option value="" disabled>选择 Journal 所属地点</option>{places.map((place) => <option key={place.id} value={place.id}>{place.name}{place.region ? ` · ${place.region}` : ""}</option>)}</select></label>
         <div className="editor-dates">
           <label>
             <span>创建日期</span>

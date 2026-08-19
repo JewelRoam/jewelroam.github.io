@@ -83,8 +83,7 @@ const sourceHtml = draft.html.replace(/<img\b[^>]*>/gi, (tag) => {
     title: "",
     alt: "",
     takenAt: "",
-    location: "",
-    series: "",
+    placeId: draft.placeId ?? "",
     rights: { notice: "", licenseUrl: "" },
   });
   return `@@IMAGE_${String(imageIndex).padStart(2, "0")}@@`;
@@ -101,6 +100,7 @@ const body = sourceHtml
 const source = {
   title: draft.title ?? "",
   description: draft.description ?? "",
+  placeId: draft.placeId ?? "",
   createdAt: draft.createdAt ?? "",
   updatedAt: draft.updatedAt ?? "",
   exportedAt: draft.exportedAt ?? "",
@@ -116,11 +116,11 @@ const manifest = {
   images: images.map((image) => ({ ...image, id: `${slug}-${String(image.index).padStart(2, "0")}` })),
   missingFields: [
     ...(source.description ? [] : ["article.description"]),
+    ...(source.placeId ? [] : ["article.placeId"]),
     "images[].title",
     "images[].alt",
     "images[].takenAt",
-    "images[].location",
-    "images[].series",
+    "images[].placeId",
     "images[].rights.notice",
     "images[].rights.licenseUrl",
   ],
@@ -133,6 +133,7 @@ const frontmatter = [
   `  createdAt: ${JSON.stringify(source.createdAt)},`,
   `  updatedAt: ${JSON.stringify(source.updatedAt)},`,
   "  tags: [],",
+  `  placeId: ${JSON.stringify(source.placeId ?? "")},`,
   `  coverPhotoId: ${JSON.stringify(`${slug}-01`)},`,
   "};",
   "",

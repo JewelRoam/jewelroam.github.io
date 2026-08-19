@@ -42,7 +42,7 @@ http://127.0.0.1:5174/editor
 
 批量图片或无法在编辑器中预览的原始文件，仍可以放进 `content/inbox/`，再让 agent 扫描处理。
 
-4. agent 给出图片名称、尺寸、alt、拍摄日期、地点、版权字段和文章引用的变更预览。
+4. agent 给出图片名称、尺寸、alt、拍摄日期、地点、版权字段和文章引用的变更预览；同时确认 Journal 与每张图片绑定的唯一 `placeId`。
 5. 你确认内容无误后，再说：
 
    ```text
@@ -57,8 +57,10 @@ agent 应该按以下顺序工作：
 扫描 inbox
   → 读取图片尺寸和格式
   → 询问或推断待确认的标题、alt、日期、地点、版权
-  → 生成 content/photos/*.json
-  → 在 MDX 中接入图片引用
+  → 生成 content/places/*.json（地点记录）
+  → 生成 content/photos/*.json（每张图片绑定一个 placeId）
+  → 生成 content/journals/*.mdx（每篇 Journal 绑定一个 placeId）
+  → 在 Journal MDX 中接入图片引用
   → 运行内容校验和本地构建
   → 等待用户明确确认
   → 上传最终发行图到 R2
@@ -73,7 +75,7 @@ agent 应该按以下顺序工作：
 编辑器导出的草稿使用内嵌图片数据，不写 R2 URL。正式 MDX 阶段由 agent 将图片转换成项目组件引用：
 
 ```md
-发布阶段由 agent 确保 `content/photos/*.json` 中的 `id`、尺寸、替代文本、R2 路径和版权字段完整。组件会统一生成：
+发布阶段由 agent 确保 `content/photos/*.json` 中的 `id`、唯一 `placeId`、尺寸、替代文本、R2 路径和版权字段完整；每篇 Journal 的 frontmatter 也必须包含唯一 `placeId`。组件会统一生成：
 
 ```mdx
 import { PhotoEmbed } from "../../src/components/PhotoEmbed";

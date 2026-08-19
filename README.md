@@ -15,8 +15,9 @@ R2 的账户、bucket、图片域名和 Image Transformations 开通步骤见 [`
 
 ## 内容
 
-- `content/posts/*.mdx`：文章正文和文章元数据。
-- `content/photos/*.json`：图片尺寸、替代文本、R2 路径和版权信息。
+- `content/journals/*.mdx`：Journal 正文和元数据；每篇 Journal 必须绑定一个 `placeId`。
+- `content/places/*.json`：目的地名称、坐标和地图几何；一个地点可以关联多篇 Journal 与多张照片。
+- `content/photos/*.json`：图片尺寸、替代文本、R2 路径、版权信息和唯一 `placeId`。
 - `src/lib/media.ts`：唯一的 Cloudflare 图片 URL 生成入口。
 
 原始 RAW、编辑工程和高分辨率母版不应提交到此仓库或公开 R2 bucket。

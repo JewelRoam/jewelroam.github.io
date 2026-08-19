@@ -2,7 +2,7 @@
 
 ## Article frontmatter
 
-Formal MDX under `content/posts/*.mdx` uses:
+Formal MDX under `content/journals/*.mdx` uses:
 
 ```ts
 {
@@ -12,6 +12,7 @@ Formal MDX under `content/posts/*.mdx` uses:
   createdAt: "YYYY-MM-DD";
   updatedAt: ISO-8601 with timezone;
   tags: string[];
+  placeId: string;            // exactly one place per Journal
   coverPhotoId?: string;
 }
 ```
@@ -28,15 +29,14 @@ Each `content/photos/*.json` record requires:
   title: string;
   alt: string;
   takenAt: "YYYY-MM-DD";
-  location: string;
+  placeId: string;            // exactly one place per Photo
   dimensions: { width: number; height: number };
   media: { path: string; fallbackPath: string };
-  series: string;
   rights: { notice: string; licenseUrl: valid URL };
 }
 ```
 
-Dimensions, media paths, and image formats can be generated. Title, alt, date, location, series, and rights still need a reviewable value. Do not fill legal fields with guesses.
+Dimensions, media paths, and image formats can be generated. Title, alt, date, `placeId`, and rights still need a reviewable value. Do not fill legal fields with guesses.
 
 ## Current project references
 

@@ -5,8 +5,10 @@ declare module "*.mdx" {
     slug: string;
     title: string;
     description: string;
-    publishedAt: string;
+    createdAt: string;
+    updatedAt: string;
     tags: string[];
+    placeId: string;
     coverPhotoId?: string;
   };
 

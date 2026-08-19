@@ -7,7 +7,8 @@
 - Image transformation prefix: `https://images.zer.dpdns.org/cdn-cgi/image/width=640,format=auto,quality=82/...`
 - Staging directory: `content/inbox/`
 - Formal photo records: `content/photos/*.json`
-- Formal articles: `content/posts/*.mdx`
+- Formal Journals: `content/journals/*.mdx`
+- Formal places: `content/places/*.json`
 
 ## Required photo record
 
@@ -17,13 +18,12 @@
   "title": "confirmed display title",
   "alt": "confirmed accessible description",
   "takenAt": "YYYY-MM-DD",
-  "location": "confirmed location",
+  "placeId": "confirmed-place-id",
   "dimensions": { "width": 1600, "height": 1067 },
   "media": {
     "path": "photos/YYYY/stable-id.webp",
     "fallbackPath": "photos/YYYY/stable-id.jpg"
   },
-  "series": "confirmed series",
   "rights": {
     "notice": "confirmed copyright notice",
     "licenseUrl": "https://jewelroam.github.io/rights"

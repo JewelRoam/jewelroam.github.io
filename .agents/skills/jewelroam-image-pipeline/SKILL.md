@@ -27,7 +27,7 @@ The script produces:
 - `image-manifest-draft.json`: dimensions, byte sizes, source names, blank review fields, and `status: needs-confirmation`;
 - `article-preview.mdx`: article text with `PhotoEmbed` references for local review only.
 
-Do not treat `article-preview.mdx` as publishable while its description or photo metadata is incomplete. Keep staging files under `content/inbox/`; do not place them under `content/posts/` or `content/photos/` yet.
+Do not treat `article-preview.mdx` as publishable while its description, `placeId`, or photo metadata is incomplete. Keep staging files under `content/inbox/`; do not place them under `content/journals/`, `content/places/`, or `content/photos/` yet.
 
 ## Preflight
 
@@ -41,4 +41,4 @@ Do not treat `article-preview.mdx` as publishable while its description or photo
 
 R2 upload is a separate action. Require an immediate user confirmation that names the exact image set, destination bucket/domain, and public release scope. Before that confirmation, do not call an R2 upload command, create public URLs, delete inbox files, or modify published content.
 
-After confirmation, create the formal `content/photos/*.json`, update the MDX under `content/posts/`, upload the approved release files to the configured R2 bucket, verify the public custom-domain URLs, and rerun validation/build. Report the exact objects and URLs changed.
+After confirmation, create the formal `content/photos/*.json`, update the MDX under `content/journals/`, ensure its single `placeId` exists in `content/places/`, upload the approved release files to the configured R2 bucket, verify the public custom-domain URLs, and rerun validation/build. Report the exact objects and URLs changed.
