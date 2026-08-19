@@ -4,7 +4,8 @@ import { NavLink } from "react-router-dom";
 const navItems = [
   ["/destinations", "Destinations"],
   ["/journals", "Journals"],
-  ["/about", "关于"],
+  ["/editor", "Capture"],
+  ["/about", "About"],
 ] as const;
 
 export function Layout({ children }: { children: ReactNode }) {
@@ -16,7 +17,6 @@ export function Layout({ children }: { children: ReactNode }) {
             JewelRoam
           </NavLink>
           <nav className="flex items-center gap-6 text-sm text-[#20211f]/65">
-            {import.meta.env.DEV && <NavLink to="/editor" className={({ isActive }) => (isActive ? "text-[#20211f]" : "transition hover:text-[#20211f]")}>编辑</NavLink>}
             {navItems.map(([href, label]) => (
               <NavLink
                 key={href}
