@@ -22,7 +22,7 @@ const playlistGroups = [
   {
     label: "2019 之前",
     items: [
-      ["私密歌单（标题不可见）", "https://music.163.com/#/playlist?id=8387263303"],
+      ["ρ", "https://music.163.com/#/playlist?id=8387263303"],
       ["Emerald Eyes", "https://music.163.com/#/playlist?id=6613502033"],
       ["月亮不会奔你而来", "https://music.163.com/#/playlist?id=5168675317"],
       ["Покатилась слеза", "https://music.163.com/#/playlist?id=5169873370"],
