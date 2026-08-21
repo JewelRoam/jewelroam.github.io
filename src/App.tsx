@@ -10,22 +10,22 @@ const playlistGroups = [
   {
     label: "2019-2026",
     items: [
-      ["2019-2020 watch the matter", "https://music.apple.com/cn/playlist/2019-2020-watch-the-matter/pl.u-jV890vLud63xKMr"],
-      ["2021 inner film", "https://music.apple.com/cn/playlist/2021-inner-film/pl.u-NpXmzeWFmB7oqk2"],
-      ["2022 monument", "https://music.apple.com/cn/playlist/2022-monument/pl.u-WabZv4ZidmYa7xB"],
-      ["2023 Spanning", "https://music.apple.com/cn/playlist/2023-spanning/pl.u-NpXmza7tmB7oqk2"],
-      ["2024-2025 Annihilation or Petrification?", "https://music.apple.com/cn/playlist/2024-2025-annihilation-or-petrification/pl.u-WabZvAVudmYa7xB"],
-      ["2026 задумываться", "https://music.apple.com/cn/playlist/2026-%D0%B7%D0%B0%D0%B4%D1%83%D0%BC%D1%8B%D0%B2%D0%B0%D1%82%D1%8C%D1%81%D1%8F/pl.u-GgA5ka5sZep4gjJ"],
       ["2026 интуиция", "https://music.apple.com/cn/playlist/2026-%D0%B8%D0%BD%D1%82%D1%83%D0%B8%D1%86%D0%B8%D1%8F/pl.u-gxblgG7t5vZ91kN"],
+      ["2026 задумываться", "https://music.apple.com/cn/playlist/2026-%D0%B7%D0%B0%D0%B4%D1%83%D0%BC%D1%8B%D0%B2%D0%B0%D1%82%D1%8C%D1%81%D1%8F/pl.u-GgA5ka5sZep4gjJ"],
+      ["2024-2025 Annihilation or Petrification?", "https://music.apple.com/cn/playlist/2024-2025-annihilation-or-petrification/pl.u-WabZvAVudmYa7xB"],
+      ["2023 Spanning", "https://music.apple.com/cn/playlist/2023-spanning/pl.u-NpXmza7tmB7oqk2"],
+      ["2022 monument", "https://music.apple.com/cn/playlist/2022-monument/pl.u-WabZv4ZidmYa7xB"],
+      ["2021 inner film", "https://music.apple.com/cn/playlist/2021-inner-film/pl.u-NpXmzeWFmB7oqk2"],
+      ["2019-2020 watch the matter", "https://music.apple.com/cn/playlist/2019-2020-watch-the-matter/pl.u-jV890vLud63xKMr"],
     ],
   },
   {
     label: "2019 之前",
     items: [
       ["ρ", "https://music.163.com/#/playlist?id=8387263303"],
-      ["Emerald Eyes", "https://music.163.com/#/playlist?id=6613502033"],
-      ["月亮不会奔你而来", "https://music.163.com/#/playlist?id=5168675317"],
-      ["Покатилась слеза", "https://music.163.com/#/playlist?id=5169873370"],
+      ["ξ", "https://music.163.com/#/playlist?id=6613502033"],
+      ["γ", "https://music.163.com/#/playlist?id=5168675317"],
+      ["Ω", "https://music.163.com/#/playlist?id=5169873370"],
     ],
   },
 ] as const;
