@@ -12,10 +12,7 @@ export function Layout({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-screen bg-[#f5f3ee] text-[#20211f]">
       <header className="border-b border-[#20211f]/10">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-5 lg:px-10">
-          <NavLink to="/about" className="font-serif text-xl tracking-[0.02em]">
-            JewelRoam
-          </NavLink>
+        <div className="mx-auto flex max-w-6xl items-center justify-end px-6 py-5 lg:px-10">
           <nav className="flex items-center gap-6 text-sm text-[#20211f]/65">
             {navItems.map(([href, label]) => (
               <NavLink
