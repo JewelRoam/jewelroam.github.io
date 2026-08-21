@@ -6,6 +6,18 @@ import Image from "@tiptap/extension-image";
 import Placeholder from "@tiptap/extension-placeholder";
 import { FileHandler } from "@tiptap/extension-file-handler";
 import { del, get, set } from "idb-keyval";
+import {
+  Bold,
+  Download,
+  Heading2,
+  ImagePlus,
+  Italic,
+  List,
+  Quote,
+  Redo2,
+  Trash2,
+  Undo2,
+} from "lucide-react";
 import CreatableSelect from "react-select/creatable";
 import { places } from "../lib/content";
 
@@ -244,61 +256,64 @@ export function ArticleEditor() {
 
   return (
     <section className="page-shell editor-shell">
-      <div className="editor-topbar">
-        <div>
-          <h1 className="font-serif text-5xl">Capture</h1>
-          <p className="editor-intro">我曾偶尔使用 Apple 的 Notes 或 Journal app 记录想法，但它们始终没有提供一个足够顺手的图文编辑工作流，于是自己做了这个编辑器。图片会直接嵌入文章，保存为 Base64 编码，并随文章一起导出为 JSON，方便后续交给 Agent 继续整理与上线。支持同时拖入、粘贴或选择多张图片。图片保存在浏览器 IndexedDB 中，确认文章后再导出并交给 Agent 上传 R2。</p>
-        </div>
-        <div className="editor-actions">
-          <button type="button" onClick={clearDraft} className="editor-button editor-button-muted">清空</button>
-          <button type="button" onClick={exportDraft} className="editor-button editor-button-dark">导出草稿</button>
-        </div>
-      </div>
+      <header className="editor-header">
+        <h1 className="font-serif text-5xl">Capture</h1>
+        <p className="editor-intro">我曾偶尔使用 Apple 的 Notes 或 Journal app 记录想法，但它们始终没有提供一个足够顺手的图文编辑工作流，于是自己做了这个编辑器。图片会直接嵌入文章，保存为 Base64 编码，并随文章一起导出为 JSON，方便后续交给 Agent 继续整理与上线。支持同时拖入、粘贴或选择多张图片。图片保存在浏览器 IndexedDB 中，确认文章后再导出并交给 Agent 上传 R2。</p>
+      </header>
 
       <div className="editor-meta">
-        <input className="editor-title-input" value={title} onChange={(event) => { setTitle(event.target.value); markChanged(); }} placeholder="文章标题" aria-label="文章标题" />
-        <input className="editor-description-input" value={description} onChange={(event) => { setDescription(event.target.value); markChanged(); }} placeholder="一句话摘要（可选）" aria-label="文章摘要" />
-        <div className="editor-place-field"><label htmlFor="editor-place-select">地点</label><CreatableSelect<PlaceOption, false>
-          inputId="editor-place-select"
-          aria-label="Journal 地点"
-          className="editor-place-select"
-          classNamePrefix="place-select"
-          options={PLACE_OPTIONS}
-          value={placeName ? (PLACE_OPTIONS.find((option) => option.value === placeId) ?? { value: placeName, label: placeName, name: placeName, existing: false }) : null}
-          onChange={(option) => {
-            setPlaceId(option?.existing ? option.value : "");
-            setPlaceName(option?.name ?? "");
-            markChanged();
-          }}
-          onCreateOption={(input) => {
-            setPlaceId("");
-            setPlaceName(input.trim());
-            markChanged();
-          }}
-          formatCreateLabel={(input) => `新建地点“${input}”`}
-          noOptionsMessage={() => "输入新地点并按回车"}
-          placeholder="搜索或输入新地点"
-          isClearable
-          unstyled
-        /></div>
-        {!placeId && placeName && <p className="editor-place-note">新地点将在发布前由 Agent 补全坐标和地图区域。</p>}
-        <div className="editor-dates">
-          <label>
+        <div className="editor-title-fields">
+          <input className="editor-title-input" value={title} onChange={(event) => { setTitle(event.target.value); markChanged(); }} placeholder="文章标题" aria-label="文章标题" />
+          <input className="editor-description-input" value={description} onChange={(event) => { setDescription(event.target.value); markChanged(); }} placeholder="一句话摘要（可选）" aria-label="文章摘要" />
+        </div>
+        <div className="editor-context-fields">
+          <div className="editor-field editor-place-field">
+            <label htmlFor="editor-place-select">地点</label>
+            <CreatableSelect<PlaceOption, false>
+              inputId="editor-place-select"
+              aria-label="Journal 地点"
+              className="editor-place-select"
+              classNamePrefix="place-select"
+              options={PLACE_OPTIONS}
+              value={placeName ? (PLACE_OPTIONS.find((option) => option.value === placeId) ?? { value: placeName, label: placeName, name: placeName, existing: false }) : null}
+              onChange={(option) => {
+                setPlaceId(option?.existing ? option.value : "");
+                setPlaceName(option?.name ?? "");
+                markChanged();
+              }}
+              onCreateOption={(input) => {
+                setPlaceId("");
+                setPlaceName(input.trim());
+                markChanged();
+              }}
+              formatCreateLabel={(input) => `新建地点“${input}”`}
+              noOptionsMessage={() => "输入新地点并按回车"}
+              placeholder="搜索或输入新地点"
+              isClearable
+              unstyled
+            />
+            {!placeId && placeName && <p className="editor-place-note">新地点将在发布前由 Agent 补全坐标和地图区域。</p>}
+          </div>
+          <label className="editor-field editor-date-field">
             <span>创建日期</span>
             <input type="date" value={createdAt} onChange={(event) => { setCreatedAt(event.target.value); markChanged(); }} aria-label="创建日期" />
           </label>
-          <p>最近修改 <time dateTime={updatedAt}>{updatedAt ? new Date(updatedAt).toLocaleString() : "尚未保存"}</time></p>
         </div>
       </div>
 
       <div className="editor-toolbar" aria-label="编辑工具">
-        <button type="button" onClick={() => editor?.chain().focus().toggleBold().run()} className={editor?.isActive("bold") ? "is-active" : ""}>粗体</button>
-        <button type="button" onClick={() => editor?.chain().focus().toggleItalic().run()} className={editor?.isActive("italic") ? "is-active" : ""}>斜体</button>
-        <button type="button" onClick={() => editor?.chain().focus().toggleHeading({ level: 2 }).run()} className={editor?.isActive("heading", { level: 2 }) ? "is-active" : ""}>小标题</button>
-        <button type="button" onClick={() => editor?.chain().focus().toggleBlockquote().run()} className={editor?.isActive("blockquote") ? "is-active" : ""}>引用</button>
-        <button type="button" onClick={() => editor?.chain().focus().toggleBulletList().run()} className={editor?.isActive("bulletList") ? "is-active" : ""}>列表</button>
+        <div className="editor-toolbar-group">
+          <button type="button" className="editor-tool-button" onClick={() => editor?.chain().focus().undo().run()} disabled={!editor?.can().chain().focus().undo().run()} aria-label="撤销" title="撤销"><Undo2 size={17} /></button>
+          <button type="button" className="editor-tool-button" onClick={() => editor?.chain().focus().redo().run()} disabled={!editor?.can().chain().focus().redo().run()} aria-label="重做" title="重做"><Redo2 size={17} /></button>
+          <span className="editor-toolbar-separator" aria-hidden="true" />
+          <button type="button" className={`editor-tool-button${editor?.isActive("bold") ? " is-active" : ""}`} onClick={() => editor?.chain().focus().toggleBold().run()} aria-label="粗体" title="粗体"><Bold size={17} /></button>
+          <button type="button" className={`editor-tool-button${editor?.isActive("italic") ? " is-active" : ""}`} onClick={() => editor?.chain().focus().toggleItalic().run()} aria-label="斜体" title="斜体"><Italic size={17} /></button>
+          <button type="button" className={`editor-tool-button${editor?.isActive("heading", { level: 2 }) ? " is-active" : ""}`} onClick={() => editor?.chain().focus().toggleHeading({ level: 2 }).run()} aria-label="小标题" title="小标题"><Heading2 size={18} /></button>
+          <button type="button" className={`editor-tool-button${editor?.isActive("blockquote") ? " is-active" : ""}`} onClick={() => editor?.chain().focus().toggleBlockquote().run()} aria-label="引用" title="引用"><Quote size={17} /></button>
+          <button type="button" className={`editor-tool-button${editor?.isActive("bulletList") ? " is-active" : ""}`} onClick={() => editor?.chain().focus().toggleBulletList().run()} aria-label="列表" title="列表"><List size={17} /></button>
+        </div>
         <span className="editor-toolbar-spacer" />
-        <button type="button" onClick={openFilePicker} disabled={!hydrated}>插入图片</button>
+        <button type="button" className="editor-image-button" onClick={openFilePicker} disabled={!hydrated} aria-label="添加图片" title="添加一张或多张图片"><ImagePlus size={17} /><span>添加图片</span></button>
         <input
           ref={fileInput}
           id="editor-image-input"
@@ -316,7 +331,16 @@ export function ArticleEditor() {
       <div className="editor-paper">
         <EditorContent editor={editor} />
       </div>
-      <p className="editor-hint" role="status">{status}{updatedAt && status === "已自动保存" ? ` · ${new Date(updatedAt).toLocaleTimeString()}` : ""}</p>
+      <footer className="editor-footer">
+        <div className="editor-save-state">
+          <p className="editor-hint" role="status">{status}</p>
+          <p className="editor-updated-at">最近修改 <time dateTime={updatedAt}>{updatedAt ? new Date(updatedAt).toLocaleString() : "尚未保存"}</time></p>
+        </div>
+        <div className="editor-actions">
+          <button type="button" onClick={clearDraft} className="editor-button editor-button-muted"><Trash2 size={16} /><span>清空草稿</span></button>
+          <button type="button" onClick={exportDraft} className="editor-button editor-button-dark"><Download size={16} /><span>导出 JSON</span></button>
+        </div>
+      </footer>
     </section>
   );
 }

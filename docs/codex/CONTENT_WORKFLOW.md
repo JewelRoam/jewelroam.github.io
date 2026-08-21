@@ -26,21 +26,21 @@ node .agents/skills/jewelroam-image-pipeline/scripts/stage_article_draft.mjs \
 http://127.0.0.1:5173/editor
 ```
 
-编辑器支持标题、摘要、创建日期、段落、粗体、斜体、小标题、引用、列表，以及同时拖入、粘贴或选择多张图片。地点控件可以搜索已有 Place，也可以直接输入新地点；新地点会以 `needs-place-record` 状态导出，等待 Agent 补全坐标和地图几何后再发布。创建日期 `createdAt` 可以手动修改；修改日期 `updatedAt` 由编辑器在内容真实变化并自动保存时记录，不能手动修改。格式工具栏在编辑时固定在视口顶部。草稿经过防抖后自动保存在当前浏览器的 IndexedDB 中，图片先以内嵌预览保存，不会自动上传 R2；旧版 `localStorage` 草稿和只有 `savedAt` 的草稿会自动迁移。
+编辑器支持标题、摘要、创建日期、段落、撤销/重做、粗体、斜体、小标题、引用、列表，以及同时拖入、粘贴或选择多张图片。地点控件可以搜索已有 Place，也可以直接输入新地点；新地点会以 `needs-place-record` 状态导出，等待 Agent 补全坐标和地图几何后再发布。创建日期 `createdAt` 可以手动修改；修改日期 `updatedAt` 由编辑器在内容真实变化并自动保存时记录，不能手动修改。格式工具栏在编辑时固定在视口顶部，窄屏下图片导入动作独立换行。正文底部显示自动保存状态和最近修改时间，并提供清空草稿与 JSON 导出动作。草稿经过防抖后自动保存在当前浏览器的 IndexedDB 中，图片先以内嵌预览保存，不会自动上传 R2；旧版 `localStorage` 草稿和只有 `savedAt` 的草稿会自动迁移。
 
-点击“导出草稿”会下载一个 JSON 文件，其中包含 `createdAt` 和系统生成的 `updatedAt`。把这个文件交给 agent，agent 可以据此生成正式的 MDX、图片 manifest 和 R2 发布清单。正式文章 frontmatter 必须保留这两个字段，公开页面显示 `createdAt`，`updatedAt` 用于真实记录最近一次内容修改。
+点击“导出 JSON”会下载一个 JSON 文件，其中包含 `createdAt` 和系统生成的 `updatedAt`。把这个文件交给 agent，agent 可以据此生成正式的 MDX、图片 manifest 和 R2 发布清单。正式文章 frontmatter 必须保留这两个字段，公开页面显示 `createdAt`，`updatedAt` 用于真实记录最近一次内容修改。
 
 ## 你只需要做的事
 
 1. 在 `/editor` 中写文章，把待用图片直接拖进正文。
-2. 点击“导出草稿”，保留下载的 JSON 文件。
+2. 点击“导出 JSON”，保留下载的 JSON 文件。
 3. 在 Codex 中告诉 agent：
 
    ```text
    处理这份文章草稿 JSON。先生成正式 MDX 和图片 metadata，不要上传 R2。
    ```
 
-批量图片或无法在编辑器中预览的原始文件，仍可以放进 `content/inbox/`，再让 agent 扫描处理。
+批量图片或无法在编辑器中预览的原始文件，仍可以放进 `content/inbox/`，再让 agent 扫描处理。该目录默认作为本地素材保留，不自动提交到 Git；正式内容只写入 `content/journals/`、`content/places/` 和 `content/photos/`。
 
 4. agent 给出图片名称、尺寸、alt、拍摄日期、地点、版权字段和文章引用的变更预览；同时确认 Journal 与每张图片绑定的唯一 `placeId`。
 5. 你确认内容无误后，再说：

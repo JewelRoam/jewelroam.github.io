@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc --noEmit && vite build && cp dist/index.html dist/404.html",
+    "build": "tsc --noEmit && vite build && cp node_modules/maplibre-gl/dist/maplibre-gl-worker.mjs dist/maplibre-gl-worker.mjs && cp node_modules/maplibre-gl/dist/maplibre-gl-shared.mjs dist/maplibre-gl-shared.mjs && cp dist/index.html dist/404.html",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
     "content:validate": "tsx scripts/validate-content.ts"
@@ -18,6 +18,7 @@
     "@tiptap/react": "^3.30.2",
     "@tiptap/starter-kit": "^3.30.2",
     "idb-keyval": "^6.3.0",
+    "lucide-react": "^1.33.0",
     "maplibre-gl": "^6.4.1",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",

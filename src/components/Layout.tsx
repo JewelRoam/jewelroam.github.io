@@ -5,7 +5,7 @@ export function Layout({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-screen bg-[#f5f3ee] text-[#20211f]">
       <header className="site-header">
-        <div className="mx-auto flex max-w-6xl items-center justify-end px-6 pt-4 lg:px-10">
+        <div className="site-header__inner">
           <GlassNav />
         </div>
       </header>

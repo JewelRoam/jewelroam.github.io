@@ -3,6 +3,8 @@
 **作者：Manus AI**
 **日期：2026-08-19**
 
+> **当前实现注记（2026-08-22）**：本文保留早期候选方案比较。项目已经确认使用 Cloudflare R2，bucket 为 `jewelroam-media`，公开域名为 `https://images.zer.dpdns.org`；当前操作步骤以 `docs/codex/R2_SETUP.md` 和 `docs/codex/CONTENT_WORKFLOW.md` 为准。
+
 ## 结论
 
 如果“免费”指**不绑定支付方式、不另开云服务账户、完全留在 GitHub 生态**，建议把经过导出的公开图片放到**GitHub Releases**，而不是放进代码仓库或 Git LFS。GitHub 每个 Release 最多可包含 1,000 个资源，每个文件小于 2 GiB，且官方说明未对 Release 总资源大小或下载带宽设上限；这适合个人作品站按年份或季度发布一批可公开浏览的衍生图。[1]
@@ -66,7 +68,7 @@ media:
       url: https://github.com/JewelRoam/jewelroam-media/releases/download/photos-2026-q1/coast-window-1600.webp
 rights:
   notice: "© 2026 JewelRoam. All rights reserved."
-  licenseUrl: https://jewelroam.github.io/rights
+  licenseUrl: https://jewelroam.github.io/jewelroam#rights
 ```
 
 React 的 `ResponsiveImage` 只渲染清单提供的地址、尺寸与 `alt`；文章和图集使用图片 `id` 引用。这样从 GitHub Releases 改用 R2 时，只改变 `media` 数据或生成清单的脚本，文章、组件、链接结构和版权字段均无需改动。

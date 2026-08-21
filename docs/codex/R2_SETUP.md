@@ -64,7 +64,7 @@ GitHub Actions 校验并部署站点
 
 不要在 manifest 已经提交后才上传图片，否则 GitHub Pages 可能先发布一个指向不存在资源的页面。图片上传失败时不要提交该 manifest；图片替换时使用新的文件路径或版本号，不要依赖 CDN 立刻刷新被覆盖的旧对象。
 
-尚未确认发布的图片保留在 `content/inbox/`，通过 Capture 的 Base64 草稿或 inbox 预览检查，不写入正式 manifest。当前运行时代码没有 `public/media` 回退；正式 `content/photos/*.json` 只引用已经上传并验证的 R2 对象。
+尚未确认发布的图片保留在 `content/inbox/`，通过 Capture 的 Base64 草稿或 inbox 预览检查，不写入正式 manifest。`content/inbox/` 默认是本地素材目录，不应因为正式内容提交而自动加入 Git；当前运行时代码没有 `public/media` 回退；正式 `content/photos/*.json` 只引用已经上传并验证的 R2 对象。
 
 ## 6. 发布和权限
 

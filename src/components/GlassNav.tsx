@@ -5,7 +5,7 @@ const navItems = [
   ["/destinations", "Destinations"],
   ["/journals", "Journals"],
   ["/editor", "Capture"],
-  ["/about", "About"],
+  ["/jewelroam", "JewelRoam"],
 ] as const;
 
 export function GlassNav() {

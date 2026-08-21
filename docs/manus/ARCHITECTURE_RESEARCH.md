@@ -4,6 +4,8 @@
 **日期：2026-08-19**
 **适用仓库：`JewelRoam/jewelroam.github.io`**
 
+> **当前实现注记（2026-08-22）**：本文是早期架构研究与方案蓝图，不是当前运行时契约。当前代码已经采用 Vite + React Router + TypeScript + MDX + Zod，公开入口为 `Destinations`、`Journals`、`Capture`、`JewelRoam`，图片正式托管使用 Cloudflare R2。实施和发布细节以 `docs/codex/` 为准。
+
 > **版权说明（非正式法律意见）**：本文件提供通用的产品、工程与信息架构建议，不构成正式法律意见。图片与文字通常在创作完成时即可获得版权保护，但权利归属、许可与可执行救济仍取决于适用法域与具体事实；在对外授权、维权或登记前，宜由合格法律专业人士复核。[1]
 
 ## 1. 执行摘要
@@ -64,7 +66,7 @@ jewelroam.github.io/
 │   │   ├── archive._index.tsx           # 图集 / 作品索引
 │   │   ├── archive.$series.tsx          # 系列页（预渲染）
 │   │   ├── photos.$id.tsx               # 单张作品页（预渲染）
-│   │   ├── about.tsx
+│   │   ├── jewelroam.tsx
 │   │   ├── rights.tsx                   # 使用许可与联系入口
 │   │   └── privacy.tsx
 │   ├── components/
@@ -88,7 +90,7 @@ jewelroam.github.io/
 │   ├── posts/                           # 一篇文章一个 MDX 文件
 │   ├── photo-series/                    # 一组作品一个 YAML 文件
 │   ├── photos/                          # 一张图片一个 YAML 文件
-│   ├── pages/                           # about / rights 的可编辑内容
+│   ├── pages/                           # jewelroam / rights 的可编辑内容
 │   └── schemas/                         # Zod schema 与内容加载器
 ├── public/
 │   ├── favicon.svg
@@ -132,8 +134,8 @@ rights:
   owner: JewelRoam
   notice: "© 2026 JewelRoam. All rights reserved."
   licenseType: all-rights-reserved
-  licenseUrl: https://jewelroam.github.io/rights
-  acquireLicenseUrl: https://jewelroam.github.io/rights#licensing
+  licenseUrl: https://jewelroam.github.io/jewelroam#rights
+  acquireLicenseUrl: https://jewelroam.github.io/jewelroam#rights
   iptcEmbedded: true
   visibleWatermark: false
 ```
@@ -213,8 +215,8 @@ rights: all-rights-reserved
 Creator              = JewelRoam / 实名或工作室名
 Credit Line          = © JewelRoam
 Copyright Notice     = © 2026 JewelRoam. All rights reserved.
-Web Statement Rights = https://jewelroam.github.io/rights
-Licensor URL         = https://jewelroam.github.io/rights#licensing
+Web Statement Rights = https://jewelroam.github.io/jewelroam#rights
+Licensor URL         = https://jewelroam.github.io/jewelroam#rights
 Source               = Original photograph by JewelRoam
 ```
 
@@ -232,8 +234,8 @@ Source               = Original photograph by JewelRoam
   "creator": { "@type": "Person", "name": "JewelRoam" },
   "creditText": "JewelRoam",
   "copyrightNotice": "© 2026 JewelRoam. All rights reserved.",
-  "license": "https://jewelroam.github.io/rights",
-  "acquireLicensePage": "https://jewelroam.github.io/rights#licensing"
+  "license": "https://jewelroam.github.io/jewelroam#rights",
+  "acquireLicensePage": "https://jewelroam.github.io/jewelroam#rights"
 }
 ```
 
@@ -284,7 +286,7 @@ sequenceDiagram
 | `/essays` | 浏览长文 | 时间、主题、摘要、阅读时长 | 是 |
 | `/essays/:slug` | 认真阅读一篇文章 | 目录、MDX 正文、关联作品、文章版权尾注 | 是 |
 | `/rights` | 版权与许可处理 | 默认权利声明、商业/转载咨询路径、署名格式 | 是 |
-| `/about` | 建立信任与联系 | 作者介绍、创作范围、联系方法 | 是 |
+| `/jewelroam` | 建立信任与联系 | 作者介绍、创作范围、联系方法 | 是 |
 
 ## 9. 分阶段实施计划
 

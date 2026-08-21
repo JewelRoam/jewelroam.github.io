@@ -9,6 +9,10 @@ import type { FeatureCollection, MultiPolygon, Polygon } from "geojson";
 import "maplibre-gl/dist/maplibre-gl.css";
 import "./DestinationMap.css";
 
+if (import.meta.env.PROD) {
+  maplibregl.setWorkerUrl(`${import.meta.env.BASE_URL}maplibre-gl-worker.mjs`);
+}
+
 export type DestinationCenter = [number, number];
 export type DestinationGeometry = Polygon | MultiPolygon;
 
@@ -168,11 +172,16 @@ export function DestinationMap({ destinations, onSelect, className, ariaLabel = 
 
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return undefined;
+    const initialBounds = boundsFor(destinationsRef.current);
     const map = new maplibregl.Map({
       container: containerRef.current,
       style: styleFor(toFeatureCollection(destinationsRef.current)),
       center: [110, 30],
       zoom: 2.8,
+      bounds: initialBounds ?? undefined,
+      fitBoundsOptions: initialBounds
+        ? { padding: 36, maxZoom: 7 }
+        : undefined,
       pitch: 42,
       bearing: -12,
       minZoom: 1.2,
@@ -180,14 +189,30 @@ export function DestinationMap({ destinations, onSelect, className, ariaLabel = 
       attributionControl: false,
       dragRotate: false,
       pitchWithRotate: false,
-      cooperativeGestures: true,
+      // A single finger should pan on touch devices. Pinch remains available for zooming.
+      cooperativeGestures: false,
+      touchPitch: false,
     });
     mapRef.current = map;
     const resizeObserver = new ResizeObserver(() => map.resize());
     resizeObserver.observe(containerRef.current);
-    map.addControl(new maplibregl.NavigationControl({ showCompass: false }), "top-right");
     map.addControl(new maplibregl.AttributionControl({ compact: true }), "bottom-right");
-    map.addControl(new maplibregl.ScaleControl({ maxWidth: 120, unit: "metric" }), "bottom-left");
+
+    const syncDestinationSource = () => {
+      const source = map.getSource(SOURCE_ID) as GeoJSONSource | undefined;
+      if (!source) return false;
+      source.setData(toFeatureCollection(destinationsRef.current));
+      if (map.isStyleLoaded()) {
+        const bounds = boundsFor(destinationsRef.current);
+        if (bounds) map.fitBounds(bounds, { padding: 36, duration: 0, maxZoom: 7 });
+      }
+      return true;
+    };
+    let syncFrame: number | undefined;
+    const syncWhenReady = () => {
+      if (syncDestinationSource()) return;
+      syncFrame = window.requestAnimationFrame(syncWhenReady);
+    };
 
     const setHover = (id: string | number | null) => {
       if (hoveredIdRef.current !== null) map.setFeatureState({ source: SOURCE_ID, id: hoveredIdRef.current }, { hover: false });
@@ -212,12 +237,10 @@ export function DestinationMap({ destinations, onSelect, className, ariaLabel = 
     map.on("mousemove", FILL_ID, handleMove);
     map.on("mouseleave", FILL_ID, handleLeave);
     map.on("click", FILL_ID, handleClick);
-    map.once("load", () => {
-      (map.getSource(SOURCE_ID) as GeoJSONSource | undefined)?.setData(toFeatureCollection(destinationsRef.current));
-      const bounds = boundsFor(destinationsRef.current);
-      if (bounds) map.fitBounds(bounds, { padding: 36, duration: 0, maxZoom: 7 });
-    });
+    map.once("load", syncDestinationSource);
+    syncWhenReady();
     return () => {
+      if (syncFrame !== undefined) window.cancelAnimationFrame(syncFrame);
       resizeObserver.disconnect();
       setHover(null);
       map.remove();

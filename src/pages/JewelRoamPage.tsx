@@ -68,13 +68,13 @@ const playlistGroups = [
   },
 ] as const;
 
-export function AboutPage() {
+export function JewelRoamPage() {
   return (
     <Page
-      title="About"
+      title="JewelRoam"
       intro={
         <div className="space-y-3">
-          <p>欢迎来看我，JewelRoam 是我中文名的音译，也是我的 ID。</p>
+          <p>欢迎来看我，这个 ID 来自于我中文名的音译。</p>
           <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm leading-6">
             <span>
               <span className="text-[#20211f]/50">WeChat</span> · Zheng_Enrong

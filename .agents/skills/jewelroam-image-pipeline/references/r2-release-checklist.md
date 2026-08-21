@@ -26,7 +26,7 @@
   },
   "rights": {
     "notice": "confirmed copyright notice",
-    "licenseUrl": "https://jewelroam.github.io/about#rights"
+    "licenseUrl": "https://jewelroam.github.io/jewelroam#rights"
   }
 }
 ```

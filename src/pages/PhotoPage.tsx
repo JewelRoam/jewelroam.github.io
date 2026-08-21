@@ -28,7 +28,7 @@ export function PhotoPage() {
         <p className="max-w-xs text-right text-[#20211f]/55">
           {photo.rights.notice}
           <br />
-          <Link to="/about#rights" className="underline underline-offset-4">
+          <Link to="/jewelroam#rights" className="underline underline-offset-4">
             查看使用与许可
           </Link>
         </p>

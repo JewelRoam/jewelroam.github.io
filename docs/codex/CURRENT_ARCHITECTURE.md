@@ -4,12 +4,12 @@
 
 公开导航固定为四项：
 
-- `Destinations`：以 MapLibre 渲染的全视口地点地图；地点悬停抬升，点击进入地点归档。
+- `Destinations`：以 MapLibre 渲染的全视口地点地图；地点悬停抬升，点击进入地点归档。生产构建会将 MapLibre worker 及其 shared 模块作为静态资源一并发布，确保 GitHub Pages 上的 GeoJSON 图层正常渲染。
 - `Journals`：按创建日期排列的文章列表与正文。
-- `Capture`：浏览器本地写作、图片导入、自动保存和 JSON 导出工具。
-- `About`：个人信息、经历、公开链接、Playlists 与 Rights。
+- `Capture`：浏览器本地写作、图片导入、自动保存和 JSON 导出工具。页面顶部只显示标题与说明；文章标题、摘要、地点和可修改的创建日期组成元数据区；格式工具栏使用图标按钮并吸顶；正文底部显示自动保存状态、真实修改时间、清空草稿和 JSON 导出动作。窄屏下图片导入动作独立换行，确保触控目标完整可见。
+- `JewelRoam`：个人信息、经历、公开链接、Playlists 与 Rights。
 
-根路径和未知路径进入 `About`。路由集中在 `src/App.tsx`，页面实现位于 `src/pages/`；可复用界面位于 `src/components/`。
+根路径和未知路径进入 `JewelRoam`。路由集中在 `src/App.tsx`，页面实现位于 `src/pages/`；可复用界面位于 `src/components/`。
 
 ## 布局原则
 
@@ -17,7 +17,9 @@
 
 导航是脱离文档流的顶部浮层：外层不拦截页面交互，只有玻璃胶囊本身接收指针事件。它默认收起，展开或收起都不推动正文。
 
-`Destinations` 不使用普通页面外框。`.destinations-stage` 占满 `100svh`，地图填满舞台，标题简介位于地图之上，站点导航位于最高层。MapLibre 控件在右侧下移，避免与站点导航重叠；地图通过 `ResizeObserver` 响应视口和容器尺寸变化。
+导航与普通页面标题共享同一个 `--page-top-space`，当前统一为 `48px`；触发器为 `48px` 圆形控件。桌面端菜单向左展开，移动端菜单在触发器下方纵向展开，菜单文字始终保持横排。左右 gutter 由 `--page-gutter` 统一控制，但不设置全局最大宽度。
+
+`Destinations` 不使用普通页面外框。`.destinations-stage` 占满 `100svh`，地图填满舞台，标题简介位于地图之上，站点导航位于最高层。地图不显示缩放或复位按钮：触控端单指移动、双指缩放，桌面端可拖拽和滚轮缩放；旋转与俯仰手势禁用。地图通过 `ResizeObserver` 响应视口和容器尺寸变化。
 
 ## 内容关系
 
@@ -34,6 +36,6 @@ Photo N ── 1 Place
 
 ## 图片与发布边界
 
-Capture 的草稿和 Base64 图片仅保存在当前浏览器 IndexedDB；它不直接写仓库或上传 R2。正式发行图进入 `jewelroam-media`，页面只通过 `src/lib/media.ts` 生成自定义域名和 Image Transformations URL。
+Capture 的草稿和 Base64 图片仅保存在当前浏览器 IndexedDB；它不直接写仓库或上传 R2。正式发行图进入 `jewelroam-media`，页面只通过 `src/lib/media.ts` 生成自定义域名和 Image Transformations URL。`content/inbox/` 是本地素材和中间产物目录，不属于运行时内容源；除非用户明确要求，不应提交或删除其中的素材。
 
 发布顺序固定为：本地确认内容与发行文件，上传并验证 R2 对象，写入正式内容记录，运行校验和构建，最后提交并推送 GitHub。仓库不区分 staging 与 production。
