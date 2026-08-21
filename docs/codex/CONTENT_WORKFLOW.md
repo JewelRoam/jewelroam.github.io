@@ -20,10 +20,10 @@ node .agents/skills/jewelroam-image-pipeline/scripts/stage_article_draft.mjs \
 
 ## 在线编辑器
 
-启动本地开发服务器后打开：
+启动本地开发服务器后，按终端显示的端口打开 `/editor`，例如：
 
 ```text
-http://127.0.0.1:5174/editor
+http://127.0.0.1:5173/editor
 ```
 
 编辑器支持标题、摘要、创建日期、段落、粗体、斜体、小标题、引用、列表，以及同时拖入、粘贴或选择多张图片。地点控件可以搜索已有 Place，也可以直接输入新地点；新地点会以 `needs-place-record` 状态导出，等待 Agent 补全坐标和地图几何后再发布。创建日期 `createdAt` 可以手动修改；修改日期 `updatedAt` 由编辑器在内容真实变化并自动保存时记录，不能手动修改。格式工具栏在编辑时固定在视口顶部。草稿经过防抖后自动保存在当前浏览器的 IndexedDB 中，图片先以内嵌预览保存，不会自动上传 R2；旧版 `localStorage` 草稿和只有 `savedAt` 的草稿会自动迁移。
@@ -57,24 +57,22 @@ agent 应该按以下顺序工作：
 扫描 inbox
   → 读取图片尺寸和格式
   → 询问或推断待确认的标题、alt、日期、地点、版权
-  → 生成 content/places/*.json（地点记录）
-  → 生成 content/photos/*.json（每张图片绑定一个 placeId）
-  → 生成 content/journals/*.mdx（每篇 Journal 绑定一个 placeId）
-  → 在 Journal MDX 中接入图片引用
-  → 运行内容校验和本地构建
-  → 等待用户明确确认
+  → 在 content/inbox 中生成待确认的 metadata、Place、Photo 和 MDX 草案
+  → 等待用户确认文字、地点、图片、版权和公开范围
   → 上传最终发行图到 R2
   → 检查原图和转换 URL
+  → 写入正式 content/places、content/photos 和 content/journals
+  → 运行内容校验和生产构建
+  → 提交并推送 GitHub
   → 删除或归档 inbox 临时文件
 ```
 
-上传前不要把图片 JSON 当作已发布内容提交。这样可以避免 GitHub Pages 先上线一个指向不存在 R2 对象的页面。
+正式 manifest 可以在本地准备和检查，但必须等对应 R2 对象上传并验证后再提交。这样可以避免 GitHub Pages 先上线一个指向不存在 R2 对象的页面。
 
 ## 图片引用约定
 
 编辑器导出的草稿使用内嵌图片数据，不写 R2 URL。正式 MDX 阶段由 agent 将图片转换成项目组件引用：
 
-```md
 发布阶段由 agent 确保 `content/photos/*.json` 中的 `id`、唯一 `placeId`、尺寸、替代文本、R2 路径和版权字段完整；每篇 Journal 的 frontmatter 也必须包含唯一 `placeId`。组件会统一生成：
 
 ```mdx
@@ -104,8 +102,8 @@ https://images.zer.dpdns.org/cdn-cgi/image/width=640,format=auto,quality=82/...
 
 ```text
 回合 1：扫描并提出 metadata 草案，不改线上资源
-回合 2：确认后修改 MDX、生成 manifest，并运行本地检查
-回合 3：明确授权后上传 R2，验证 URL，再整理 inbox
+回合 2：确认后在 inbox 准备 MDX、manifest 和发行文件，并运行本地检查
+回合 3：明确授权后上传 R2，验证 URL，写入正式内容，再提交 GitHub
 ```
 
 这样对话记录就是一次可追溯的发布记录；如果中途发现图片或文字有问题，可以停在任一回合，不会留下半成品线上资源。

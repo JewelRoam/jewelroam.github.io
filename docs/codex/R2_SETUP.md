@@ -64,7 +64,7 @@ GitHub Actions 校验并部署站点
 
 不要在 manifest 已经提交后才上传图片，否则 GitHub Pages 可能先发布一个指向不存在资源的页面。图片上传失败时不要提交该 manifest；图片替换时使用新的文件路径或版本号，不要依赖 CDN 立刻刷新被覆盖的旧对象。
 
-本地调试阶段可以使用 `public/media` 中的临时图片；只有图片、尺寸、替代文本和版权字段确认后，才进入 R2 并写入正式 manifest。
+尚未确认发布的图片保留在 `content/inbox/`，通过 Capture 的 Base64 草稿或 inbox 预览检查，不写入正式 manifest。当前运行时代码没有 `public/media` 回退；正式 `content/photos/*.json` 只引用已经上传并验证的 R2 对象。
 
 ## 6. 发布和权限
 
@@ -87,4 +87,4 @@ npm run content:validate
 npm run dev
 ```
 
-然后在浏览器中检查原图 URL 和 `/cdn-cgi/image/width=640,format=auto/...` 转换 URL。首次绑定域名后，证书和 DNS 记录可能需要几分钟传播。若转换 URL 返回 404，优先检查自定义域名是否已绑定到 R2、DNS 是否代理，以及 Image Transformations 是否对该 zone 开启。
+然后在浏览器中检查原图 URL 和 `/cdn-cgi/image/width=640,format=auto/...` 转换 URL，并打开引用该图片的 Journal 或 Photo 页面。若转换 URL 返回 404，优先检查对象路径、自定义域名绑定、DNS 代理状态和 Image Transformations 的来源限制。

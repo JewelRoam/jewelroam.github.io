@@ -45,4 +45,4 @@ Dimensions, media paths, and image formats can be generated. Title, alt, date, `
 - Runtime schema: `src/lib/content.ts`
 - Photo validation: `scripts/validate-content.ts`
 - Publication workflow: `docs/codex/CONTENT_WORKFLOW.md`
-- Public rights page: `https://jewelroam.github.io/rights`
+- Public rights section: `https://jewelroam.github.io/about#rights`
