@@ -183,6 +183,8 @@ export function DestinationMap({ destinations, onSelect, className, ariaLabel = 
       cooperativeGestures: true,
     });
     mapRef.current = map;
+    const resizeObserver = new ResizeObserver(() => map.resize());
+    resizeObserver.observe(containerRef.current);
     map.addControl(new maplibregl.NavigationControl({ showCompass: false }), "top-right");
     map.addControl(new maplibregl.AttributionControl({ compact: true }), "bottom-right");
     map.addControl(new maplibregl.ScaleControl({ maxWidth: 120, unit: "metric" }), "bottom-left");
@@ -216,6 +218,7 @@ export function DestinationMap({ destinations, onSelect, className, ariaLabel = 
       if (bounds) map.fitBounds(bounds, { padding: 36, duration: 0, maxZoom: 7 });
     });
     return () => {
+      resizeObserver.disconnect();
       setHover(null);
       map.remove();
       mapRef.current = null;

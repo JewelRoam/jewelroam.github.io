@@ -243,13 +243,11 @@ export function ArticleEditor() {
   };
 
   return (
-    <section className="editor-shell">
+    <section className="page-shell editor-shell">
       <div className="editor-topbar">
         <div>
-          <p className="editor-kicker">LOCAL WRITING DESK</p>
-          <h1 className="font-serif text-3xl">文章编辑器</h1>
-          <p className="editor-intro">我曾偶尔使用 Apple 的 Notes 或 Journal app 记录想法，但它们始终没有提供一个足够顺手的图文编辑工作流，于是自己做了 Capture。图片会直接嵌入文章，保存为 Base64 编码，并随文章一起导出为 JSON，方便后续交给 Agent 继续整理与上线。</p>
-          <p className="editor-status">{status}{updatedAt && status === "已自动保存" ? ` · ${new Date(updatedAt).toLocaleTimeString()}` : ""}</p>
+          <h1 className="font-serif text-5xl">Capture</h1>
+          <p className="editor-intro">我曾偶尔使用 Apple 的 Notes 或 Journal app 记录想法，但它们始终没有提供一个足够顺手的图文编辑工作流，于是自己做了这个编辑器。图片会直接嵌入文章，保存为 Base64 编码，并随文章一起导出为 JSON，方便后续交给 Agent 继续整理与上线。支持同时拖入、粘贴或选择多张图片。图片保存在浏览器 IndexedDB 中，确认文章后再导出并交给 Agent 上传 R2。</p>
         </div>
         <div className="editor-actions">
           <button type="button" onClick={clearDraft} className="editor-button editor-button-muted">清空</button>
@@ -318,7 +316,7 @@ export function ArticleEditor() {
       <div className="editor-paper">
         <EditorContent editor={editor} />
       </div>
-      <p className="editor-hint">支持同时拖入、粘贴或选择多张图片。图片保存在浏览器 IndexedDB 中，确认文章后再导出并交给 agent 上传 R2。</p>
+      <p className="editor-hint" role="status">{status}{updatedAt && status === "已自动保存" ? ` · ${new Date(updatedAt).toLocaleTimeString()}` : ""}</p>
     </section>
   );
 }
