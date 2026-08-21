@@ -1,38 +1,17 @@
 import type { ReactNode } from "react";
-import { NavLink } from "react-router-dom";
-
-const navItems = [
-  ["/destinations", "Destinations"],
-  ["/journals", "Journals"],
-  ["/editor", "Capture"],
-  ["/about", "About"],
-] as const;
+import { GlassNav } from "./GlassNav";
 
 export function Layout({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-screen bg-[#f5f3ee] text-[#20211f]">
-      <header className="border-b border-[#20211f]/10">
-        <div className="mx-auto flex max-w-6xl items-center justify-end px-6 py-5 lg:px-10">
-          <nav className="flex items-center gap-6 text-sm text-[#20211f]/65">
-            {navItems.map(([href, label]) => (
-              <NavLink
-                key={href}
-                to={href}
-                className={({ isActive }) => (isActive ? "text-[#20211f]" : "transition hover:text-[#20211f]")}
-              >
-                {label}
-              </NavLink>
-            ))}
-          </nav>
+      <header className="site-header">
+        <div className="mx-auto flex max-w-6xl items-center justify-end px-6 py-4 lg:px-10">
+          <GlassNav />
         </div>
       </header>
       <main>
         {children}
       </main>
-      <footer className="mx-auto mt-24 flex max-w-6xl justify-between border-t border-[#20211f]/10 px-6 py-8 text-xs text-[#20211f]/55 lg:px-10">
-        <span>© 2026 JewelRoam</span>
-        <NavLink to="/rights" className="hover:text-[#20211f]">使用与许可</NavLink>
-      </footer>
     </div>
   );
 }
