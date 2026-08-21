@@ -6,18 +6,6 @@ import { getJournal, getPhoto, getPlace, getPlaceJournals, getPlacePhotos, journ
 
 const ArticleEditor = lazy(() => import("./components/ArticleEditor").then((module) => ({ default: module.ArticleEditor })));
 
-function Home() {
-  const feature = photos[0];
-  const latestJournal = journals[0];
-  return <div>
-    <section className="mx-auto grid max-w-6xl gap-10 px-6 pb-20 pt-16 lg:grid-cols-[1.05fr_0.95fr] lg:items-end lg:px-10 lg:pt-24">
-      <div><p className="mb-5 text-xs uppercase tracking-[0.24em] text-[#20211f]/50">Notes from moving through the world</p><h1 className="max-w-xl font-serif text-5xl leading-[1.02] sm:text-7xl">把远方带回日常。</h1><p className="mt-7 max-w-md text-base leading-7 text-[#20211f]/65">JewelRoam 是我在网络上使用的名字。这是我的个人网站，收集旅行中的照片、文字，以及那些回到日常后仍没有说完的故事。</p><div className="mt-9 flex gap-5 text-sm"><Link to="/destinations" className="border-b border-[#20211f] pb-1">探索目的地</Link><Link to="/journals" className="border-b border-[#20211f]/30 pb-1 text-[#20211f]/65">阅读 Journals</Link></div></div>
-      {feature && <ResponsiveImage photo={feature} priority sizes="(min-width: 1024px) 42vw, 100vw" className="aspect-[4/5] w-full object-cover" />}
-    </section>
-    <section className="mx-auto max-w-6xl border-t border-[#20211f]/10 px-6 py-16 lg:px-10"><div className="flex items-baseline justify-between"><h2 className="font-serif text-3xl">最近的 Journal</h2><Link to="/journals" className="text-sm text-[#20211f]/60">全部 Journals →</Link></div>{latestJournal && <Link to={`/journals/${latestJournal.frontmatter.slug}`} className="mt-8 block border-b border-[#20211f]/10 pb-8 transition hover:border-[#20211f]/40"><p className="text-xs text-[#20211f]/50">创建于 <time dateTime={latestJournal.frontmatter.createdAt}>{latestJournal.frontmatter.createdAt}</time></p><h3 className="mt-3 font-serif text-2xl">{latestJournal.frontmatter.title}</h3><p className="mt-3 max-w-xl leading-7 text-[#20211f]/65">{latestJournal.frontmatter.description}</p></Link>}</section>
-  </div>;
-}
-
 function Destinations() {
   const destinations = places.map((place) => ({ id: place.id, slug: place.slug, name: place.name, center: [place.coordinates.longitude, place.coordinates.latitude] as [number, number], geometry: place.geometry }));
   return <Page title="Destinations" intro="在地图上回看那些曾经停留的地方。"><DestinationMap destinations={destinations} onSelect={(place) => { window.location.href = `/destinations/${place.slug}`; }} /></Page>;
@@ -43,7 +31,7 @@ function Page({ title, intro, children }: { title: string; intro: string; childr
 function About() { return <Page title="About" intro="JewelRoam 是我的 ID，这里是我的个人网站。"><div className="max-w-2xl space-y-6 text-lg leading-9 text-[#20211f]/75"><p>我在路上拍照，也在回到房间之后写下那些没有被相机记录的部分。这里没有目的地清单，只有一些关于光线、陌生城市和日常停顿的观察。</p><p>照片和 Journals 在这里沿着地点重新相遇。它们不是旅行攻略，也不试图列出完整的世界，只是我愿意留下的个人观察。</p></div></Page>; }
 function Rights() { return <Page title="使用与许可" intro="公开页面中的文章与图片默认保留全部权利。"><div className="max-w-2xl space-y-5 leading-8 text-[#20211f]/70"><p>除非页面另有说明，站内内容不得复制、改编、转载或用于商业用途。</p><p>如需转载、出版、展览或商业授权，请通过项目维护者提供的联系方式说明使用范围、媒介和期限。</p><p className="text-sm">图片发行版本会保留版权与来源元数据；原始文件和高分辨率母版不公开。</p></div></Page>; }
 
-export function App() { return <Routes><Route path="/" element={<Home />} /><Route path="/destinations" element={<Destinations />} /><Route path="/destinations/:slug" element={<DestinationRoute />} /><Route path="/photos/:id" element={<PhotoRoute />} /><Route path="/journals" element={<Journals />} /><Route path="/journals/:slug" element={<JournalRoute />} /><Route path="/about" element={<About />} /><Route path="/rights" element={<Rights />} /><Route path="/editor" element={<EditorRoute />} /><Route path="*" element={<Navigate to="/" replace />} /></Routes>; }
+export function App() { return <Routes><Route path="/" element={<Navigate to="/about" replace />} /><Route path="/destinations" element={<Destinations />} /><Route path="/destinations/:slug" element={<DestinationRoute />} /><Route path="/photos/:id" element={<PhotoRoute />} /><Route path="/journals" element={<Journals />} /><Route path="/journals/:slug" element={<JournalRoute />} /><Route path="/about" element={<About />} /><Route path="/rights" element={<Rights />} /><Route path="/editor" element={<EditorRoute />} /><Route path="*" element={<Navigate to="/about" replace />} /></Routes>; }
 function EditorRoute() { return <Suspense fallback={<div className="mx-auto max-w-6xl px-6 py-20 text-sm text-[#20211f]/55">正在打开编辑器…</div>}><ArticleEditor /></Suspense>; }
 function DestinationRoute() { return <DestinationDetail slug={decodeURIComponent(useParams().slug || "")} />; }
 function PhotoRoute() { return <Photo id={decodeURIComponent(useParams().id || "")} />; }
