@@ -1,0 +1,19 @@
+{
+  "id": "almaty-4-01",
+  "title": "雾中的水坝与森林",
+  "alt": "雾气笼罩的针叶林位于混凝土水坝后方，前景是布满石块的河床",
+  "takenAt": "2026-05-23",
+  "placeId": "big-almaty-lake",
+  "dimensions": {
+    "width": 4032,
+    "height": 6048
+  },
+  "media": {
+    "path": "upload/photos/2026/almaty-4-01.webp",
+    "fallbackPath": "upload/photos/2026/almaty-4-01.jpg"
+  },
+  "rights": {
+    "notice": "© 2026 JewelRoam. All rights reserved.",
+    "licenseUrl": "https://jewelroam.github.io/rights"
+  }
+}

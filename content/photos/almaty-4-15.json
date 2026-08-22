@@ -1,0 +1,19 @@
+{
+  "id": "almaty-4-15",
+  "title": "山路告示牌",
+  "alt": "山路旁一块写满涂鸦的白色告示牌，背后是云雾中的针叶林",
+  "takenAt": "2026-05-23",
+  "placeId": "big-almaty-lake",
+  "dimensions": {
+    "width": 6048,
+    "height": 4032
+  },
+  "media": {
+    "path": "upload/photos/2026/almaty-4-15.webp",
+    "fallbackPath": "upload/photos/2026/almaty-4-15.jpg"
+  },
+  "rights": {
+    "notice": "© 2026 JewelRoam. All rights reserved.",
+    "licenseUrl": "https://jewelroam.github.io/rights"
+  }
+}

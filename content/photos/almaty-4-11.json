@@ -1,0 +1,19 @@
+{
+  "id": "almaty-4-11",
+  "title": "湖畔远眺",
+  "alt": "一名背对镜头的人坐在岩石上，眺望碧绿色湖水与被云雾围绕的雪山",
+  "takenAt": "2026-05-23",
+  "placeId": "big-almaty-lake",
+  "dimensions": {
+    "width": 5712,
+    "height": 4284
+  },
+  "media": {
+    "path": "upload/photos/2026/almaty-4-11.webp",
+    "fallbackPath": "upload/photos/2026/almaty-4-11.jpg"
+  },
+  "rights": {
+    "notice": "© 2026 JewelRoam. All rights reserved.",
+    "licenseUrl": "https://jewelroam.github.io/rights"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "id": "almaty-4-13",
+  "title": "湖畔废墟",
+  "alt": "废弃砖屋坐落在草坡上，背后是湖水、针叶林和积雪山脉",
+  "takenAt": "2026-05-23",
+  "placeId": "big-almaty-lake",
+  "dimensions": {
+    "width": 5712,
+    "height": 4284
+  },
+  "media": {
+    "path": "upload/photos/2026/almaty-4-13.webp",
+    "fallbackPath": "upload/photos/2026/almaty-4-13.jpg"
+  },
+  "rights": {
+    "notice": "© 2026 JewelRoam. All rights reserved.",
+    "licenseUrl": "https://jewelroam.github.io/rights"
+  }
+}

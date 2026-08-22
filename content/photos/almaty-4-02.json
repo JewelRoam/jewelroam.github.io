@@ -1,0 +1,19 @@
+{
+  "id": "almaty-4-02",
+  "title": "雾里的草坡",
+  "alt": "雾气中的绿色山坡，一块刻有涂鸦的石头位于画面中央",
+  "takenAt": "2026-05-23",
+  "placeId": "big-almaty-lake",
+  "dimensions": {
+    "width": 6048,
+    "height": 4032
+  },
+  "media": {
+    "path": "upload/photos/2026/almaty-4-02.webp",
+    "fallbackPath": "upload/photos/2026/almaty-4-02.jpg"
+  },
+  "rights": {
+    "notice": "© 2026 JewelRoam. All rights reserved.",
+    "licenseUrl": "https://jewelroam.github.io/rights"
+  }
+}

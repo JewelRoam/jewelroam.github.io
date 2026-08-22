@@ -1,0 +1,19 @@
+{
+  "id": "almaty-4-17",
+  "title": "山谷全景",
+  "alt": "开阔山谷中的针叶林、草地和积雪山峰，前景散落橙色地衣覆盖的岩石",
+  "takenAt": "2026-05-23",
+  "placeId": "big-almaty-lake",
+  "dimensions": {
+    "width": 4212,
+    "height": 5616
+  },
+  "media": {
+    "path": "upload/photos/2026/almaty-4-17.webp",
+    "fallbackPath": "upload/photos/2026/almaty-4-17.jpg"
+  },
+  "rights": {
+    "notice": "© 2026 JewelRoam. All rights reserved.",
+    "licenseUrl": "https://jewelroam.github.io/rights"
+  }
+}

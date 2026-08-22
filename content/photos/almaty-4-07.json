@@ -1,0 +1,19 @@
+{
+  "id": "almaty-4-07",
+  "title": "雾中的湖湾",
+  "alt": "雾气笼罩的碧绿色湖湾、裸露岸线与山坡，前景有针叶树",
+  "takenAt": "2026-05-23",
+  "placeId": "big-almaty-lake",
+  "dimensions": {
+    "width": 6048,
+    "height": 4032
+  },
+  "media": {
+    "path": "upload/photos/2026/almaty-4-07.webp",
+    "fallbackPath": "upload/photos/2026/almaty-4-07.jpg"
+  },
+  "rights": {
+    "notice": "© 2026 JewelRoam. All rights reserved.",
+    "licenseUrl": "https://jewelroam.github.io/rights"
+  }
+}

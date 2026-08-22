@@ -1,0 +1,19 @@
+{
+  "id": "almaty-4-12",
+  "title": "湖岸纹理",
+  "alt": "碧绿色湖水与浅色泥沙岸线交错形成的纹理",
+  "takenAt": "2026-05-23",
+  "placeId": "big-almaty-lake",
+  "dimensions": {
+    "width": 4032,
+    "height": 4032
+  },
+  "media": {
+    "path": "upload/photos/2026/almaty-4-12.webp",
+    "fallbackPath": "upload/photos/2026/almaty-4-12.jpg"
+  },
+  "rights": {
+    "notice": "© 2026 JewelRoam. All rights reserved.",
+    "licenseUrl": "https://jewelroam.github.io/rights"
+  }
+}

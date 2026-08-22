@@ -1,0 +1,19 @@
+{
+  "id": "almaty-4-09",
+  "title": "云间山谷",
+  "alt": "针叶林和岩石环绕的山谷，云层从中央雪山上方散开",
+  "takenAt": "2026-05-23",
+  "placeId": "big-almaty-lake",
+  "dimensions": {
+    "width": 4032,
+    "height": 6048
+  },
+  "media": {
+    "path": "upload/photos/2026/almaty-4-09.webp",
+    "fallbackPath": "upload/photos/2026/almaty-4-09.jpg"
+  },
+  "rights": {
+    "notice": "© 2026 JewelRoam. All rights reserved.",
+    "licenseUrl": "https://jewelroam.github.io/rights"
+  }
+}
