@@ -334,7 +334,7 @@ export function ArticleEditor() {
     <section className="page-shell editor-shell">
       <header className="editor-header">
         <h1 className="font-serif text-5xl">Capture</h1>
-        <p className="editor-intro">我曾偶尔使用 Apple 的 Notes 或 Journal app 记录想法，但它们始终没有提供一个足够顺手的图文编辑工作流，于是自己做了这个编辑器。图片会直接嵌入文章，保存为 Base64 编码，并随文章一起导出为 JSON，方便后续交给 Agent 继续整理与上线。支持同时拖入、粘贴或选择多张图片。图片保存在浏览器 IndexedDB 中，确认文章后再导出并交给 Agent 上传 R2。</p>
+        <p className="editor-intro">我曾偶尔使用 Apple 的 Notes 或 Journal app 记录想法，但它们始终没有提供一个足够顺手的图文编辑工作流，于是自己做了这个编辑器。图片会直接嵌入文章，保存为 Base64 编码，并随文章一起导出为 JSON，方便后续交给 Agent 继续整理与上线。图片支持同时拖入、粘贴或选择多张，保存在浏览器 IndexedDB 中。</p>
       </header>
 
       <div className="editor-meta">
