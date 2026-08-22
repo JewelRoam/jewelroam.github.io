@@ -21,6 +21,25 @@ Formal MDX under `content/journals/*.mdx` uses:
 
 An editor export may contain a freely entered `placeName` with an empty `placeId` and `placeStatus: "needs-place-record"`. Treat this as a proposal: confirm the destination, create its formal Place record with coordinates and geometry, then replace it with the resulting `placeId` before publication.
 
+## Place record
+
+Each `content/places/*.json` record uses:
+
+```ts
+{
+  id: string;
+  slug: string;
+  name: string;
+  parentId?: string; // optional containing Place, for nested or overlapping locations
+  country: string;
+  region?: string;
+  coordinates: { latitude: number; longitude: number };
+  geometry: Polygon | MultiPolygon;
+}
+```
+
+`parentId` expresses containment or archival hierarchy; it does not change the Journal contract, which still points to exactly one Place. Map rendering and hit testing use the most specific child Place when geometries overlap. Parent references must resolve and must not form cycles.
+
 ## Photo manifest
 
 Each `content/photos/*.json` record requires:

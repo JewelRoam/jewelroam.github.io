@@ -32,6 +32,29 @@ https://images.zer.dpdns.org/cdn-cgi/image/width=640,format=auto,quality=82/phot
 
 组件会自动提供 640、1280、2048 三个候选宽度，浏览器根据视口和像素密度选择合适版本。转换结果由 Cloudflare 缓存，不需要在 R2 中保存每种尺寸的副本。
 
+### 允许文章导出读取图片
+
+Journal 的 JSON 和分页 PNG 导出需要在浏览器中读取图片。公开图片 bucket 可在 **Settings → CORS Policy** 增加只读规则：
+
+```json
+[
+  {
+    "AllowedOrigins": [
+      "https://jewelroam.github.io",
+      "http://localhost:5173",
+      "http://localhost:5174",
+      "http://127.0.0.1:5173",
+      "http://127.0.0.1:5174"
+    ],
+    "AllowedMethods": ["GET", "HEAD"],
+    "AllowedHeaders": ["Content-Type"],
+    "MaxAgeSeconds": 3600
+  }
+]
+```
+
+当前配置已通过实际预检请求验证，返回 `204` 和 `Access-Control-Allow-Origin`。该 bucket 只保存公开发行图，允许跨域 GET 不会赋予上传或修改权限。Cloudflare Image Transform 响应可能不透传 bucket 的 CORS 头，导出器会在变换 URL 被拦截时自动回退到同一资源的原图 URL；如果原图也未配置 CORS，JSON 会保留远程 URL，PNG 导出会明确提示缺少 CORS。
+
 ## 4. 配置本地环境
 
 复制 `.env.example` 为 `.env`，填入实际图片域名：

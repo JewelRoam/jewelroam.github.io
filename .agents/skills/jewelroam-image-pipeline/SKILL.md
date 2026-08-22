@@ -18,6 +18,12 @@ node .agents/skills/jewelroam-image-pipeline/scripts/stage_article_draft.mjs \
   --slug article-slug
 ```
 
+When the export contains a confirmed Place, pass it as an override without modifying the original JSON:
+
+```bash
+  --place-id big-almaty-lake --place-name "Big Almaty Lake"
+```
+
 The default per-image limit is 100 MiB. Override it only when the user explicitly chooses a different limit with `--max-image-mb N`.
 
 The script produces:

@@ -12,13 +12,23 @@ import {
   Heading2,
   ImagePlus,
   Italic,
+  LayoutGrid,
   List,
   Quote,
   Redo2,
   Trash2,
   Undo2,
+  Upload,
+  X,
 } from "lucide-react";
 import CreatableSelect from "react-select/creatable";
+import {
+  appendImagesToHtml,
+  extractImagesFromHtml,
+  parseArticleDraft,
+  type ArticleImage,
+  type MediaLayout,
+} from "../lib/article-document";
 import { places } from "../lib/content";
 
 const DRAFT_KEY = "jewelroam:article-draft";
@@ -26,21 +36,27 @@ const MAX_IMAGE_SIZE = 100 * 1024 * 1024;
 const IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif", "image/avif"];
 
 type Draft = {
+  schemaVersion: number;
+  kind: "journal";
   title: string;
   description: string;
   placeId: string;
   placeName: string;
   createdAt: string;
   updatedAt: string;
+  mediaLayout: MediaLayout;
   html: string;
+  gallery: ArticleImage[];
 };
 
-type StoredDraft = Omit<Draft, "createdAt" | "updatedAt" | "placeId" | "placeName"> & {
+type StoredDraft = Omit<Draft, "createdAt" | "updatedAt" | "placeId" | "placeName" | "mediaLayout" | "gallery"> & {
   createdAt?: string;
   updatedAt?: string;
   placeId?: string;
   placeName?: string;
   savedAt?: string;
+  mediaLayout?: MediaLayout;
+  gallery?: ArticleImage[];
 };
 
 type PlaceOption = { value: string; label: string; name: string; existing: boolean };
@@ -61,13 +77,17 @@ function normalizeDraft(draft: StoredDraft): Draft {
   const updatedAt = draft.updatedAt ?? draft.savedAt ?? new Date().toISOString();
   const existingPlace = places.find((place) => place.id === draft.placeId);
   return {
+    schemaVersion: draft.schemaVersion ?? 2,
+    kind: "journal",
     title: draft.title,
     description: draft.description,
     placeId: draft.placeId ?? "",
     placeName: draft.placeName ?? existingPlace?.name ?? "",
     createdAt: draft.createdAt ?? updatedAt.slice(0, 10),
     updatedAt,
+    mediaLayout: draft.mediaLayout ?? "inline",
     html: draft.html,
+    gallery: draft.gallery ?? [],
   };
 }
 
@@ -108,11 +128,14 @@ export function ArticleEditor() {
   const [placeName, setPlaceName] = useState("");
   const [createdAt, setCreatedAt] = useState(today);
   const [updatedAt, setUpdatedAt] = useState("");
+  const [mediaLayout, setMediaLayout] = useState<MediaLayout>("inline");
+  const [gallery, setGallery] = useState<ArticleImage[]>([]);
   const [status, setStatus] = useState("正在读取本地草稿…");
   const [hydrated, setHydrated] = useState(false);
   const [revision, setRevision] = useState(0);
   const savedRevision = useRef(0);
   const fileInput = useRef<HTMLInputElement>(null);
+  const importInput = useRef<HTMLInputElement>(null);
 
   const markChanged = useCallback(() => setRevision((value) => value + 1), []);
 
@@ -128,6 +151,23 @@ export function ArticleEditor() {
     setStatus(`正在导入 ${validFiles.length} 张图片…`);
     try {
       const sources = await Promise.all(validFiles.map(fileToDataUrl));
+      const importedImages = sources.map((src, index): ArticleImage => ({
+        id: `image-${Date.now()}-${index + 1}`,
+        type: "image",
+        src,
+        sourceName: validFiles[index].name,
+        alt: validFiles[index].name,
+        title: validFiles[index].name,
+        caption: "",
+      }));
+
+      if (mediaLayout === "gallery") {
+        setGallery((items) => [...items, ...importedImages]);
+        markChanged();
+        setStatus(`${validFiles.length} 张图片已加入图集${rejectedCount ? `，跳过 ${rejectedCount} 个不支持的文件` : ""}`);
+        return;
+      }
+
       const imageNodes = sources.map((src, index) => ({
         type: "image",
         attrs: { src, alt: validFiles[index].name, title: validFiles[index].name },
@@ -142,7 +182,7 @@ export function ArticleEditor() {
     } catch {
       setStatus("图片读取失败，请移除异常文件后重试");
     }
-  }, []);
+  }, [markChanged, mediaLayout]);
 
   const editor = useEditor({
     extensions: [
@@ -174,6 +214,8 @@ export function ArticleEditor() {
         setPlaceName(draft.placeName);
         setCreatedAt(draft.createdAt);
         setUpdatedAt(draft.updatedAt);
+        setMediaLayout(draft.mediaLayout);
+        setGallery(draft.gallery);
         editor.commands.setContent(draft.html, { emitUpdate: false });
         setStatus("本地草稿已恢复");
       } else {
@@ -194,7 +236,19 @@ export function ArticleEditor() {
     const timer = window.setTimeout(() => {
       const nextUpdatedAt = new Date().toISOString();
       const savingRevision = revision;
-      const draft: Draft = { title, description, placeId, placeName, createdAt, updatedAt: nextUpdatedAt, html: editor.getHTML() };
+      const draft: Draft = {
+        schemaVersion: 2,
+        kind: "journal",
+        title,
+        description,
+        placeId,
+        placeName,
+        createdAt,
+        updatedAt: nextUpdatedAt,
+        mediaLayout,
+        html: editor.getHTML(),
+        gallery,
+      };
 
       void set(DRAFT_KEY, draft)
         .then(() => {
@@ -206,7 +260,7 @@ export function ArticleEditor() {
     }, 600);
 
     return () => window.clearTimeout(timer);
-  }, [createdAt, description, editor, hydrated, placeId, placeName, revision, title]);
+  }, [createdAt, description, editor, gallery, hydrated, mediaLayout, placeId, placeName, revision, title]);
 
   const exportDraft = () => {
     if (!editor) return;
@@ -216,7 +270,21 @@ export function ArticleEditor() {
       return;
     }
     const exportedAt = new Date().toISOString();
-    const payload = JSON.stringify({ title, description, placeId, placeName: normalizedPlaceName, placeStatus: placeId ? "existing" : "needs-place-record", createdAt, updatedAt: exportedAt, html: editor.getHTML(), exportedAt }, null, 2);
+    const payload = JSON.stringify({
+      schemaVersion: 2,
+      kind: "journal",
+      title,
+      description,
+      placeId,
+      placeName: normalizedPlaceName,
+      placeStatus: placeId ? "existing" : "needs-place-record",
+      createdAt,
+      updatedAt: updatedAt || exportedAt,
+      exportedAt,
+      mediaLayout,
+      html: editor.getHTML(),
+      gallery,
+    }, null, 2);
     const blob = new Blob([payload], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
@@ -239,7 +307,45 @@ export function ArticleEditor() {
     setDescription("");
     setCreatedAt(today());
     setUpdatedAt("");
+    setMediaLayout("inline");
+    setGallery([]);
     setStatus("草稿已清空");
+  };
+
+  const toggleMediaLayout = (nextLayout: MediaLayout) => {
+    if (!editor || nextLayout === mediaLayout) return;
+
+    if (nextLayout === "gallery") {
+      const extracted = extractImagesFromHtml(editor.getHTML());
+      setGallery((items) => [...items, ...extracted.images]);
+      editor.commands.setContent(extracted.html, { emitUpdate: false });
+    } else {
+      editor.commands.setContent(appendImagesToHtml(editor.getHTML(), gallery), { emitUpdate: false });
+      setGallery([]);
+    }
+
+    setMediaLayout(nextLayout);
+    markChanged();
+  };
+
+  const importDraft = async (file: File) => {
+    try {
+      const imported = parseArticleDraft(JSON.parse(await file.text()));
+      if ((title.trim() || description.trim() || editor?.getText().trim() || gallery.length) && !window.confirm("导入会覆盖当前草稿，确定继续吗？")) return;
+      setTitle(imported.title);
+      setDescription(imported.description);
+      setPlaceId(imported.placeId);
+      setPlaceName(imported.placeName);
+      setCreatedAt(imported.createdAt || today());
+      setUpdatedAt(imported.updatedAt);
+      setMediaLayout(imported.mediaLayout);
+      setGallery(imported.gallery);
+      editor?.commands.setContent(imported.html, { emitUpdate: false });
+      markChanged();
+      setStatus("JSON 草稿已导入");
+    } catch (error) {
+      setStatus(error instanceof Error ? `导入失败：${error.message}` : "导入失败：JSON 格式无效");
+    }
   };
 
   const openFilePicker = () => {
@@ -302,6 +408,25 @@ export function ArticleEditor() {
         </div>
       </div>
 
+      <div className="editor-layout-switcher" role="group" aria-label="图片展示方式">
+        <span className="editor-layout-switcher__label">图片</span>
+        <button
+          type="button"
+          className={mediaLayout === "inline" ? "is-active" : ""}
+          onClick={() => toggleMediaLayout("inline")}
+        >
+          随文插入
+        </button>
+        <button
+          type="button"
+          className={mediaLayout === "gallery" ? "is-active" : ""}
+          onClick={() => toggleMediaLayout("gallery")}
+        >
+          <LayoutGrid size={15} />
+          图集展示
+        </button>
+      </div>
+
       <div className="editor-toolbar" aria-label="编辑工具">
         <div className="editor-toolbar-group">
           <button type="button" className="editor-tool-button" onClick={() => editor?.chain().focus().undo().run()} disabled={!editor?.can().chain().focus().undo().run()} aria-label="撤销" title="撤销"><Undo2 size={17} /></button>
@@ -332,16 +457,62 @@ export function ArticleEditor() {
       <div className="editor-paper">
         <EditorContent editor={editor} />
       </div>
+      {mediaLayout === "gallery" && (
+        <section className="editor-gallery" aria-label="文章图片">
+          <div className="editor-gallery__header">
+            <div>
+              <h2>图片</h2>
+              <p>{gallery.length ? `${gallery.length} 张图片将在正文之后展示` : "将图片拖到这里，文章会在正文之后集中展示"}</p>
+            </div>
+            <button type="button" className="editor-gallery__add" onClick={openFilePicker} disabled={!hydrated}>
+              <ImagePlus size={16} />
+              添加图片
+            </button>
+          </div>
+          {gallery.length > 0 && (
+            <div className="editor-gallery__grid">
+              {gallery.map((image) => (
+                <figure key={image.id} className="editor-gallery__item">
+                  <img src={image.src} alt={image.alt || image.sourceName} />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setGallery((items) => items.filter((item) => item.id !== image.id));
+                      markChanged();
+                    }}
+                    aria-label={`移除${image.sourceName}`}
+                    title="移除图片"
+                  >
+                    <X size={15} />
+                  </button>
+                </figure>
+              ))}
+            </div>
+          )}
+        </section>
+      )}
       <footer className="editor-footer">
         <div className="editor-save-state">
           <p className="editor-hint" role="status">{status}</p>
           <p className="editor-updated-at">最近修改 <time dateTime={updatedAt}>{updatedAt ? new Date(updatedAt).toLocaleString() : "尚未保存"}</time></p>
         </div>
         <div className="editor-actions">
+          <button type="button" onClick={() => importInput.current?.click()} className="editor-button editor-button-muted"><Upload size={16} /><span>导入 JSON</span></button>
           <button type="button" onClick={clearDraft} className="editor-button editor-button-muted"><Trash2 size={16} /><span>清空草稿</span></button>
           <button type="button" onClick={exportDraft} className="editor-button editor-button-dark"><Download size={16} /><span>导出 JSON</span></button>
         </div>
       </footer>
+      <input
+        ref={importInput}
+        type="file"
+        accept="application/json,.json"
+        className="editor-file-input"
+        onChange={(event) => {
+          const file = event.target.files?.[0];
+          if (file) void importDraft(file);
+          event.target.value = "";
+        }}
+      />
     </section>
   );
 }

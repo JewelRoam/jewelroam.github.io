@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { BackButton } from "./BackButton";
 import { GlassNav } from "./GlassNav";
 
 export function Layout({ children }: { children: ReactNode }) {
@@ -7,6 +8,8 @@ export function Layout({ children }: { children: ReactNode }) {
       <header className="site-header">
         <div className="site-header__inner">
           <GlassNav />
+          <BackButton />
+          <div id="site-header-actions" className="site-header__actions" />
         </div>
       </header>
       <main>

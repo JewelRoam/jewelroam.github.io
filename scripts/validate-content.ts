@@ -18,6 +18,7 @@ const placeSchema = z.object({
   id: z.string().min(1),
   slug: z.string().min(1),
   name: z.string().min(1),
+  parentId: z.string().min(1).optional(),
   country: z.string().min(1),
   region: z.string().min(1).optional(),
   coordinates: z.object({
@@ -47,6 +48,7 @@ const journalSchema = z.object({
   tags: z.array(z.string().min(1)),
   placeId: z.string().min(1),
   coverPhotoId: z.string().min(1).optional(),
+  mediaLayout: z.enum(["inline", "gallery"]).default("inline"),
 });
 
 type Journal = z.infer<typeof journalSchema>;
@@ -90,6 +92,19 @@ assertUnique(photos.map((photo) => photo.id), "photo id");
 assertUnique(journals.map(({ frontmatter }) => frontmatter.slug), "journal slug");
 
 const placeIds = new Set(places.map((place) => place.id));
+for (const place of places) {
+  if (place.parentId && !placeIds.has(place.parentId)) {
+    throw new Error(`Place ${place.id} references unknown parent: ${place.parentId}`);
+  }
+
+  const seen = new Set<string>();
+  let current: typeof place | undefined = place;
+  while (current?.parentId) {
+    if (seen.has(current.id)) throw new Error(`Place hierarchy contains a cycle at: ${current.id}`);
+    seen.add(current.id);
+    current = places.find((candidate) => candidate.id === current?.parentId);
+  }
+}
 const photoById = new Map(photos.map((photo) => [photo.id, photo]));
 
 for (const photo of photos) {
@@ -110,7 +125,10 @@ for (const { file, frontmatter } of journals) {
 
   const source = readFileSync(file, "utf8");
   const embeds = [...source.matchAll(/<PhotoEmbed\b[^>]*\bid=["']([^"']+)["']/g)].map((match) => match[1]);
-  for (const photoId of embeds) {
+  const galleryIds = [...source.matchAll(/<PhotoGallery\b[^>]*\bids=\{(\[[\s\S]*?\])\}/g)].flatMap((match) =>
+    z.array(z.string().min(1)).parse(vm.runInNewContext(`(${match[1]})`, Object.create(null), { timeout: 1000 })),
+  );
+  for (const photoId of [...embeds, ...galleryIds]) {
     const photo = photoById.get(photoId);
     if (!photo) throw new Error(`Journal ${frontmatter.slug} embeds unknown photo: ${photoId}`);
     if (photo.placeId !== frontmatter.placeId) {

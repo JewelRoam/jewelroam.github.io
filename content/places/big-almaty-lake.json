@@ -1,0 +1,25 @@
+{
+  "id": "big-almaty-lake",
+  "slug": "big-almaty-lake",
+  "name": "Big Almaty Lake",
+  "parentId": "almaty",
+  "country": "哈萨克斯坦",
+  "region": "阿拉木图市 · 外伊犁阿拉套山",
+  "coordinates": {
+    "latitude": 43.052,
+    "longitude": 76.983
+  },
+  "geometry": {
+    "type": "Polygon",
+    "coordinates": [[
+      [76.968, 43.046],
+      [76.977, 43.041],
+      [76.987, 43.044],
+      [76.992, 43.052],
+      [76.987, 43.060],
+      [76.976, 43.062],
+      [76.969, 43.056],
+      [76.968, 43.046]
+    ]]
+  }
+}

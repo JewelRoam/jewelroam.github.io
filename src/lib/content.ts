@@ -1,5 +1,6 @@
 import type { ComponentType } from "react";
 import { z } from "zod";
+import { MEDIA_LAYOUTS } from "./article-document";
 
 export const PUBLIC_RIGHTS_URL = "https://jewelroam.github.io/rights" as const;
 
@@ -16,6 +17,7 @@ const placeSchema = z.object({
   id: z.string().min(1),
   slug: z.string().min(1),
   name: z.string().min(1),
+  parentId: z.string().min(1).optional(),
   country: z.string().min(1),
   region: z.string().min(1).optional(),
   coordinates: z.object({
@@ -45,6 +47,7 @@ const journalFrontmatterSchema = z.object({
   tags: z.array(z.string().min(1)),
   placeId: z.string().min(1),
   coverPhotoId: z.string().min(1).optional(),
+  mediaLayout: z.enum(MEDIA_LAYOUTS).default("inline"),
 });
 
 export type Place = z.infer<typeof placeSchema>;

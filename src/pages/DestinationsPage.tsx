@@ -6,6 +6,7 @@ export function DestinationsPage() {
     id: place.id,
     slug: place.slug,
     name: place.name,
+    parentId: place.parentId,
     center: [place.coordinates.longitude, place.coordinates.latitude] as [
       number,
       number,

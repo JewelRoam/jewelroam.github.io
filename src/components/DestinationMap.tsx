@@ -21,6 +21,7 @@ export type Destination = {
   id: string;
   slug: string;
   name: string;
+  parentId?: string;
   center: DestinationCenter;
   geometry?: DestinationGeometry;
   color?: string;
@@ -58,16 +59,45 @@ function fallbackGeometry([longitude, latitude]: DestinationCenter): Polygon {
   };
 }
 
+function renderDepths(destinations: Destination[]) {
+  const byId = new Map(destinations.map((destination) => [destination.id, destination]));
+  const cache = new Map<string, number>();
+
+  const depthFor = (id: string, trail = new Set<string>()): number => {
+    const cached = cache.get(id);
+    if (cached !== undefined) return cached;
+    if (trail.has(id)) return 0;
+    const parentId = byId.get(id)?.parentId;
+    if (!parentId || !byId.has(parentId)) {
+      cache.set(id, 0);
+      return 0;
+    }
+    const nextTrail = new Set(trail);
+    nextTrail.add(id);
+    const depth = depthFor(parentId, nextTrail) + 1;
+    cache.set(id, depth);
+    return depth;
+  };
+
+  return new Map(destinations.map((destination) => [destination.id, depthFor(destination.id)]));
+}
+
 function toFeatureCollection(destinations: Destination[]): FeatureCollection<DestinationGeometry> {
+  const depths = renderDepths(destinations);
+  const ordered = [...destinations].sort((a, b) =>
+    (depths.get(a.id) ?? 0) - (depths.get(b.id) ?? 0) || a.id.localeCompare(b.id),
+  );
   return {
     type: "FeatureCollection",
-    features: destinations.map((destination) => ({
+    features: ordered.map((destination) => ({
       type: "Feature",
       id: destination.id,
       properties: {
         id: destination.id,
         slug: destination.slug,
         name: destination.name,
+        parentId: destination.parentId ?? null,
+        depth: depths.get(destination.id) ?? 0,
         color: destination.color ?? "#b85c45",
       },
       geometry: destination.geometry ?? fallbackGeometry(destination.center),
@@ -220,7 +250,10 @@ export function DestinationMap({ destinations, onSelect, className, ariaLabel = 
       if (id !== null) map.setFeatureState({ source: SOURCE_ID, id }, { hover: true });
     };
     const handleMove = (event: maplibregl.MapLayerMouseEvent) => {
-      const feature = event.features?.[0];
+      const feature = [...(event.features ?? [])].sort((a, b) =>
+        Number(b.properties?.depth ?? 0) - Number(a.properties?.depth ?? 0) ||
+        String(a.properties?.id ?? a.id).localeCompare(String(b.properties?.id ?? b.id)),
+      )[0];
       map.getCanvas().style.cursor = feature ? "pointer" : "";
       setHover(feature?.id ?? null);
     };
@@ -229,7 +262,11 @@ export function DestinationMap({ destinations, onSelect, className, ariaLabel = 
       setHover(null);
     };
     const handleClick = (event: maplibregl.MapLayerMouseEvent) => {
-      const id = event.features?.[0]?.id;
+      const feature = [...(event.features ?? [])].sort((a, b) =>
+        Number(b.properties?.depth ?? 0) - Number(a.properties?.depth ?? 0) ||
+        String(a.properties?.id ?? a.id).localeCompare(String(b.properties?.id ?? b.id)),
+      )[0];
+      const id = feature?.id;
       if (id === undefined || id === null) return;
       const destination = destinationsRef.current.find((entry) => entry.id === String(id) || entry.id === id);
       if (destination) onSelectRef.current?.(destination);

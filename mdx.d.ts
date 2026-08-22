@@ -10,6 +10,7 @@ declare module "*.mdx" {
     tags: string[];
     placeId: string;
     coverPhotoId?: string;
+    mediaLayout?: "inline" | "gallery";
   };
 
   const MDXContent: ComponentType<Record<string, unknown>>;

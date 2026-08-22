@@ -47,6 +47,14 @@ function safeName(name, index, extension) {
   return `${String(index).padStart(2, "0")}-${base || `image-${String(index).padStart(2, "0")}.${extension}`}`;
 }
 
+function remoteImage(rawSource) {
+  const pathname = new URL(rawSource).pathname.toLowerCase();
+  const extension = pathname.match(/\.(jpe?g|png|webp|gif|avif)$/)?.[1] ?? "jpeg";
+  const mime = extension === "jpg" || extension === "jpeg" ? "image/jpeg" : `image/${extension}`;
+  const bytes = execFileSync("curl", ["-fsSL", "--max-time", "60", rawSource]);
+  return { mime, bytes };
+}
+
 const input = process.argv[2];
 const output = option("--output");
 if (!input || !output) usage();
@@ -56,6 +64,8 @@ if (!Number.isFinite(maxImageMb) || maxImageMb <= 0) throw new Error("--max-imag
 const maxImageBytes = maxImageMb * 1024 * 1024;
 const draft = JSON.parse(fs.readFileSync(path.resolve(input), "utf8"));
 if (typeof draft.html !== "string") throw new Error("Draft must contain an html string");
+const placeId = option("--place-id", draft.placeId ?? "");
+const placeName = option("--place-name", draft.placeName ?? "");
 const mediaLayout = draft.mediaLayout === "gallery" ? "gallery" : "inline";
 const gallery = Array.isArray(draft.gallery) ? draft.gallery : [];
 
@@ -71,15 +81,19 @@ const galleryHtml = mediaLayout === "gallery"
 const sourceHtml = `${draft.html}${galleryHtml}`.replace(/<img\b[^>]*>/gi, (tag) => {
   imageIndex += 1;
   const attrs = attributes(tag);
-  const match = String(attrs.src ?? "").match(/^data:(image\/[\w.+-]+);base64,([\s\S]*)$/);
-  if (!match || !ALLOWED_TYPES.has(match[1])) throw new Error(`Image ${imageIndex} is missing an allowed base64 image source`);
+  const rawSource = String(attrs.src ?? "");
+  const match = rawSource.match(/^data:(image\/[\w.+-]+);base64,([\s\S]*)$/);
+  const source = match
+    ? { mime: match[1], bytes: Buffer.from(match[2], "base64") }
+    : remoteImage(rawSource);
+  if (!ALLOWED_TYPES.has(source.mime)) throw new Error(`Image ${imageIndex} has an unsupported image type: ${source.mime}`);
 
-  const bytes = Buffer.from(match[2], "base64");
+  const bytes = source.bytes;
   if (bytes.length > maxImageBytes) {
     throw new Error(`Image ${imageIndex} is ${(bytes.length / 1048576).toFixed(2)} MiB, above the ${maxImageMb} MiB limit`);
   }
 
-  const extension = match[1].split("/")[1].replace("jpeg", "jpg");
+  const extension = source.mime.split("/")[1].replace("jpeg", "jpg");
   const filename = safeName(attrs.alt || attrs.title || "", imageIndex, extension);
   const filePath = path.join(imageDir, filename);
   fs.writeFileSync(filePath, bytes);
@@ -89,14 +103,14 @@ const sourceHtml = `${draft.html}${galleryHtml}`.replace(/<img\b[^>]*>/gi, (tag)
     id,
     sourceName: attrs.alt || attrs.title || filename,
     filename: `images/${filename}`,
-    mime: match[1],
+    mime: source.mime,
     bytes: bytes.length,
     dimensions: dimensions(filePath),
     title: "",
     alt: "",
     takenAt: "",
-    placeId: draft.placeId ?? "",
-    placeName: draft.placeName ?? "",
+    placeId,
+    placeName,
     // Rights stay pending in drafts; confirmed published records use the project Rights page.
     rights: { notice: "", licenseUrl: "" },
   });
@@ -119,14 +133,23 @@ const source = {
   kind: draft.kind ?? "journal",
   title: draft.title ?? "",
   description: draft.description ?? "",
-  placeId: draft.placeId ?? "",
-  placeName: draft.placeName ?? "",
+  placeId,
+  placeName,
   createdAt: draft.createdAt ?? "",
   updatedAt: draft.updatedAt ?? "",
   exportedAt: draft.exportedAt ?? "",
   mediaLayout,
   html: sourceHtml,
-  gallery,
+  // Keep the v2 gallery contract reviewable without duplicating embedded payloads.
+  gallery: gallery.map((image, index) => ({
+    id: image.id ?? `image-${String(index + 1).padStart(2, "0")}`,
+    type: image.type ?? "image",
+    sourceName: image.sourceName ?? image.alt ?? image.title ?? "",
+    alt: image.alt ?? "",
+    title: image.title ?? "",
+    caption: image.caption ?? "",
+    filename: images[index]?.filename ?? "",
+  })),
 };
 const manifest = {
   status: "needs-confirmation",
