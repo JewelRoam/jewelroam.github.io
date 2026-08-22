@@ -76,7 +76,7 @@ export function JewelRoamPage() {
       title="JewelRoam"
       intro={
         <div className="space-y-3">
-          <p>欢迎来看我，这个 ID 来自于我中文名的音译。</p>
+          <p>欢迎来看我，这个 ID 来自于我中文名的音译，网站图标是名字的第三字，来自欧阳询《九成宫醴泉碑》。</p>
           <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm leading-6">
             <span>
               <span className="text-[#20211f]/50">WeChat</span> ·{" "}
