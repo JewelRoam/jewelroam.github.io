@@ -1,0 +1,21 @@
+{
+  "id": "samarkand",
+  "slug": "samarkand",
+  "name": "Samarkand",
+  "country": "乌兹别克斯坦",
+  "region": "撒马尔罕市",
+  "coordinates": {
+    "latitude": 39.6542,
+    "longitude": 66.9597
+  },
+  "geometry": {
+    "type": "Polygon",
+    "coordinates": [[
+      [66.78, 39.55],
+      [67.15, 39.55],
+      [67.20, 39.78],
+      [66.78, 39.78],
+      [66.78, 39.55]
+    ]]
+  }
+}
