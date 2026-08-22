@@ -2,7 +2,7 @@ import { createPortal } from "react-dom";
 import { useEffect, useRef, useState } from "react";
 import { Link, Navigate, useParams } from "react-router-dom";
 import { ArticleExportMenu } from "../components/ArticleExportMenu";
-import { getJournal, getPlace } from "../lib/content";
+import { getJournal, getPlaces } from "../lib/content";
 
 export function JournalPage() {
   const slug = decodeURIComponent(useParams().slug || "");
@@ -17,12 +17,12 @@ export function JournalPage() {
   if (!journal) return <Navigate to="/journals" replace />;
 
   const Content = journal.default;
-  const place = getPlace(journal.frontmatter.placeId);
+  const journalPlaces = getPlaces(journal.frontmatter.placeIds);
   const exportMenu = (
     <ArticleExportMenu
       slug={journal.frontmatter.slug}
       frontmatter={journal.frontmatter}
-      placeName={place?.name}
+      placeNames={journalPlaces.map((place) => place.name)}
       getArticle={() => articleRef.current}
     />
   );
@@ -39,18 +39,14 @@ export function JournalPage() {
           <time dateTime={journal.frontmatter.createdAt}>
             {journal.frontmatter.createdAt}
           </time>
-          {place ? (
-            <>
-              {" "}
-              ·{" "}
-              <Link
-                className="underline underline-offset-4"
-                to={`/destinations/${place.slug}`}
-              >
+          {journalPlaces.map((place) => (
+            <span key={place.id}>
+              {" "}·{" "}
+              <Link className="underline underline-offset-4" to={`/destinations/${place.slug}`}>
                 {place.name}
               </Link>
-            </>
-          ) : null}
+            </span>
+          ))}
         </p>
       </div>
       <h1 className="mt-4 font-serif text-5xl leading-tight">

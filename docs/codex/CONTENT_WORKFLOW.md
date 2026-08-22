@@ -26,11 +26,13 @@ node .agents/skills/jewelroam-image-pipeline/scripts/stage_article_draft.mjs \
 http://127.0.0.1:5173/capture
 ```
 
-编辑器支持标题、摘要、创建日期、段落、撤销/重做、粗体、斜体、小标题、引用、列表，以及同时拖入、粘贴或选择多张图片。图片可以选择随文插入，或集中放在正文后的响应式图集；切换模式会迁移现有图片而不复制内容。地点控件可以搜索已有 Place，也可以直接输入新地点；新地点会以 `needs-place-record` 状态导出，等待 Agent 补全坐标和地图几何后再发布。创建日期 `createdAt` 可以手动修改；修改日期 `updatedAt` 由编辑器在内容真实变化并自动保存时记录，不能手动修改。正文底部显示自动保存状态和最近修改时间，并提供 JSON 导入、清空草稿与 JSON 导出动作。草稿经过防抖后自动保存在当前浏览器的 IndexedDB 中，图片先以内嵌预览保存，不会自动上传 R2；IndexedDB 只接受当前草稿协议，不迁移旧格式。
+编辑器支持标题、摘要、创建日期、段落、撤销/重做、粗体、斜体、小标题、引用、列表，以及同时拖入、粘贴或选择多张图片。图片可以选择随文插入，或集中放在正文后的响应式图集；切换模式会迁移现有图片而不复制内容。地点控件支持多选已有 Place，也可以输入多个新地点；新地点会以空 `id` 导出，等待 Agent 补全坐标和地图几何后再发布。创建日期 `createdAt` 可以手动修改；修改日期 `updatedAt` 由编辑器在内容真实变化并自动保存时记录，不能手动修改。正文底部显示自动保存状态和最近修改时间，并提供 JSON 导入、清空草稿与 JSON 导出动作。草稿经过防抖后自动保存在当前浏览器的 IndexedDB 中，图片先以内嵌预览保存，不会自动上传 R2；IndexedDB 只接受当前草稿协议，不迁移旧格式。
 
 地点可以有可选的父地点。例如景区、湖泊可以通过 `parentId` 归档到城市；重叠几何由地图按地点层级处理，具体地点优先于父级地点。父级必须是已有 Place，且不能形成循环。
 
-点击“导出 JSON”会下载一个 `schemaVersion: 2` 的 JSON 文件，其中包含 `createdAt`、真实 `updatedAt`、`mediaLayout`、正文和图片。Capture 可以重新导入同一格式；Journal 页面也使用完全相同的格式导出。把文件交给 agent 后可以生成正式 MDX、图片 manifest 和 R2 发布清单。
+点击“导出 JSON”会下载一个 `schemaVersion: 3` 的 JSON 文件，其中包含 `createdAt`、真实 `updatedAt`、`places`、`mediaLayout`、正文和图片。Capture 可以重新导入同一格式；Journal 页面也使用完全相同的格式导出。把文件交给 agent 后可以生成正式 MDX、图片 manifest 和 R2 发布清单。
+
+Journal 的 PDF 和分页 PNG 导出共用同一个 9:16 导出舞台、字号、图片间距和分页逻辑；PDF 直接打印这些分页，PNG 则将每页打包为 ZIP。PNG 需要图片域名允许浏览器跨域读取。
 
 导入时浏览器会先解析 JSON，再按严格的共享文章 Schema 检查字段和协议关系；未知字段、错误日期、地点状态不一致或 inline/gallery 数据冲突都会被拒绝，错误会显示具体字段路径，不会覆盖当前草稿。本地 IndexedDB 使用单独的可缺省草稿 Schema，只服务于自动保存和旧草稿补全。上线前的 `npm run content:validate` 是仓库级最终检查：它会读取所有 Place、Photo 和 Journal，检查字段、唯一 ID、地点层级、GeoJSON 环以及文章中的图片引用。两者使用同一份 Schema，但浏览器不会承担整个内容库的关系审计。
 
@@ -46,7 +48,7 @@ http://127.0.0.1:5173/capture
 
 批量图片或无法在编辑器中预览的原始文件，仍可以放进 `content/inbox/`，再让 agent 扫描处理。该目录默认作为本地素材保留，不自动提交到 Git；正式内容只写入 `content/journals/`、`content/places/` 和 `content/photos/`。
 
-4. agent 给出图片名称、尺寸、alt、拍摄日期、地点、版权字段和文章引用的变更预览；同时确认 Journal 与每张图片绑定的唯一 `placeId`。已确认公开发布的正式照片，其 `rights.licenseUrl` 必须统一为 `https://jewelroam.github.io/rights`；草稿阶段可以留空，不能把空值写入正式 `content/photos/*.json`。
+4. agent 给出图片名称、尺寸、alt、拍摄日期、地点、版权字段和文章引用的变更预览；同时确认 Journal 的 `placeIds` 与每张图片的唯一 `placeId`，图片地点必须属于文章地点集合。已确认公开发布的正式照片，其 `rights.licenseUrl` 必须统一为 `https://jewelroam.github.io/rights`；草稿阶段可以留空，不能把空值写入正式 `content/photos/*.json`。
 5. 你确认内容无误后，再说：
 
    ```text
@@ -77,7 +79,7 @@ agent 应该按以下顺序工作：
 
 编辑器导出的草稿使用内嵌图片数据，不写 R2 URL。正式 MDX 阶段由 agent 将图片转换成项目组件引用：
 
-发布阶段由 agent 确保 `content/photos/*.json` 中的 `id`、唯一 `placeId`、尺寸、替代文本、R2 路径和版权字段完整；每篇 Journal 的 frontmatter 也必须包含唯一 `placeId`。组件会统一生成：
+发布阶段由 agent 确保 `content/photos/*.json` 中的 `id`、唯一 `placeId`、尺寸、替代文本、R2 路径和版权字段完整；每篇 Journal 的 frontmatter 必须包含一个或多个 `placeIds`，且覆盖文章中所有图片地点。组件会统一生成：
 
 ```mdx
 import { PhotoEmbed } from "../../src/components/PhotoEmbed";

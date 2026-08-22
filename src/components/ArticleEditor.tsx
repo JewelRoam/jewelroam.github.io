@@ -48,8 +48,7 @@ type EditableDraft = Pick<
   | "kind"
   | "title"
   | "description"
-  | "placeId"
-  | "placeName"
+  | "places"
   | "createdAt"
   | "updatedAt"
   | "mediaLayout"
@@ -58,6 +57,7 @@ type EditableDraft = Pick<
 >;
 
 type PlaceOption = { value: string; label: string; name: string; existing: boolean };
+type SelectedPlace = { id: string; name: string };
 
 const PLACE_OPTIONS: PlaceOption[] = places.map((place) => ({
   value: place.id,
@@ -89,8 +89,7 @@ async function readDraft() {
 export function ArticleEditor() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [placeId, setPlaceId] = useState("");
-  const [placeName, setPlaceName] = useState("");
+  const [selectedPlaces, setSelectedPlaces] = useState<SelectedPlace[]>([]);
   const [createdAt, setCreatedAt] = useState(today);
   const [updatedAt, setUpdatedAt] = useState("");
   const [mediaLayout, setMediaLayout] = useState<MediaLayout>("inline");
@@ -175,8 +174,7 @@ export function ArticleEditor() {
       if (draft) {
         setTitle(draft.title);
         setDescription(draft.description);
-        setPlaceId(draft.placeId);
-        setPlaceName(draft.placeName);
+        setSelectedPlaces(draft.places);
         setCreatedAt(draft.createdAt);
         setUpdatedAt(draft.updatedAt);
         setMediaLayout(draft.mediaLayout);
@@ -202,12 +200,11 @@ export function ArticleEditor() {
       const nextUpdatedAt = new Date().toISOString();
       const savingRevision = revision;
       const draft: EditableDraft = {
-        schemaVersion: 2,
+        schemaVersion: 3,
         kind: "journal",
         title,
         description,
-        placeId,
-        placeName,
+        places: selectedPlaces,
         createdAt,
         updatedAt: nextUpdatedAt,
         mediaLayout,
@@ -225,24 +222,21 @@ export function ArticleEditor() {
     }, 600);
 
     return () => window.clearTimeout(timer);
-  }, [createdAt, description, editor, gallery, hydrated, mediaLayout, placeId, placeName, revision, title]);
+  }, [createdAt, description, editor, gallery, hydrated, mediaLayout, revision, selectedPlaces, title]);
 
   const exportDraft = () => {
     if (!editor) return;
-    const normalizedPlaceName = placeName.trim();
-    if (!normalizedPlaceName) {
-      setStatus("请先选择或输入一个地点");
+    if (!selectedPlaces.length) {
+      setStatus("请先选择或输入至少一个地点");
       return;
     }
     const exportedAt = new Date().toISOString();
     const payload = articleDraftSchema.parse({
-      schemaVersion: 2,
+      schemaVersion: 3,
       kind: "journal",
       title,
       description,
-      placeId,
-      placeName: normalizedPlaceName,
-      placeStatus: placeId ? "existing" : "needs-place-record",
+      places: selectedPlaces,
       createdAt,
       updatedAt: updatedAt || exportedAt,
       exportedAt,
@@ -267,8 +261,7 @@ export function ArticleEditor() {
     editor?.commands.clearContent(false);
     savedRevision.current = revision;
     setTitle("");
-    setPlaceId("");
-    setPlaceName("");
+    setSelectedPlaces([]);
     setDescription("");
     setCreatedAt(today());
     setUpdatedAt("");
@@ -311,8 +304,7 @@ export function ArticleEditor() {
       if ((title.trim() || description.trim() || editor?.getText().trim() || gallery.length) && !window.confirm("导入会覆盖当前草稿，确定继续吗？")) return;
       setTitle(imported.title);
       setDescription(imported.description);
-      setPlaceId(imported.placeId);
-      setPlaceName(imported.placeName);
+      setSelectedPlaces(imported.places);
       setCreatedAt(imported.createdAt || today());
       setUpdatedAt(imported.updatedAt);
       setMediaLayout(imported.mediaLayout);
@@ -353,30 +345,39 @@ export function ArticleEditor() {
         <div className="editor-context-fields">
           <div className="editor-field editor-place-field">
             <label htmlFor="editor-place-select">地点</label>
-            <CreatableSelect<PlaceOption, false>
+            <CreatableSelect<PlaceOption, true>
               inputId="editor-place-select"
-              aria-label="Journal 地点"
+              aria-label="Journal 地点，可多选"
               className="editor-place-select"
               classNamePrefix="place-select"
               options={PLACE_OPTIONS}
-              value={placeName ? (PLACE_OPTIONS.find((option) => option.value === placeId) ?? { value: placeName, label: placeName, name: placeName, existing: false }) : null}
-              onChange={(option) => {
-                setPlaceId(option?.existing ? option.value : "");
-                setPlaceName(option?.name ?? "");
+              value={selectedPlaces.map((place) => PLACE_OPTIONS.find((option) => option.value === place.id) ?? {
+                value: place.id || place.name,
+                label: place.name,
+                name: place.name,
+                existing: Boolean(place.id),
+              })}
+              onChange={(options) => {
+                setSelectedPlaces(options.map((option) => ({
+                  id: option.existing ? option.value : "",
+                  name: option.name,
+                })));
                 markChanged();
               }}
               onCreateOption={(input) => {
-                setPlaceId("");
-                setPlaceName(input.trim());
+                const name = input.trim();
+                if (!name || selectedPlaces.some((place) => place.name === name)) return;
+                setSelectedPlaces((places) => [...places, { id: "", name }]);
                 markChanged();
               }}
               formatCreateLabel={(input) => `新建地点“${input}”`}
               noOptionsMessage={() => "输入新地点并按回车"}
-              placeholder="搜索或输入新地点"
-              isClearable
+              placeholder="搜索或输入一个或多个地点"
+              isClearable={false}
+              isMulti
               unstyled
             />
-            {!placeId && placeName && <p className="editor-place-note">新地点将在发布前由 Agent 补全坐标和地图区域。</p>}
+            {selectedPlaces.some((place) => !place.id) && <p className="editor-place-note">新地点将在发布前由 Agent 补全坐标和地图区域。</p>}
           </div>
           <label className="editor-field editor-date-field">
             <span>创建日期</span>

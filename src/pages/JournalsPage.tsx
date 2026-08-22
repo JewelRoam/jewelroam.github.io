@@ -1,13 +1,13 @@
 import { Link } from "react-router-dom";
 import { Page } from "../components/Page";
-import { getPlace, journals } from "../lib/content";
+import { getPlaces, journals } from "../lib/content";
 
 export function JournalsPage() {
   return (
     <Page title="Journals" intro="旅行不是抵达之后才开始的。">
       <div className="divide-y divide-[#20211f]/10">
         {journals.map((journal) => {
-          const place = getPlace(journal.frontmatter.placeId);
+          const journalPlaces = getPlaces(journal.frontmatter.placeIds);
 
           return (
             <Link
@@ -20,7 +20,7 @@ export function JournalsPage() {
                 <time dateTime={journal.frontmatter.createdAt}>
                   {journal.frontmatter.createdAt}
                 </time>
-                {place ? ` · ${place.name}` : ""}
+                {journalPlaces.length ? ` · ${journalPlaces.map((place) => place.name).join("、")}` : ""}
               </p>
               <h2 className="mt-2 font-serif text-2xl">
                 {journal.frontmatter.title}

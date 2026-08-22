@@ -17,13 +17,14 @@ export const articleImageSchema = z.object({
 }).strict();
 
 const articleDraftShape = {
-  schemaVersion: z.literal(2),
+  schemaVersion: z.literal(3),
   kind: z.literal("journal"),
   title: z.string(),
   description: z.string(),
-  placeId: z.string(),
-  placeName: z.string().min(1),
-  placeStatus: z.enum(["existing", "needs-place-record"]),
+  places: z.array(z.object({
+    id: z.string(),
+    name: z.string().min(1),
+  }).strict()).min(1),
   createdAt: z.string().date(),
   updatedAt: z.string().datetime({ offset: true }),
   exportedAt: z.string().datetime({ offset: true }),
@@ -33,24 +34,20 @@ const articleDraftShape = {
 };
 
 export const articleDraftSchema = z.object(articleDraftShape).strict().superRefine((draft, context) => {
-  if (draft.placeStatus === "existing" && !draft.placeId) {
-    context.addIssue({ code: z.ZodIssueCode.custom, path: ["placeId"], message: "Existing places require placeId" });
-  }
-  if (draft.placeStatus === "needs-place-record" && draft.placeId) {
-    context.addIssue({ code: z.ZodIssueCode.custom, path: ["placeId"], message: "New places must not have placeId" });
-  }
   if (draft.mediaLayout === "inline" && draft.gallery.length) {
     context.addIssue({ code: z.ZodIssueCode.custom, path: ["gallery"], message: "Inline drafts must keep gallery empty" });
   }
 });
 
 export const storedDraftSchema = z.object({
-  schemaVersion: z.literal(2),
+  schemaVersion: z.literal(3),
   kind: z.literal("journal"),
   title: z.string(),
   description: z.string(),
-  placeId: z.string(),
-  placeName: z.string(),
+  places: z.array(z.object({
+    id: z.string(),
+    name: z.string().min(1),
+  }).strict()).min(1),
   createdAt: z.string().date(),
   updatedAt: z.string().datetime({ offset: true }),
   mediaLayout: z.enum(MEDIA_LAYOUTS),
@@ -111,7 +108,7 @@ export const journalFrontmatterSchema = z.object({
   description: z.string().min(1),
   createdAt: z.string().date(),
   updatedAt: z.string().datetime({ offset: true }),
-  placeId: z.string().min(1),
+  placeIds: z.array(z.string().min(1)).min(1),
   mediaLayout: z.enum(MEDIA_LAYOUTS),
 }).strict();
 

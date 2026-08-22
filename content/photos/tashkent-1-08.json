@@ -1,0 +1,18 @@
+{
+  "id": "tashkent-1-08",
+  "title": "旧物摊位",
+  "alt": "堆满相机、勋章、硬币、茶壶和书籍的旧物摊",
+  "takenAt": "2026-05-24",
+  "placeId": "tashkent",
+  "dimensions": {
+    "width": 5712,
+    "height": 4284
+  },
+  "media": {
+    "path": "upload/photos/2026/tashkent-1-08.jpg"
+  },
+  "rights": {
+    "notice": "© 2026 JewelRoam. All rights reserved.",
+    "licenseUrl": "https://jewelroam.github.io/rights"
+  }
+}

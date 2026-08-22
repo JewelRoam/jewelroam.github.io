@@ -33,20 +33,20 @@ Place 是 Journal 和 Photo 的共同归档键：
 ```text
 Place 1 ── N Journals
 Place 1 ── N Photos
-Journal N ── 1 Place
+Journal N ── N Places
 Photo N ── 1 Place
 ```
 
-一个 Journal 只能属于一个 Place，从而避免文章和地图区域的多对多同步。正式数据分别位于 `content/places`、`content/journals` 和 `content/photos`，字段协议集中在 `src/lib/content-schema.ts`。
+一个 Journal 可以属于多个 Place；每张 Photo 仍只属于一个实际拍摄地点。正式数据分别位于 `content/places`、`content/journals` 和 `content/photos`，字段协议集中在 `src/lib/content-schema.ts`。
 
 内容校验分为两个边界：浏览器端用共享 Schema 的 `safeParse` 校验导入 JSON 和静态内容，并把错误转换成带文件/字段路径的提示；正式 ArticleDraft 协议和 IndexedDB StoredDraft 协议都只接受当前格式，不迁移旧数据。Node 端的 `npm run content:validate` 读取整个仓库，用同一份 Schema 校验单文件，再由 `src/lib/content-validation.ts` 检查 ID 唯一性、地点层级、GeoJSON 环和 Journal/Photo 引用关系。Node 脚本用 TypeScript AST 读取 MDX 中导出的静态 `frontmatter`，对 PhotoEmbed/PhotoGallery 只接受明确的静态属性，不执行文章代码，也不再维护另一份字段协议。
 
-Place 可以通过可选的 `parentId` 表达包含关系，例如 `Big Almaty Lake → Almaty`。这不改变 Journal 的单地点约束，也不把一篇文章拆成多个地点。地图 GeoJSON 会按层级排序，让父区域先绘制、子区域后绘制；重叠区域的悬停和点击始终优先选择层级更深的地点。校验器会检查父级存在且层级无循环，避免依赖文件名顺序产生歧义。
+Place 可以通过可选的 `parentId` 表达包含关系，例如 `Big Almaty Lake → Almaty`。Journal 的 `placeIds` 表达文章涉及的地点集合，文章内每张 Photo 的 `placeId` 必须属于这个集合。地图 GeoJSON 会按层级排序，让父区域先绘制、子区域后绘制；重叠区域的悬停和点击始终优先选择层级更深的地点。校验器会检查父级存在且层级无循环，避免依赖文件名顺序产生歧义。
 
 ## 图片与发布边界
 
-Capture 的草稿和 Base64 图片仅保存在当前浏览器 IndexedDB；它不直接写仓库或上传 R2。正式发行图进入 `jewelroam-media`，页面只通过 `src/lib/media.ts` 生成自定义域名和 Image Transformations URL。每张正式照片 metadata 的 `rights.licenseUrl` 固定为 `https://jewelroam.github.io/rights`；`content/inbox/` 是本地素材和中间产物目录，不属于运行时内容源；除非用户明确要求，不应提交或删除其中的素材。
+Capture 的草稿和 Base64 图片仅保存在当前浏览器 IndexedDB；它不直接写仓库或上传 R2。正式照片以一份清理 EXIF 后的全尺寸 JPEG 进入 `jewelroam-media`，页面只通过 `src/lib/media.ts` 请求 Cloudflare Image Transformations 的缩略图。每张正式照片 metadata 的 `rights.licenseUrl` 固定为 `https://jewelroam.github.io/rights`；`content/inbox/` 是本地素材和中间产物目录，不属于运行时内容源；除非用户明确要求，不应提交或删除其中的素材。
 
-Capture 与 Journal JSON 导出共用 `schemaVersion: 2` 的文章协议，并以 `mediaLayout: "inline" | "gallery"` 区分展示方式。对用户和 Agent 来说，一篇文章仍然是一个可导入/导出的 JSON 文件；仓库内部没有引入额外的 sidecar 元数据格式。Journal 导出会尽量将 R2 图片转成 Base64；R2 未允许跨域读取时保留远程 URL，仍可在线导入 Capture。分页 PNG 必须读取图片像素，因此要求 R2 CORS 允许站点来源。
+Capture 与 Journal JSON 导出共用 `schemaVersion: 3` 的文章协议，`places` 保存地点 ID 与名称，正式 Journal frontmatter 使用 `placeIds` 数组，并以 `mediaLayout: "inline" | "gallery"` 区分展示方式。对用户和 Agent 来说，一篇文章仍然是一个可导入/导出的 JSON 文件；仓库内部没有引入额外的 sidecar 元数据格式。Journal 导出会尽量将 R2 图片转成 Base64；R2 未允许跨域读取时保留远程 URL，仍可在线导入 Capture。Journal 的 PDF 与分页 PNG 共用同一个 9:16 导出舞台、字号、图片间距和分页逻辑；PNG 将每页转为图片 ZIP，PDF 则直接打印这些分页。分页 PNG 必须读取图片像素，因此要求 R2 CORS 允许站点来源。
 
 发布顺序固定为：本地确认内容与发行文件，上传并验证 R2 对象，写入正式内容记录，运行校验和构建，最后提交并推送 GitHub。仓库不区分 staging 与 production。

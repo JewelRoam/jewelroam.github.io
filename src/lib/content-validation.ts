@@ -113,19 +113,21 @@ export function validateContentGraph({ places, photos, journals }: ContentGraph)
 
   for (const record of journals) {
     const journal = record.value;
-    if (!placeById.has(journal.placeId)) {
-      issues.push({ source: record.source, path: "placeId", message: `Unknown place “${journal.placeId}”` });
+    for (const placeId of journal.placeIds) {
+      if (!placeById.has(placeId)) {
+        issues.push({ source: record.source, path: "placeIds", message: `Unknown place “${placeId}”` });
+      }
     }
 
     for (const photoId of record.photoIds) {
       const photo = photoById.get(photoId)?.value;
       if (!photo) {
         issues.push({ source: record.source, path: "article", message: `Unknown embedded photo “${photoId}”` });
-      } else if (photo.placeId !== journal.placeId) {
+      } else if (!journal.placeIds.includes(photo.placeId)) {
         issues.push({
           source: record.source,
           path: "article",
-          message: `Photo “${photo.id}” belongs to “${photo.placeId}”, not “${journal.placeId}”`,
+          message: `Photo “${photo.id}” belongs to “${photo.placeId}”, which is not listed by this Journal`,
         });
       }
     }

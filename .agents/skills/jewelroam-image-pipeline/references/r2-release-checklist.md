@@ -39,7 +39,7 @@ R2 release URLs are immutable. When replacing an already published object, use a
 
 ## Release order
 
-1. Confirm article text, description, dates, image metadata, rights, and the exact set of files to publish.
+1. Confirm article text, description, dates, all Journal places, each photo's actual place, rights, and the exact set of files to publish.
 2. Generate formal manifests and MDX references.
 3. Run `npm run content:validate`, `npm run typecheck`, and `npm run build`.
 4. Upload only the approved release files to `jewelroam-media`.

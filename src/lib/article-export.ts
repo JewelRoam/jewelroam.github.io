@@ -5,7 +5,7 @@ import { replaceArticleMediaWithImages } from "./article-document";
 type JournalExportInput = {
   slug: string;
   frontmatter: JournalFrontmatter;
-  placeName?: string;
+  placeNames?: string[];
   article: HTMLElement;
 };
 
@@ -89,7 +89,7 @@ async function prepareArticleClone(article: HTMLElement) {
   return { clone, images: resolved };
 }
 
-export async function createJournalDraft({ slug, frontmatter, placeName, article }: JournalExportInput): Promise<ArticleDraft> {
+export async function createJournalDraft({ slug, frontmatter, placeNames, article }: JournalExportInput): Promise<ArticleDraft> {
   const prose = article.querySelector<HTMLElement>(".prose-jewel");
   if (!prose) throw new Error("找不到文章正文");
 
@@ -104,13 +104,11 @@ export async function createJournalDraft({ slug, frontmatter, placeName, article
 
   const html = layout === "inline" ? replaceArticleMediaWithImages(clone.innerHTML) : clone.innerHTML;
   return articleDraftSchema.parse({
-    schemaVersion: 2,
+    schemaVersion: 3,
     kind: "journal",
     title: frontmatter.title,
     description: frontmatter.description,
-    placeId: frontmatter.placeId,
-    placeName: placeName ?? "",
-    placeStatus: "existing",
+    places: frontmatter.placeIds.map((id, index) => ({ id, name: placeNames?.[index] ?? id })),
     createdAt: frontmatter.createdAt,
     updatedAt: frontmatter.updatedAt,
     exportedAt: new Date().toISOString(),
@@ -126,14 +124,6 @@ export async function exportJournalJson(input: JournalExportInput) {
     new Blob([JSON.stringify(draft, null, 2)], { type: "application/json" }),
     `${input.slug}.json`,
   );
-}
-
-export function exportJournalPdf() {
-  document.documentElement.dataset.printing = "true";
-  window.setTimeout(() => {
-    window.print();
-    window.setTimeout(() => delete document.documentElement.dataset.printing, 500);
-  }, 0);
 }
 
 function exportBlocks(article: HTMLElement) {
@@ -165,19 +155,16 @@ function createPage(stage: HTMLElement) {
   return { page, content };
 }
 
-export async function exportJournalPng(input: JournalExportInput) {
-  const [{ toPng }, { default: JSZip }] = await Promise.all([
-    import("html-to-image"),
-    import("jszip"),
-  ]);
-  const prepared = await prepareArticleClone(input.article);
-  if (prepared.images.some((image) => !image.src.startsWith("data:"))) {
+async function createExportPages(article: HTMLElement, requireDataUrls = false) {
+  const prepared = await prepareArticleClone(article);
+  if (requireDataUrls && prepared.images.some((image) => !image.src.startsWith("data:"))) {
     throw new Error("PNG 导出需要图片域名允许跨域读取，请先为 R2 配置 CORS");
   }
+
+  await document.fonts?.ready;
   const stage = createExportStage();
   try {
-    const source = prepared.clone;
-    const blocks = exportBlocks(source);
+    const blocks = exportBlocks(prepared.clone);
     let current = createPage(stage);
 
     for (const block of blocks) {
@@ -196,7 +183,32 @@ export async function exportJournalPng(input: JournalExportInput) {
       }
     }
 
-    await document.fonts?.ready;
+    return stage;
+  } catch (reason) {
+    stage.remove();
+    throw reason;
+  }
+}
+
+export async function exportJournalPdf(article: HTMLElement) {
+  const stage = await createExportPages(article);
+  const cleanup = () => {
+    stage.remove();
+    delete document.documentElement.dataset.printing;
+  };
+
+  document.documentElement.dataset.printing = "true";
+  window.addEventListener("afterprint", cleanup, { once: true });
+  window.setTimeout(() => window.print(), 0);
+}
+
+export async function exportJournalPng(input: JournalExportInput) {
+  const [{ toPng }, { default: JSZip }] = await Promise.all([
+    import("html-to-image"),
+    import("jszip"),
+  ]);
+  const stage = await createExportPages(input.article, true);
+  try {
     const zip = new JSZip();
     const pages = [...stage.querySelectorAll<HTMLElement>(".article-export-page")];
     for (const [index, page] of pages.entries()) {

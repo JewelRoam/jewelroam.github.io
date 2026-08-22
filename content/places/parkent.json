@@ -1,0 +1,38 @@
+{
+  "id": "parkent",
+  "slug": "parkent",
+  "name": "Parkent",
+  "country": "乌兹别克斯坦",
+  "region": "塔什干州 · Parkent",
+  "coordinates": {
+    "latitude": 41.2747,
+    "longitude": 69.7692
+  },
+  "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+      [
+        [
+          69.65,
+          41.18
+        ],
+        [
+          69.9,
+          41.18
+        ],
+        [
+          69.9,
+          41.38
+        ],
+        [
+          69.65,
+          41.38
+        ],
+        [
+          69.65,
+          41.18
+        ]
+      ]
+    ]
+  }
+}

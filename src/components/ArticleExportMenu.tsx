@@ -7,12 +7,12 @@ import { ActionMenu } from "./ActionMenu";
 export function ArticleExportMenu({
   slug,
   frontmatter,
-  placeName,
+  placeNames,
   getArticle,
 }: {
   slug: string;
   frontmatter: JournalFrontmatter;
-  placeName?: string;
+  placeNames?: string[];
   getArticle: () => HTMLElement | null;
 }) {
   const [busy, setBusy] = useState(false);
@@ -45,19 +45,19 @@ export function ArticleExportMenu({
             label: "切分为 PNG",
             icon: <FileImage size={15} />,
             disabled: busy,
-            onSelect: () => run(() => exportJournalPng({ slug, frontmatter, placeName, article: getArticle()! })),
+            onSelect: () => run(() => exportJournalPng({ slug, frontmatter, placeNames, article: getArticle()! })),
           },
           {
             label: "导出 PDF",
             icon: <FileText size={15} />,
             disabled: busy,
-            onSelect: () => run(() => exportJournalPdf()),
+            onSelect: () => run(() => exportJournalPdf(getArticle()!)),
           },
           {
             label: "导出 JSON",
             icon: <FileJson size={15} />,
             disabled: busy,
-            onSelect: () => run(() => exportJournalJson({ slug, frontmatter, placeName, article: getArticle()! })),
+            onSelect: () => run(() => exportJournalJson({ slug, frontmatter, placeNames, article: getArticle()! })),
           },
         ]}
       />

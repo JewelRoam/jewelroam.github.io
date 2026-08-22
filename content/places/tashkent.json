@@ -1,0 +1,38 @@
+{
+  "id": "tashkent",
+  "slug": "tashkent",
+  "name": "Tashkent",
+  "country": "乌兹别克斯坦",
+  "region": "塔什干市",
+  "coordinates": {
+    "latitude": 41.2995,
+    "longitude": 69.2401
+  },
+  "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+      [
+        [
+          69.12,
+          41.16
+        ],
+        [
+          69.48,
+          41.16
+        ],
+        [
+          69.55,
+          41.4
+        ],
+        [
+          69.12,
+          41.4
+        ],
+        [
+          69.12,
+          41.16
+        ]
+      ]
+    ]
+  }
+}
