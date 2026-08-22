@@ -235,7 +235,7 @@ export function JewelRoamPage() {
                     小宇宙
                   </ExternalLink>
                   <ExternalLink href="https://www.163.com/dy/article/KG8I6A4T0511N33R.html">
-                    网易
+                    硅星人网易
                   </ExternalLink>
                 </span>
                 <br />
