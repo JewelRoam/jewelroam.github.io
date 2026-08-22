@@ -5,7 +5,7 @@
 核心导航固定为四项，另有一个外链预留入口：
 
 - `Destinations`：以 MapLibre 渲染的全视口地点地图；地点悬停抬升，点击进入地点归档。生产构建会将 MapLibre worker 及其 shared 模块作为静态资源一并发布，确保 GitHub Pages 上的 GeoJSON 图层正常渲染。
-- `Journals`：按创建日期排列的文章列表与正文；文章右上角提供 JSON、PDF 和 9:16 分页 PNG 导出菜单。
+- `Journals`：按创建日期排列的文章列表与正文；文章右上角提供“比例切分”“张数切分”和“导出 JSON”菜单。比例切分支持固定比例分页，张数切分通过滑动条在 1–18 张内选择，短文章会按可用内容块自动收窄上限；前两项均可选择 PNG、JPG 或 PDF。
 - `Capture`：浏览器本地写作、图片导入、自动保存和 JSON 导入导出工具。图片可选择随文插入或在正文后集中为响应式图集；页面顶部只显示标题与说明，正文底部显示自动保存状态、真实修改时间和草稿动作。
 - `JewelRoam`：个人信息、经历、公开链接、Playlists 与 Rights。
 - `ZaiChang`：指向独立仓库站点的外链入口，不属于本站内容路由。
@@ -47,6 +47,6 @@ Place 可以通过可选的 `parentId` 表达包含关系，例如 `Big Almaty L
 
 Capture 的草稿和 Base64 图片仅保存在当前浏览器 IndexedDB；它不直接写仓库或上传 R2。正式照片以一份清理 EXIF 后的全尺寸 JPEG 进入 `jewelroam-media`，页面只通过 `src/lib/media.ts` 请求 Cloudflare Image Transformations 的缩略图。每张正式照片 metadata 的 `rights.licenseUrl` 固定为 `https://jewelroam.github.io/rights`；`content/inbox/` 是本地素材和中间产物目录，不属于运行时内容源；除非用户明确要求，不应提交或删除其中的素材。
 
-Capture 与 Journal JSON 导出共用 `schemaVersion: 3` 的文章协议，`places` 保存地点 ID 与名称，正式 Journal frontmatter 使用 `placeIds` 数组，并以 `mediaLayout: "inline" | "gallery"` 区分展示方式。对用户和 Agent 来说，一篇文章仍然是一个可导入/导出的 JSON 文件；仓库内部没有引入额外的 sidecar 元数据格式。Journal 导出会尽量将 R2 图片转成 Base64；R2 未允许跨域读取时保留远程 URL，仍可在线导入 Capture。Journal 的 PDF 与分页 PNG 共用同一个 9:16 导出舞台、字号、图片间距和分页逻辑；PNG 将每页转为图片 ZIP，PDF 则直接打印这些分页。分页 PNG 必须读取图片像素，因此要求 R2 CORS 允许站点来源。
+Capture 与 Journal JSON 导出共用 `schemaVersion: 3` 的文章协议，`places` 保存地点 ID 与名称，正式 Journal frontmatter 使用 `placeIds` 数组，并以 `mediaLayout: "inline" | "gallery"` 区分展示方式。对用户和 Agent 来说，一篇文章仍然是一个可导入/导出的 JSON 文件；仓库内部没有引入额外的 sidecar 元数据格式。Journal 的视觉导出先生成统一页面 DOM，再按本次弹窗选择写入 PNG/JPG ZIP 或 PDF；比例切分支持 `1:1`、`2:3`、`3:4`、`9:16`，张数切分通过滑动条选择 1–18 张，并按文章块数量自动收窄上限。连续图片会使用 justified layout 计算 2/3 张一组的几何位置，不裁切图片。视觉导出必须读取图片像素，因此要求 R2 CORS 允许站点来源。
 
 发布顺序固定为：本地确认内容与发行文件，上传并验证 R2 对象，写入正式内容记录，运行校验和构建，最后提交并推送 GitHub。仓库不区分 staging 与 production。

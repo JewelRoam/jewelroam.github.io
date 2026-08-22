@@ -34,7 +34,7 @@ https://images.zer.dpdns.org/cdn-cgi/image/width=640,format=auto,quality=82/phot
 
 ### 允许文章导出读取图片
 
-Journal 的 JSON 和分页 PNG 导出需要在浏览器中读取图片。公开图片 bucket 可在 **Settings → CORS Policy** 增加只读规则：
+Journal 的 JSON、PNG、JPG 和 PDF 导出都可能需要在浏览器中读取图片：JSON 会尽量内嵌图片，PNG/JPG/PDF 会先把页面渲染为图片。公开图片 bucket 可在 **Settings → CORS Policy** 增加只读规则：
 
 ```json
 [
@@ -53,7 +53,7 @@ Journal 的 JSON 和分页 PNG 导出需要在浏览器中读取图片。公开�
 ]
 ```
 
-当前配置已通过实际预检请求验证，返回 `204` 和 `Access-Control-Allow-Origin`。该 bucket 只保存公开发行图，允许跨域 GET 不会赋予上传或修改权限。Cloudflare Image Transform 响应可能不透传 bucket 的 CORS 头，导出器会在变换 URL 被拦截时自动回退到同一资源的原图 URL；如果原图也未配置 CORS，JSON 会保留远程 URL，PNG 导出会明确提示缺少 CORS。
+当前配置已通过实际预检请求验证，返回 `204` 和 `Access-Control-Allow-Origin`。该 bucket 只保存公开发行图，允许跨域 GET 不会赋予上传或修改权限。Cloudflare Image Transform 响应可能不透传 bucket 的 CORS 头，导出器会在变换 URL 被拦截时自动回退到同一资源的原图 URL；如果原图也未配置 CORS，JSON 会保留远程 URL，PNG/JPG/PDF 导出会明确提示缺少 CORS。
 
 ## 4. 配置本地环境
 
