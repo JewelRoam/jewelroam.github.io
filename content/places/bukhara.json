@@ -1,0 +1,21 @@
+{
+  "id": "bukhara",
+  "slug": "bukhara",
+  "name": "Bukhara",
+  "country": "乌兹别克斯坦",
+  "region": "布哈拉市",
+  "coordinates": {
+    "latitude": 39.7747,
+    "longitude": 64.4286
+  },
+  "geometry": {
+    "type": "Polygon",
+    "coordinates": [[
+      [64.25, 39.65],
+      [64.62, 39.65],
+      [64.68, 39.90],
+      [64.25, 39.90],
+      [64.25, 39.65]
+    ]]
+  }
+}
