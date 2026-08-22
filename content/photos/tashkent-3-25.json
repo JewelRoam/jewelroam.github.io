@@ -1,0 +1,18 @@
+{
+  "id": "tashkent-3-25",
+  "title": "大学街区",
+  "alt": "大学附近的街道、建筑和路边乒乓球桌",
+  "takenAt": "2026-05-26",
+  "placeId": "tashkent",
+  "dimensions": {
+    "width": 1086,
+    "height": 724
+  },
+  "media": {
+    "path": "upload/photos/2026/tashkent-3-25.jpg"
+  },
+  "rights": {
+    "notice": "© 2026 JewelRoam. All rights reserved.",
+    "licenseUrl": "https://jewelroam.github.io/rights"
+  }
+}

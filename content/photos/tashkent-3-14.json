@@ -1,0 +1,18 @@
+{
+  "id": "tashkent-3-14",
+  "title": "地铁站台",
+  "alt": "地铁站台的柱列、灯光和等待列车的空间",
+  "takenAt": "2026-05-26",
+  "placeId": "tashkent",
+  "dimensions": {
+    "width": 724,
+    "height": 1086
+  },
+  "media": {
+    "path": "upload/photos/2026/tashkent-3-14.jpg"
+  },
+  "rights": {
+    "notice": "© 2026 JewelRoam. All rights reserved.",
+    "licenseUrl": "https://jewelroam.github.io/rights"
+  }
+}
