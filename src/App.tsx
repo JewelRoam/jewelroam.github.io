@@ -2,7 +2,7 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import { JewelRoamPage } from "./pages/JewelRoamPage";
 import { DestinationDetailPage } from "./pages/DestinationDetailPage";
 import { DestinationsPage } from "./pages/DestinationsPage";
-import { EditorPage } from "./pages/EditorPage";
+import { CapturePage } from "./pages/CapturePage";
 import { JournalPage } from "./pages/JournalPage";
 import { JournalsPage } from "./pages/JournalsPage";
 import { PhotoPage } from "./pages/PhotoPage";
@@ -19,7 +19,7 @@ export function App() {
       <Route path="/journals/:slug" element={<JournalPage />} />
       <Route path="/jewelroam" element={<JewelRoamPage />} />
       <Route path="/rights" element={<RightsPage />} />
-      <Route path="/editor" element={<EditorPage />} />
+      <Route path="/capture" element={<CapturePage />} />
       <Route path="*" element={<Navigate to="/jewelroam" replace />} />
     </Routes>
   );

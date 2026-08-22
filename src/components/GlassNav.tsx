@@ -10,7 +10,7 @@ type NavItem = {
 const navItems = [
   { href: "/destinations", label: "Destinations" },
   { href: "/journals", label: "Journals" },
-  { href: "/editor", label: "Capture" },
+  { href: "/capture", label: "Capture" },
   { href: "/jewelroam", label: "JewelRoam" },
   {
     href: "https://jewelroam.github.io/ZaiChang/",

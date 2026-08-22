@@ -1,7 +1,7 @@
 import { ArrowLeft } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 
-const primaryPaths = new Set(["/", "/destinations", "/journals", "/editor", "/jewelroam"]);
+const primaryPaths = new Set(["/", "/destinations", "/journals", "/capture", "/jewelroam"]);
 
 function fallbackPath(pathname: string) {
   if (pathname.startsWith("/destinations/")) return "/destinations";

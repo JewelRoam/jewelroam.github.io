@@ -28,7 +28,7 @@ R2 的账户、bucket、图片域名和 Image Transformations 开通步骤见 [`
 
 图片发布遵循“本地确认 → 上传 R2 → 检查 URL → 提交 manifest → 部署站点”的顺序；不要让 GitHub 先发布一个尚未上传到 R2 的图片路径。
 
-日常写作和图片交接流程见 [`docs/codex/CONTENT_WORKFLOW.md`](docs/codex/CONTENT_WORKFLOW.md)。本地启动后打开 `/editor`，即可直接写文章并把图片拖进正文；确认后再导出 JSON 交给 agent 上传 R2。
+日常写作和图片交接流程见 [`docs/codex/CONTENT_WORKFLOW.md`](docs/codex/CONTENT_WORKFLOW.md)。本地启动后打开 `/capture`，即可直接写文章并把图片拖进正文；确认后再导出 JSON 交给 agent 上传 R2。
 
 Capture 的页面动作按编辑流程分层：顶部只保留页面说明，文章信息集中在标题、摘要、地点和创建日期区域，格式工具固定在编辑区上方，自动保存状态、最近修改时间、清空和 `JSON` 导出位于正文底部。窄屏下图片导入动作会单独换行，避免工具按钮被截断。
 
