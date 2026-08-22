@@ -1,0 +1,21 @@
+{
+  "id": "muynak",
+  "slug": "muynak",
+  "name": "Muynak",
+  "country": "乌兹别克斯坦",
+  "region": "卡拉卡尔帕克斯坦 · 穆伊纳克",
+  "coordinates": {
+    "latitude": 43.7683,
+    "longitude": 59.0214
+  },
+  "geometry": {
+    "type": "Polygon",
+    "coordinates": [[
+      [58.85, 43.65],
+      [59.20, 43.65],
+      [59.20, 43.90],
+      [58.85, 43.90],
+      [58.85, 43.65]
+    ]]
+  }
+}
