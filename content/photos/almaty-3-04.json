@@ -4,7 +4,7 @@
   "alt": "木质吧台上的马天尼酒杯，杯中放有骨螺、青橄榄与柑橘配料",
   "takenAt": "2026-05-22",
   "placeId": "almaty",
-  "dimensions": { "width": 4032, "height": 3024 },
-  "media": { "path": "upload/photos/2026/almaty-3-04.webp", "fallbackPath": "upload/photos/2026/almaty-3-04.jpg" },
+  "dimensions": { "width": 3024, "height": 4032 },
+  "media": { "path": "upload/photos/2026/almaty-3-04-v2.webp", "fallbackPath": "upload/photos/2026/almaty-3-04-v2.jpg" },
   "rights": { "notice": "© 2026 JewelRoam. All rights reserved.", "licenseUrl": "https://jewelroam.github.io/rights" }
 }

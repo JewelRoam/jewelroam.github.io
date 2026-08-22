@@ -29,7 +29,14 @@ function dimensions(file) {
     const output = execFileSync("sips", ["-g", "pixelWidth", "-g", "pixelHeight", file], { encoding: "utf8" });
     const width = Number(output.match(/pixelWidth: (\d+)/)?.[1]);
     const height = Number(output.match(/pixelHeight: (\d+)/)?.[1]);
-    return width > 0 && height > 0 ? { width, height } : null;
+    const orientation = execFileSync("sips", ["-g", "orientation", file], { encoding: "utf8" })
+      .match(/orientation: (.+)/)?.[1]?.trim();
+    const rotated = orientation === "upper-right" || orientation === "lower-left";
+    return width > 0 && height > 0
+      ? rotated
+        ? { width: height, height: width }
+        : { width, height }
+      : null;
   } catch {
     return null;
   }
@@ -49,6 +56,8 @@ if (!Number.isFinite(maxImageMb) || maxImageMb <= 0) throw new Error("--max-imag
 const maxImageBytes = maxImageMb * 1024 * 1024;
 const draft = JSON.parse(fs.readFileSync(path.resolve(input), "utf8"));
 if (typeof draft.html !== "string") throw new Error("Draft must contain an html string");
+const mediaLayout = draft.mediaLayout === "gallery" ? "gallery" : "inline";
+const gallery = Array.isArray(draft.gallery) ? draft.gallery : [];
 
 const outputDir = path.resolve(output);
 const imageDir = path.join(outputDir, "images");
@@ -56,7 +65,10 @@ fs.mkdirSync(imageDir, { recursive: true });
 
 let imageIndex = 0;
 const images = [];
-const sourceHtml = draft.html.replace(/<img\b[^>]*>/gi, (tag) => {
+const galleryHtml = mediaLayout === "gallery"
+  ? gallery.map((image) => `<img src=${JSON.stringify(image.src ?? "")} alt=${JSON.stringify(image.alt ?? image.sourceName ?? "")} title=${JSON.stringify(image.title ?? "")}>`).join("")
+  : "";
+const sourceHtml = `${draft.html}${galleryHtml}`.replace(/<img\b[^>]*>/gi, (tag) => {
   imageIndex += 1;
   const attrs = attributes(tag);
   const match = String(attrs.src ?? "").match(/^data:(image\/[\w.+-]+);base64,([\s\S]*)$/);
@@ -92,14 +104,19 @@ const sourceHtml = draft.html.replace(/<img\b[^>]*>/gi, (tag) => {
 });
 
 const slug = option("--slug", `article-${draft.createdAt || "draft"}`);
-const body = sourceHtml
+const bodySource = sourceHtml
   .replace(/<p>([\s\S]*?)<\/p>/gi, "$1\n\n")
   .replace(/<[^>]+>/g, "")
-  .replace(/@@IMAGE_(\d{2})@@/g, (_, index) => `\n<PhotoEmbed id="${slug}-${index}" />\n`)
   .replace(/\n{3,}/g, "\n\n")
   .trim();
+const imageIds = images.map((image) => `${slug}-${String(image.index).padStart(2, "0")}`);
+const body = mediaLayout === "gallery"
+  ? `${bodySource.replace(/@@IMAGE_(\d{2})@@/g, "").trim()}\n\n<PhotoGallery ids={${JSON.stringify(imageIds)}} />`
+  : bodySource.replace(/@@IMAGE_(\d{2})@@/g, (_, index) => `\n<PhotoEmbed id="${slug}-${index}" />\n`);
 
 const source = {
+  schemaVersion: draft.schemaVersion ?? 2,
+  kind: draft.kind ?? "journal",
   title: draft.title ?? "",
   description: draft.description ?? "",
   placeId: draft.placeId ?? "",
@@ -107,7 +124,9 @@ const source = {
   createdAt: draft.createdAt ?? "",
   updatedAt: draft.updatedAt ?? "",
   exportedAt: draft.exportedAt ?? "",
+  mediaLayout,
   html: sourceHtml,
+  gallery,
 };
 const manifest = {
   status: "needs-confirmation",
@@ -136,12 +155,14 @@ const frontmatter = [
   `  description: ${JSON.stringify(source.description)},`,
   `  createdAt: ${JSON.stringify(source.createdAt)},`,
   `  updatedAt: ${JSON.stringify(source.updatedAt)},`,
+  `  mediaLayout: ${JSON.stringify(source.mediaLayout)},`,
   "  tags: [],",
   `  placeId: ${JSON.stringify(source.placeId ?? "")},`,
   `  coverPhotoId: ${JSON.stringify(`${slug}-01`)},`,
   "};",
   "",
   'import { PhotoEmbed } from "../../../src/components/PhotoEmbed";',
+  'import { PhotoGallery } from "../../../src/components/ArticleMedia";',
   "",
 ].join("\n");
 

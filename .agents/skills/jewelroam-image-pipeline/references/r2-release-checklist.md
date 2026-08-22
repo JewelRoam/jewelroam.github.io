@@ -34,6 +34,8 @@
 
 Generate WebP or other release derivatives only after preserving the original and confirming the intended public quality. Keep original and release paths explicit.
 
+Before generating WebP, normalize any EXIF orientation into the pixel data and strip the orientation tag. Verify the release derivative's physical width/height with an image inspector; do not carry raw sensor dimensions into metadata when a portrait image is stored in a rotated landscape raster.
+
 ## Release order
 
 1. Confirm article text, description, dates, image metadata, rights, and the exact set of files to publish.
