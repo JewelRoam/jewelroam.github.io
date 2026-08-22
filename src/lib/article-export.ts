@@ -324,24 +324,43 @@ function createCountPages(stage: HTMLElement, blocks: HTMLElement[], pageCount: 
   measure.content.style.height = "auto";
   blocks.forEach((block) => measure.content.append(block));
   const heights = blocks.map(blockHeight);
-  const targetHeight = Math.max(Math.ceil(heights.reduce((sum, height) => sum + height, 0) / pageCount), ...heights, 320);
+  const measuredHeights = new Map(blocks.map((block, index) => [block, heights[index]]));
   measure.page.remove();
 
-  const pages = [];
-  let current = createPage(stage, width, targetHeight + EXPORT_PADDING_Y * 2);
-  pages.push(current.page);
-  let currentHeight = 0;
-  blocks.forEach((block, index) => {
-    const height = heights[index];
-    if (current.content.children.length > 0 && currentHeight + height > targetHeight) {
-      current = createPage(stage, width, targetHeight + EXPORT_PADDING_Y * 2);
-      pages.push(current.page);
-      currentHeight = 0;
+  const pageTotal = Math.max(1, Math.min(Math.floor(pageCount), blocks.length || 1));
+  const groups: HTMLElement[][] = [];
+  let start = 0;
+  let remainingHeight = heights.reduce((sum, height) => sum + height, 0);
+
+  for (let pageIndex = 0; pageIndex < pageTotal; pageIndex += 1) {
+    const pagesLeft = pageTotal - pageIndex;
+    if (pagesLeft === 1) {
+      groups.push(blocks.slice(start));
+      break;
     }
-    current.content.append(block);
-    currentHeight += height;
+
+    const targetHeight = remainingHeight / pagesLeft;
+    const lastAllowedIndex = blocks.length - pagesLeft;
+    let end = start + 1;
+    let groupHeight = heights[start];
+    while (end <= lastAllowedIndex) {
+      const nextHeight = groupHeight + heights[end];
+      if (Math.abs(nextHeight - targetHeight) > Math.abs(groupHeight - targetHeight)) break;
+      groupHeight = nextHeight;
+      end += 1;
+    }
+    groups.push(blocks.slice(start, end));
+    start = end;
+    remainingHeight -= groupHeight;
+  }
+
+  const pages = groups.map((group) => {
+    const height = group.reduce((sum, block) => sum + (measuredHeights.get(block) ?? 0), 0) + EXPORT_PADDING_Y * 2;
+    const current = createPage(stage, width, Math.max(height, 320 + EXPORT_PADDING_Y * 2));
+    group.forEach((block) => current.content.append(block));
+    return current.page;
   });
-  return { pages, height: targetHeight + EXPORT_PADDING_Y * 2 };
+  return { pages };
 }
 
 async function waitForImages(root: HTMLElement) {
@@ -388,7 +407,7 @@ async function createExportPages(article: HTMLElement, settings: ExportSettings,
       ? createRatioPages(stage, blocks, size)
       : createCountPages(stage, blocks, settings.pageCount, size.width).pages;
     await waitForImages(stage);
-    return { stage, pages, width: size.width, height: settings.mode === "ratio" ? size.height : Number(pages[0]?.getBoundingClientRect().height || 0) };
+    return { stage, pages, width: size.width };
   } catch (reason) {
     stage.remove();
     throw reason;
@@ -398,23 +417,26 @@ async function createExportPages(article: HTMLElement, settings: ExportSettings,
 async function renderPages(
   pages: HTMLElement[],
   width: number,
-  height: number,
   format: Extract<ExportFormat, "png" | "jpg">,
   onProgress?: ProgressHandler,
 ) {
   const { toJpeg, toPng } = await import("html-to-image");
   const render = format === "jpg" ? toJpeg : toPng;
-  const images: string[] = [];
+  const images: { image: string; height: number }[] = [];
   for (const [index, page] of pages.entries()) {
     onProgress?.({ stage: "rendering", current: index + 1, total: pages.length });
-    images.push(await render(page, {
-      backgroundColor: "#f5f3ee",
-      cacheBust: true,
+    const height = Math.ceil(page.getBoundingClientRect().height);
+    images.push({
+      image: await render(page, {
+        backgroundColor: "#f5f3ee",
+        cacheBust: true,
+        height,
+        pixelRatio: 1,
+        quality: format === "jpg" ? 0.92 : undefined,
+        width,
+      }),
       height,
-      pixelRatio: 1,
-      quality: format === "jpg" ? 0.92 : undefined,
-      width,
-    }));
+    });
   }
   return images;
 }
@@ -422,19 +444,20 @@ async function renderPages(
 export async function exportJournalPdf(input: JournalExportInput, settings: ExportSettings, onProgress?: ProgressHandler) {
   const prepared = await createExportPages(input.article, settings, true, onProgress);
   try {
-    const images = await renderPages(prepared.pages, prepared.width, prepared.height, "png", onProgress);
+    const images = await renderPages(prepared.pages, prepared.width, "png", onProgress);
     const { jsPDF } = await import("jspdf");
-    const pdfScale = Math.min(0.75, 14000 / Math.max(prepared.width, prepared.height));
+    const maxHeight = Math.max(...images.map((entry) => entry.height));
+    const pdfScale = Math.min(0.75, 14000 / Math.max(prepared.width, maxHeight));
     const pdfWidth = prepared.width * pdfScale;
-    const pdfHeight = prepared.height * pdfScale;
     const pdf = new jsPDF({
       compress: true,
-      format: [pdfWidth, pdfHeight],
-      orientation: prepared.width >= prepared.height ? "landscape" : "portrait",
+      format: [pdfWidth, images[0].height * pdfScale],
+      orientation: prepared.width >= images[0].height ? "landscape" : "portrait",
       unit: "pt",
     });
-    images.forEach((image, index) => {
-      if (index > 0) pdf.addPage([pdfWidth, pdfHeight], prepared.width >= prepared.height ? "landscape" : "portrait");
+    images.forEach(({ image, height }, index) => {
+      const pdfHeight = height * pdfScale;
+      if (index > 0) pdf.addPage([pdfWidth, pdfHeight], prepared.width >= height ? "landscape" : "portrait");
       pdf.addImage(image, "PNG", 0, 0, pdfWidth, pdfHeight, undefined, "FAST");
     });
     onProgress?.({ stage: "packing", current: 1, total: 1 });
@@ -453,10 +476,10 @@ export async function exportJournalVisual(input: JournalExportInput, settings: E
   const [{ default: JSZip }] = await Promise.all([import("jszip")]);
   const prepared = await createExportPages(input.article, settings, true, onProgress);
   try {
-    const images = await renderPages(prepared.pages, prepared.width, prepared.height, settings.format, onProgress);
+    const images = await renderPages(prepared.pages, prepared.width, settings.format, onProgress);
     const zip = new JSZip();
     onProgress?.({ stage: "packing", current: 0, total: 1 });
-    images.forEach((image, index) => {
+    images.forEach(({ image }, index) => {
       zip.file(`${String(index + 1).padStart(3, "0")}.${settings.format}`, image.split(",")[1], { base64: true });
     });
     downloadBlob(await zip.generateAsync({ type: "blob" }), `${input.slug}-${settings.format}.zip`);
