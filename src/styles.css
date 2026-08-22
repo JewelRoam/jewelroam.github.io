@@ -254,7 +254,7 @@ a {
   border-radius: 0.8rem;
   box-shadow: 0 8px 24px rgb(32 33 31 / 0.08);
   display: block;
-  height: 11rem;
+  height: 22.5rem;
   width: 100%;
 }
 
@@ -351,7 +351,7 @@ a {
 
 @media (max-width: 640px) {
   .playlist-embed {
-    height: 10rem;
+    height: 22.5rem;
   }
 
   .playlist-embed-frame__caption {
