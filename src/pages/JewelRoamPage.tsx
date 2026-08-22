@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { CopyText } from "../components/CopyText";
 import { Page } from "../components/Page";
 
 function ExternalLink({
@@ -77,7 +78,8 @@ export function JewelRoamPage() {
           <p>欢迎来看我，这个 ID 来自于我中文名的音译。</p>
           <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm leading-6">
             <span>
-              <span className="text-[#20211f]/50">WeChat</span> · Zheng_Enrong
+              <span className="text-[#20211f]/50">WeChat</span> ·{" "}
+              <CopyText value="Zheng_Enrong" label="WeChat ID" />
             </span>
             <span>
               <span className="text-[#20211f]/50">GitHub</span> ·{" "}
@@ -92,7 +94,8 @@ export function JewelRoamPage() {
               </ExternalLink>
             </span>
             <span>
-              <span className="text-[#20211f]/50">rednote</span> · ID: 308651036
+              <span className="text-[#20211f]/50">rednote</span> · ID:{" "}
+              <CopyText value="308651036" label="rednote ID" />
             </span>
           </div>
         </div>

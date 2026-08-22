@@ -1,4 +1,4 @@
-import { Link, Navigate, useParams } from "react-router-dom";
+import { Navigate, useParams } from "react-router-dom";
 import { ResponsiveImage } from "../components/ResponsiveImage";
 import { getPhoto, getPlace } from "../lib/content";
 
@@ -27,10 +27,6 @@ export function PhotoPage() {
         </div>
         <p className="max-w-xs text-right text-[#20211f]/55">
           {photo.rights.notice}
-          <br />
-          <Link to="/jewelroam#rights" className="underline underline-offset-4">
-            查看使用与许可
-          </Link>
         </p>
       </div>
     </article>

@@ -147,7 +147,7 @@ export function ArticleEditor() {
   const editor = useEditor({
     extensions: [
       StarterKit,
-      Image.configure({ allowBase64: true, HTMLAttributes: { class: "editor-image" } }),
+      Image.configure({ allowBase64: true, HTMLAttributes: { class: "article-image editor-image" } }),
       Placeholder.configure({ placeholder: "从这里开始写。可将一张或多张图片直接拖进正文……" }),
       FileHandler.configure({
         allowedMimeTypes: IMAGE_TYPES,

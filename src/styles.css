@@ -28,6 +28,34 @@ a {
   color: inherit;
   text-decoration: none;
 }
+.copy-text {
+  align-items: baseline;
+  background: transparent;
+  border: 0;
+  color: inherit;
+  cursor: pointer;
+  display: inline-flex;
+  font: inherit;
+  gap: 0.3rem;
+  line-height: inherit;
+  padding: 0;
+  text-decoration: underline;
+  text-decoration-color: rgb(32 33 31 / 0.2);
+  text-underline-offset: 4px;
+  transition: text-decoration-color 180ms ease;
+}
+.copy-text:hover,
+.copy-text:focus-visible {
+  text-decoration-color: rgb(32 33 31 / 0.7);
+}
+.copy-text:focus-visible {
+  outline: 2px solid rgb(32 33 31 / 0.55);
+  outline-offset: 3px;
+}
+.copy-text__icon {
+  color: rgb(32 33 31 / 0.4);
+  display: inline-flex;
+}
 
 .site-header {
   inset: 0 0 auto;
@@ -274,6 +302,24 @@ a {
   text-decoration: underline;
   text-underline-offset: 4px;
 }
+.article-media {
+  margin: 3rem 0;
+  width: 100%;
+}
+.article-media--stack {
+  display: grid;
+  gap: 3rem;
+}
+.article-media__item {
+  margin: 0;
+}
+.article-media__link {
+  display: block;
+}
+.article-media__link:focus-visible {
+  outline: 2px solid rgb(32 33 31 / 0.55);
+  outline-offset: 4px;
+}
 
 .page-shell {
   padding: var(--page-top-space) var(--page-gutter) 5rem;
@@ -494,11 +540,20 @@ a {
 .editor-content ul {
   padding-left: 1.5rem;
 }
+.article-image,
 .editor-content img {
   display: block;
+  width: auto;
   height: auto;
-  margin: 2rem auto;
   max-width: 100%;
+  max-height: min(78dvh, 48rem);
+  object-fit: contain;
+}
+.article-image {
+  margin-inline: auto;
+}
+.editor-content img {
+  margin: 2rem auto;
 }
 .editor-content p.is-editor-empty:first-child::before {
   color: rgb(32 33 31 / 0.38);
