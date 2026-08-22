@@ -5,7 +5,7 @@ import {
   type Map as MapLibreMap,
   type StyleSpecification,
 } from "maplibre-gl";
-import type { FeatureCollection, MultiPolygon, Polygon } from "geojson";
+import type { FeatureCollection, LineString, MultiPolygon, Polygon } from "geojson";
 import "maplibre-gl/dist/maplibre-gl.css";
 import "./DestinationMap.css";
 
@@ -14,13 +14,14 @@ if (import.meta.env.PROD) {
 }
 
 export type DestinationCenter = [number, number];
-export type DestinationGeometry = Polygon | MultiPolygon;
+export type DestinationGeometry = LineString | Polygon | MultiPolygon;
 
 /** The map deliberately accepts plain records so it can be used by content loaders and the editor. */
 export type Destination = {
   id: string;
   slug: string;
   name: string;
+  kind?: "area" | "route";
   parentId?: string;
   center: DestinationCenter;
   geometry?: DestinationGeometry;
@@ -39,6 +40,7 @@ const EXTRUSION_ID = "jewelroam-destination-extrusion";
 const FILL_ID = "jewelroam-destination-fill";
 const OUTLINE_ID = "jewelroam-destination-outline";
 const LABEL_ID = "jewelroam-destination-labels";
+const ROUTE_ID = "jewelroam-destination-route";
 
 /**
  * A small polygon keeps a place visible when a record has only coordinates. Content can
@@ -96,6 +98,7 @@ function toFeatureCollection(destinations: Destination[]): FeatureCollection<Des
         id: destination.id,
         slug: destination.slug,
         name: destination.name,
+        kind: destination.kind ?? "area",
         parentId: destination.parentId ?? null,
         depth: depths.get(destination.id) ?? 0,
         color: destination.color ?? "#b85c45",
@@ -131,6 +134,7 @@ function styleFor(data: FeatureCollection<DestinationGeometry>): StyleSpecificat
         id: EXTRUSION_ID,
         type: "fill-extrusion",
         source: SOURCE_ID,
+        filter: ["!=", ["get", "kind"], "route"],
         paint: {
           "fill-extrusion-color": ["coalesce", ["get", "color"], "#b85c45"],
           "fill-extrusion-height": ["case", ["boolean", ["feature-state", "hover"], false], 9000, 1600],
@@ -143,6 +147,7 @@ function styleFor(data: FeatureCollection<DestinationGeometry>): StyleSpecificat
         id: FILL_ID,
         type: "fill",
         source: SOURCE_ID,
+        filter: ["!=", ["get", "kind"], "route"],
         paint: {
           "fill-color": ["coalesce", ["get", "color"], "#b85c45"],
           "fill-opacity": ["case", ["boolean", ["feature-state", "hover"], false], 0.82, 0.6],
@@ -152,7 +157,20 @@ function styleFor(data: FeatureCollection<DestinationGeometry>): StyleSpecificat
         id: OUTLINE_ID,
         type: "line",
         source: SOURCE_ID,
+        filter: ["!=", ["get", "kind"], "route"],
         paint: { "line-color": "#fffdf8", "line-width": 1.5, "line-opacity": 0.94 },
+      },
+      {
+        id: ROUTE_ID,
+        type: "line",
+        source: SOURCE_ID,
+        filter: ["==", ["get", "kind"], "route"],
+        layout: { "line-cap": "round", "line-join": "round" },
+        paint: {
+          "line-color": ["coalesce", ["get", "color"], "#b85c45"],
+          "line-width": ["case", ["boolean", ["feature-state", "hover"], false], 8, 5],
+          "line-opacity": 0.92,
+        },
       },
       {
         id: LABEL_ID,
@@ -163,6 +181,22 @@ function styleFor(data: FeatureCollection<DestinationGeometry>): StyleSpecificat
           "text-font": ["Open Sans Regular"],
           "text-size": ["interpolate", ["linear"], ["zoom"], 2, 11, 7, 15],
           "text-allow-overlap": true,
+          "symbol-placement": "point",
+        },
+        filter: ["!=", ["get", "kind"], "route"],
+        paint: { "text-color": "#20211f", "text-halo-color": "#f5f3ee", "text-halo-width": 1.5 },
+      },
+      {
+        id: `${LABEL_ID}-routes`,
+        type: "symbol",
+        source: SOURCE_ID,
+        filter: ["==", ["get", "kind"], "route"],
+        layout: {
+          "text-field": ["get", "name"],
+          "text-font": ["Open Sans Regular"],
+          "text-size": 13,
+          "text-allow-overlap": true,
+          "symbol-placement": "line-center",
         },
         paint: { "text-color": "#20211f", "text-halo-color": "#f5f3ee", "text-halo-width": 1.5 },
       },
@@ -176,8 +210,21 @@ function boundsFor(destinations: Destination[]): [[number, number], [number, num
   let minLat = Infinity;
   let maxLng = -Infinity;
   let maxLat = -Infinity;
+  const points: DestinationCenter[] = [];
+  const collectCoordinates = (value: unknown) => {
+    if (!Array.isArray(value)) return;
+    if (typeof value[0] === "number" && typeof value[1] === "number") {
+      points.push([value[0], value[1]]);
+      return;
+    }
+    value.forEach(collectCoordinates);
+  };
   for (const destination of destinations) {
     const [lng, lat] = destination.center;
+    points.push([lng, lat]);
+    collectCoordinates(destination.geometry?.coordinates);
+  }
+  for (const [lng, lat] of points) {
     minLng = Math.min(minLng, lng);
     minLat = Math.min(minLat, lat);
     maxLng = Math.max(maxLng, lng);
@@ -272,9 +319,9 @@ export function DestinationMap({ destinations, onSelect, className, ariaLabel = 
       const destination = destinationsRef.current.find((entry) => entry.id === String(id) || entry.id === id);
       if (destination) onSelectRef.current?.(destination);
     };
-    map.on("mousemove", FILL_ID, handleMove);
-    map.on("mouseleave", FILL_ID, handleLeave);
-    map.on("click", FILL_ID, handleClick);
+    map.on("mousemove", [FILL_ID, ROUTE_ID], handleMove);
+    map.on("mouseleave", [FILL_ID, ROUTE_ID], handleLeave);
+    map.on("click", [FILL_ID, ROUTE_ID], handleClick);
     map.once("load", syncDestinationSource);
     syncWhenReady();
     return () => {

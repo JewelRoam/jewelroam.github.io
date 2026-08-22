@@ -33,11 +33,14 @@ Each `content/places/*.json` record uses:
   country: string;
   region?: string;
   coordinates: { latitude: number; longitude: number };
-  geometry: Polygon | MultiPolygon;
+  kind?: "area" | "route";
+  geometry: Polygon | MultiPolygon | LineString;
 }
 ```
 
 `parentId` expresses containment or archival hierarchy. A Journal may reference multiple sibling or overlapping Places through `placeIds`; every embedded Photo's single `placeId` must be one of them. Map rendering and hit testing use the most specific child Place when geometries overlap. Parent references must resolve and must not form cycles.
+
+`kind: "route"` is for approximate travel corridors such as `Tashkent—Samarkand`. Route geometry uses a `LineString` and is rendered as an interactive map line; it is an archival approximation, not a precise GPS track. Existing places without `kind` remain area places.
 
 ## Photo manifest
 

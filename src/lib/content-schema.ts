@@ -77,10 +77,19 @@ const geoJsonMultiPolygonSchema = z.object({
   coordinates: z.array(z.array(ringSchema).min(1)).min(1),
 }).strict();
 
+const geoJsonLineStringSchema = z.object({
+  type: z.literal("LineString"),
+  coordinates: z.array(coordinatePairSchema).min(2),
+}).strict();
+
+export const placeKinds = ["area", "route"] as const;
+export type PlaceKind = (typeof placeKinds)[number];
+
 export const placeSchema = z.object({
   id: z.string().min(1),
   slug: z.string().min(1),
   name: z.string().min(1),
+  kind: z.enum(placeKinds).optional(),
   parentId: z.string().min(1).optional(),
   country: z.string().min(1),
   region: z.string().min(1).optional(),
@@ -88,7 +97,7 @@ export const placeSchema = z.object({
     latitude: z.number().gte(-90).lte(90),
     longitude: z.number().gte(-180).lte(180),
   }).strict(),
-  geometry: z.union([geoJsonPolygonSchema, geoJsonMultiPolygonSchema]),
+  geometry: z.union([geoJsonPolygonSchema, geoJsonMultiPolygonSchema, geoJsonLineStringSchema]),
 }).strict();
 
 export const photoSchema = z.object({

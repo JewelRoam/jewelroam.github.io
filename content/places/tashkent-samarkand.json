@@ -1,0 +1,22 @@
+{
+  "id": "tashkent-samarkand",
+  "slug": "tashkent-samarkand",
+  "name": "Tashkent—Samarkand",
+  "kind": "route",
+  "country": "乌兹别克斯坦",
+  "region": "塔什干—撒马尔罕线路",
+  "coordinates": {
+    "latitude": 40.46,
+    "longitude": 68.1
+  },
+  "geometry": {
+    "type": "LineString",
+    "coordinates": [
+      [69.2401, 41.2995],
+      [68.74, 40.95],
+      [67.84, 40.12],
+      [67.32, 39.92],
+      [66.9597, 39.6542]
+    ]
+  }
+}
