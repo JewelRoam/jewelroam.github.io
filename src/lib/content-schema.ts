@@ -101,7 +101,7 @@ export const photoSchema = z.object({
   takenAt: z.string().date(),
   placeId: z.string().min(1),
   dimensions: z.object({ width: z.number().positive(), height: z.number().positive() }).strict(),
-  media: z.object({ path: z.string().min(1), fallbackPath: z.string().min(1) }).strict(),
+  media: z.object({ path: z.string().min(1), fallbackPath: z.string().min(1).optional() }).strict(),
   rights: z.object({ notice: z.string().min(1), licenseUrl: z.literal(PUBLIC_RIGHTS_URL) }).strict(),
 }).strict();
 

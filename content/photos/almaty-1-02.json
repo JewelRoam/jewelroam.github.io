@@ -4,10 +4,12 @@
   "alt": "地铁列车驶入站台，几名乘客站在黄色盲道旁",
   "takenAt": "2026-05-21",
   "placeId": "almaty",
-  "dimensions": { "width": 4032, "height": 6048 },
+  "dimensions": {
+    "width": 4032,
+    "height": 6048
+  },
   "media": {
-    "path": "upload/photos/2026/almaty-1-02.webp",
-    "fallbackPath": "upload/photos/2026/almaty-1-02.jpg"
+    "path": "upload/photos/2026/almaty-1-02.jpg"
   },
   "rights": {
     "notice": "© 2026 JewelRoam. All rights reserved.",

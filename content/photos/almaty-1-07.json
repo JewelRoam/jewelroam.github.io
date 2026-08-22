@@ -4,10 +4,12 @@
   "alt": "金色圣像前，新人和牧师在教堂内参加婚礼仪式",
   "takenAt": "2026-05-21",
   "placeId": "almaty",
-  "dimensions": { "width": 4032, "height": 6048 },
+  "dimensions": {
+    "width": 4032,
+    "height": 6048
+  },
   "media": {
-    "path": "upload/photos/2026/almaty-1-07.webp",
-    "fallbackPath": "upload/photos/2026/almaty-1-07.jpg"
+    "path": "upload/photos/2026/almaty-1-07.jpg"
   },
   "rights": {
     "notice": "© 2026 JewelRoam. All rights reserved.",

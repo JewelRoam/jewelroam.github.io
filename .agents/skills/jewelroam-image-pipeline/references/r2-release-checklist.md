@@ -22,8 +22,7 @@
   "placeId": "confirmed-place-id",
   "dimensions": { "width": 1600, "height": 1067 },
   "media": {
-    "path": "photos/YYYY/stable-id.webp",
-    "fallbackPath": "photos/YYYY/stable-id.jpg"
+    "path": "photos/YYYY/stable-id.jpg"
   },
   "rights": {
     "notice": "confirmed copyright notice",
@@ -32,11 +31,11 @@
 }
 ```
 
-Generate WebP or other release derivatives only after preserving the original and confirming the intended public quality. Keep original and release paths explicit.
+Keep the private source image separate from the one public, full-size JPEG in R2. Cloudflare Image Transformations generate browser-sized responses on demand; do not upload pre-generated WebP derivatives for the normal workflow.
 
-Before generating WebP, run `npm run content:prepare-release -- <slug>` to normalize any EXIF orientation into the pixel data and strip the orientation tag. Verify the release derivative's physical width/height with an image inspector; do not carry raw sensor dimensions into metadata when a portrait image is stored in a rotated landscape raster. Never use `cwebp -metadata none` directly on a JPEG that still has an Orientation tag.
+Before publishing, run `npm run content:prepare-release -- <slug>` to normalize any EXIF orientation into the pixel data, preserve an ICC profile when present, and strip EXIF/XMP metadata. Verify the public JPEG's physical width/height; do not carry raw sensor dimensions into metadata when a portrait image is stored in a rotated landscape raster.
 
-R2 release URLs are immutable. When replacing an already published object, use a new filename revision (for example `--revision r2 --only 05,11`) and update the corresponding formal photo records before publishing; do not overwrite an immutable URL and expect its cache to refresh.
+R2 release URLs are immutable. When replacing an already published object, use a new filename revision (for example `--revision r2 --only 05,11`) and update the corresponding formal photo records before publishing; do not overwrite an immutable URL and expect its cache to refresh. `media.fallbackPath` is optional because the canonical full-size JPEG is also the browser fallback.
 
 ## Release order
 

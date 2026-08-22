@@ -22,7 +22,7 @@ export function ResponsiveImage({ photo, width = 1280, priority = false, sizes =
       fetchPriority={priority ? "high" : "auto"}
       onError={(event) => {
         event.currentTarget.onerror = null;
-        event.currentTarget.src = imageFallbackUrl(photo.media.fallbackPath);
+        event.currentTarget.src = imageFallbackUrl(photo.media.fallbackPath || photo.media.path);
       }}
     />
   );

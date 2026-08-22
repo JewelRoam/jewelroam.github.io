@@ -4,7 +4,15 @@
   "alt": "车窗外，阴雨笼罩的草原与远处山脉，一株灌木立在路旁",
   "takenAt": "2026-05-22",
   "placeId": "almaty",
-  "dimensions": { "width": 2266, "height": 3022 },
-  "media": { "path": "upload/photos/2026/almaty-3-01.webp", "fallbackPath": "upload/photos/2026/almaty-3-01.jpg" },
-  "rights": { "notice": "© 2026 JewelRoam. All rights reserved.", "licenseUrl": "https://jewelroam.github.io/rights" }
+  "dimensions": {
+    "width": 2266,
+    "height": 3022
+  },
+  "media": {
+    "path": "upload/photos/2026/almaty-3-01.jpg"
+  },
+  "rights": {
+    "notice": "© 2026 JewelRoam. All rights reserved.",
+    "licenseUrl": "https://jewelroam.github.io/rights"
+  }
 }

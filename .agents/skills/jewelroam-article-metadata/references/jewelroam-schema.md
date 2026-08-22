@@ -51,7 +51,7 @@ Each `content/photos/*.json` record requires:
   takenAt: "YYYY-MM-DD";
   placeId: string;            // exactly one place per Photo
   dimensions: { width: number; height: number };
-  media: { path: string; fallbackPath: string };
+  media: { path: string; fallbackPath?: string };
   rights: {
     notice: string;
     licenseUrl: "https://jewelroam.github.io/rights";

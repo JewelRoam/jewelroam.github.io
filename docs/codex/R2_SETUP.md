@@ -27,7 +27,7 @@ images.zer.dpdns.org
 在 `zer.dpdns.org` 对应的 zone 启用 **Image Transformations**。当前已启用，来源限制为该 zone 及其子域。项目会生成如下 URL：
 
 ```text
-https://images.zer.dpdns.org/cdn-cgi/image/width=640,format=auto,quality=82/photos/2026/coast-window.webp
+https://images.zer.dpdns.org/cdn-cgi/image/width=640,format=auto,quality=82/photos/2026/coast-window-full.jpg
 ```
 
 组件会自动提供 640、1280、2048 三个候选宽度，浏览器根据视口和像素密度选择合适版本。转换结果由 Cloudflare 缓存，不需要在 R2 中保存每种尺寸的副本。
@@ -93,7 +93,7 @@ GitHub Actions 校验并部署站点
 
 尚未确认发布的图片保留在 `content/inbox/`，通过 Capture 的 Base64 草稿或 inbox 预览检查，不写入正式 manifest。`content/inbox/` 默认是本地素材目录，不应因为正式内容提交而自动加入 Git；当前运行时代码没有 `public/media` 回退；正式 `content/photos/*.json` 只引用已经上传并验证的 R2 对象。
 
-不要直接对仍带 EXIF Orientation 的 JPEG 执行 `cwebp -metadata none`，这会丢掉方向标签却不会旋转像素。`content:prepare-release` 会处理 8 种方向并检查最终尺寸与标签。已经发布的对象使用 immutable 缓存；替换图片时使用 `--revision <tag> --only <indices>` 生成新路径，并同步 photo metadata，不要覆盖旧 URL 期待缓存刷新。
+不要直接把带 EXIF Orientation 的 JPEG 上传到公开 R2。`content:prepare-release` 会把 8 种方向物理写入像素、保留 ICC 色彩配置并移除 EXIF/XMP，再生成一份全尺寸 JPEG。Cloudflare Image Transformations 负责网页缩略图；R2 不会自动压缩原对象。已经发布的对象使用 immutable 缓存；替换图片时使用 `--revision <tag> --only <indices>` 生成新路径，并同步 photo metadata，不要覆盖旧 URL 期待缓存刷新。
 
 ## 6. 发布和权限
 
@@ -108,7 +108,7 @@ npm run content:publish-r2 -- --dry-run almaty-1
 npm run content:publish-r2 -- almaty-1
 ```
 
-可以一次传入多个 slug。CLI 只读取 `content/inbox/<slug>/release/` 下的 `.webp`、`.jpg` 和 `.jpeg`，将它们上传到固定的 `jewelroam-media/upload/photos/2026/`，并为每个对象检查公开 URL；WebP 还会检查 640px Image Transformations URL。实际发布前先运行 `--dry-run`，确认文件清单无误。
+可以一次传入多个 slug。CLI 只读取 `content/inbox/<slug>/release/` 下的 `.jpg` 和 `.jpeg`，将全尺寸 JPEG 上传到固定的 `jewelroam-media/upload/photos/2026/`，并为每个对象检查公开 URL 和 640px Image Transformations URL。实际发布前先运行 `--dry-run`，确认文件清单无误。
 
 常用覆盖参数：
 

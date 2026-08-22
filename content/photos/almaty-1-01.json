@@ -4,10 +4,12 @@
   "alt": "蓝光照亮的酒吧吧台，酒瓶与调酒器具陈列其间，一名工作人员站在右侧",
   "takenAt": "2026-05-21",
   "placeId": "almaty",
-  "dimensions": { "width": 5712, "height": 4284 },
+  "dimensions": {
+    "width": 5712,
+    "height": 4284
+  },
   "media": {
-    "path": "upload/photos/2026/almaty-1-01.webp",
-    "fallbackPath": "upload/photos/2026/almaty-1-01.jpg"
+    "path": "upload/photos/2026/almaty-1-01.jpg"
   },
   "rights": {
     "notice": "© 2026 JewelRoam. All rights reserved.",

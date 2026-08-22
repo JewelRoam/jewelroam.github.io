@@ -13,7 +13,6 @@ const DEFAULTS = {
 const IMAGE_TYPES = new Map([
   [".jpg", "image/jpeg"],
   [".jpeg", "image/jpeg"],
-  [".webp", "image/webp"],
 ]);
 
 function usage() {
@@ -52,15 +51,21 @@ function parseArgs(argv) {
   return options;
 }
 
+function escapeRegex(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
 async function collectReleaseFiles(slug, revision = "") {
   const releaseDir = join(ROOT, "content", "inbox", slug, "release");
   await access(releaseDir).catch(() => {
     throw new Error(`Release directory not found: ${relative(ROOT, releaseDir)}`);
   });
   const entries = await readdir(releaseDir, { withFileTypes: true });
+  const suffix = revision ? `-${revision}` : "";
+  const releaseName = new RegExp(`^${escapeRegex(slug)}-\\d+${escapeRegex(suffix)}\\.jpe?g$`, "i");
   const files = entries
     .filter((entry) => entry.isFile() && IMAGE_TYPES.has(extname(entry.name).toLowerCase()))
-    .filter((entry) => !revision || entry.name.includes(`-${revision}.`))
+    .filter((entry) => releaseName.test(entry.name))
     .map((entry) => ({
       slug,
       file: join(releaseDir, entry.name),
@@ -68,7 +73,7 @@ async function collectReleaseFiles(slug, revision = "") {
       contentType: IMAGE_TYPES.get(extname(entry.name).toLowerCase()),
     }))
     .sort((left, right) => left.name.localeCompare(right.name, undefined, { numeric: true }));
-  if (files.length === 0) throw new Error(`No matching .webp/.jpg release files found for ${slug}`);
+  if (files.length === 0) throw new Error(`No matching .jpg release files found for ${slug}`);
   return files;
 }
 
@@ -137,7 +142,7 @@ async function main() {
     console.log("Checking public URLs...");
     for (const item of plan) {
       await checkUrl(item.url);
-      if (item.contentType === "image/webp") {
+      if (item.contentType === "image/jpeg") {
         await checkUrl(`${options.domain}/cdn-cgi/image/width=640,format=auto,quality=82/${item.key}`);
       }
       console.log(`  OK ${item.url}`);

@@ -4,10 +4,12 @@
   "alt": "雾气弥漫的广场上，两个人隔着水面伸手相向",
   "takenAt": "2026-05-21",
   "placeId": "almaty",
-  "dimensions": { "width": 4032, "height": 6048 },
+  "dimensions": {
+    "width": 4032,
+    "height": 6048
+  },
   "media": {
-    "path": "upload/photos/2026/almaty-1-04.webp",
-    "fallbackPath": "upload/photos/2026/almaty-1-04.jpg"
+    "path": "upload/photos/2026/almaty-1-04.jpg"
   },
   "rights": {
     "notice": "© 2026 JewelRoam. All rights reserved.",

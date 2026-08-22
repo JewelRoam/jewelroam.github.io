@@ -5,12 +5,11 @@
   "takenAt": "2026-08-15",
   "placeId": "keshigten-banner",
   "dimensions": {
-    "width": 1372,
-    "height": 2048
+    "width": 7308,
+    "height": 10908
   },
   "media": {
-    "path": "upload/photos/2026/keshigten-2026-08-01.webp",
-    "fallbackPath": "upload/photos/2026/keshigten-2026-08-01.jpg"
+    "path": "upload/photos/2026/keshigten-2026-08-01.jpg"
   },
   "rights": {
     "notice": "© 2026 JewelRoam. All rights reserved.",

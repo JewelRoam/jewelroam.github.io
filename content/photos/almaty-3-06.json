@@ -4,7 +4,15 @@
   "alt": "两名男子站在酒吧吧台前合影，身后陈列酒瓶、酒杯与木质柜架",
   "takenAt": "2026-05-22",
   "placeId": "almaty",
-  "dimensions": { "width": 3024, "height": 4032 },
-  "media": { "path": "upload/photos/2026/almaty-3-06-v2.webp", "fallbackPath": "upload/photos/2026/almaty-3-06-v2.jpg" },
-  "rights": { "notice": "© 2026 JewelRoam. All rights reserved.", "licenseUrl": "https://jewelroam.github.io/rights" }
+  "dimensions": {
+    "width": 3024,
+    "height": 4032
+  },
+  "media": {
+    "path": "upload/photos/2026/almaty-3-06.jpg"
+  },
+  "rights": {
+    "notice": "© 2026 JewelRoam. All rights reserved.",
+    "licenseUrl": "https://jewelroam.github.io/rights"
+  }
 }

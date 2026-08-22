@@ -4,7 +4,15 @@
   "alt": "木桌上的焦边酒单，列出以蛇形图案和星象符号装饰的特调鸡尾酒",
   "takenAt": "2026-05-22",
   "placeId": "almaty",
-  "dimensions": { "width": 4032, "height": 3024 },
-  "media": { "path": "upload/photos/2026/almaty-3-03.webp", "fallbackPath": "upload/photos/2026/almaty-3-03.jpg" },
-  "rights": { "notice": "© 2026 JewelRoam. All rights reserved.", "licenseUrl": "https://jewelroam.github.io/rights" }
+  "dimensions": {
+    "width": 4032,
+    "height": 3024
+  },
+  "media": {
+    "path": "upload/photos/2026/almaty-3-03.jpg"
+  },
+  "rights": {
+    "notice": "© 2026 JewelRoam. All rights reserved.",
+    "licenseUrl": "https://jewelroam.github.io/rights"
+  }
 }

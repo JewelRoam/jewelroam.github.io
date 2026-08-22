@@ -8,7 +8,7 @@ import { execFileSync } from "node:child_process";
 const ROOT = path.resolve(new URL("../../../..", import.meta.url).pathname);
 
 function usage() {
-  console.error("Usage: prepare_release_images.mjs <slug> [--quality <0-100>] [--revision <token>] [--only <indices>]");
+  console.error("Usage: prepare_release_images.mjs <slug> [--revision <token>] [--only <indices>]");
   process.exit(2);
 }
 
@@ -52,7 +52,7 @@ function normalizeJpeg(source, target, value) {
     8: ["-rotate", "270"],
   }[value];
   if (!transform) throw new Error(`Unsupported EXIF Orientation ${value}`);
-  run("jpegtran", ["-copy", "none", ...transform, "-outfile", target, source]);
+  run("jpegtran", ["-copy", "icc", ...transform, "-outfile", target, source]);
 }
 
 function verify(file) {
@@ -63,10 +63,6 @@ function verify(file) {
 
 const slug = process.argv[2];
 if (!slug || slug.startsWith("-")) usage();
-const quality = Number(option("--quality", "86"));
-if (!Number.isInteger(quality) || quality < 0 || quality > 100) {
-  throw new Error("--quality must be an integer from 0 to 100");
-}
 const revision = option("--revision", "");
 if (revision && !/^[A-Za-z0-9._-]+$/.test(revision)) {
   throw new Error("--revision may contain only letters, numbers, dots, underscores, and hyphens");
@@ -88,7 +84,7 @@ if (!Array.isArray(manifest.images) || manifest.images.length === 0) {
 const images = only.length
   ? manifest.images.filter((image) => only.includes(image.index))
   : manifest.images;
-if (images.length === 0 || images.length !== only.length) {
+if (images.length === 0 || (only.length && images.length !== only.length)) {
   throw new Error(`--only selected images not present in ${path.relative(ROOT, manifestPath)}`);
 }
 
@@ -108,29 +104,33 @@ try {
     const id = `${slug}-${String(image.index).padStart(2, "0")}`;
     const releaseId = revision ? `${id}-${revision}` : id;
     const normalized = path.join(tempDir, `${releaseId}.jpg`);
-    const jpgTemp = path.join(tempDir, `${releaseId}.release.jpg`);
-    const webpTemp = path.join(tempDir, `${releaseId}.webp`);
+    const jpgTemp = path.join(tempDir, `${releaseId}.jpg`);
     const originalOrientation = orientation(source);
     normalizeJpeg(source, normalized, originalOrientation);
     const normalizedDimensions = verify(normalized);
 
-    run("jpegtran", ["-copy", "none", "-optimize", "-outfile", jpgTemp, normalized]);
-    run("cwebp", ["-quiet", "-metadata", "none", "-q", String(quality), normalized, "-o", webpTemp]);
+    run("jpegtran", ["-copy", "icc", "-optimize", "-outfile", jpgTemp, normalized]);
     const jpgDimensions = verify(jpgTemp);
-    const webpDimensions = verify(webpTemp);
     if (JSON.stringify(jpgDimensions) !== JSON.stringify(normalizedDimensions)) {
       throw new Error(`JPEG dimensions changed unexpectedly for ${id}`);
     }
-    if (JSON.stringify(webpDimensions) !== JSON.stringify(normalizedDimensions)) {
-      throw new Error(`WebP dimensions changed unexpectedly for ${id}`);
-    }
 
     fs.renameSync(jpgTemp, path.join(releaseDir, `${releaseId}.jpg`));
-    fs.renameSync(webpTemp, path.join(releaseDir, `${releaseId}.webp`));
-    results.push({ id, releaseId, originalOrientation, dimensions: normalizedDimensions });
+    results.push({
+      id,
+      releaseId,
+      originalOrientation,
+      dimensions: normalizedDimensions,
+      bytes: fs.statSync(path.join(releaseDir, `${releaseId}.jpg`)).size,
+    });
   }
 } finally {
   fs.rmSync(tempDir, { recursive: true, force: true });
 }
 
-console.log(JSON.stringify({ slug, quality, revision: revision || null, imageCount: results.length, images: results }, null, 2));
+console.log(JSON.stringify({
+  slug,
+  revision: revision || null,
+  imageCount: results.length,
+  images: results,
+}, null, 2));

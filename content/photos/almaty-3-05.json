@@ -4,7 +4,15 @@
   "alt": "酒吧后场的蒸馏与实验设备，玻璃器皿和白色仪器排列在操作台上",
   "takenAt": "2026-05-22",
   "placeId": "almaty",
-  "dimensions": { "width": 4284, "height": 5712 },
-  "media": { "path": "upload/photos/2026/almaty-3-05-v2.webp", "fallbackPath": "upload/photos/2026/almaty-3-05-v2.jpg" },
-  "rights": { "notice": "© 2026 JewelRoam. All rights reserved.", "licenseUrl": "https://jewelroam.github.io/rights" }
+  "dimensions": {
+    "width": 4284,
+    "height": 5712
+  },
+  "media": {
+    "path": "upload/photos/2026/almaty-3-05.jpg"
+  },
+  "rights": {
+    "notice": "© 2026 JewelRoam. All rights reserved.",
+    "licenseUrl": "https://jewelroam.github.io/rights"
+  }
 }
