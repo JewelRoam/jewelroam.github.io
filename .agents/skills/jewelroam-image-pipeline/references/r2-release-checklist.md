@@ -34,7 +34,9 @@
 
 Generate WebP or other release derivatives only after preserving the original and confirming the intended public quality. Keep original and release paths explicit.
 
-Before generating WebP, normalize any EXIF orientation into the pixel data and strip the orientation tag. Verify the release derivative's physical width/height with an image inspector; do not carry raw sensor dimensions into metadata when a portrait image is stored in a rotated landscape raster.
+Before generating WebP, run `npm run content:prepare-release -- <slug>` to normalize any EXIF orientation into the pixel data and strip the orientation tag. Verify the release derivative's physical width/height with an image inspector; do not carry raw sensor dimensions into metadata when a portrait image is stored in a rotated landscape raster. Never use `cwebp -metadata none` directly on a JPEG that still has an Orientation tag.
+
+R2 release URLs are immutable. When replacing an already published object, use a new filename revision (for example `--revision r2 --only 05,11`) and update the corresponding formal photo records before publishing; do not overwrite an immutable URL and expect its cache to refresh.
 
 ## Release order
 

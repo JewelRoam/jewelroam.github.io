@@ -27,18 +27,19 @@ Options:
   --bucket NAME   R2 bucket (default: ${DEFAULTS.bucket})
   --prefix PATH   Object prefix (default: ${DEFAULTS.prefix})
   --domain URL    Public image domain (default: ${DEFAULTS.domain})
+  --revision TAG  Upload only release files ending in -TAG
   -h, --help      Show this help
 `);
 }
 
 function parseArgs(argv) {
-  const options = { ...DEFAULTS, dryRun: false, check: true, slugs: [] };
+  const options = { ...DEFAULTS, dryRun: false, check: true, revision: "", slugs: [] };
   for (let index = 0; index < argv.length; index += 1) {
     const arg = argv[index];
     if (arg === "--dry-run") options.dryRun = true;
     else if (arg === "--no-check") options.check = false;
     else if (arg === "-h" || arg === "--help") options.help = true;
-    else if (["--bucket", "--prefix", "--domain"].includes(arg)) {
+    else if (["--bucket", "--prefix", "--domain", "--revision"].includes(arg)) {
       const value = argv[++index];
       if (!value) throw new Error(`${arg} requires a value`);
       options[arg.slice(2)] = value;
@@ -51,7 +52,7 @@ function parseArgs(argv) {
   return options;
 }
 
-async function collectReleaseFiles(slug) {
+async function collectReleaseFiles(slug, revision = "") {
   const releaseDir = join(ROOT, "content", "inbox", slug, "release");
   await access(releaseDir).catch(() => {
     throw new Error(`Release directory not found: ${relative(ROOT, releaseDir)}`);
@@ -59,6 +60,7 @@ async function collectReleaseFiles(slug) {
   const entries = await readdir(releaseDir, { withFileTypes: true });
   const files = entries
     .filter((entry) => entry.isFile() && IMAGE_TYPES.has(extname(entry.name).toLowerCase()))
+    .filter((entry) => !revision || entry.name.includes(`-${revision}.`))
     .map((entry) => ({
       slug,
       file: join(releaseDir, entry.name),
@@ -66,7 +68,7 @@ async function collectReleaseFiles(slug) {
       contentType: IMAGE_TYPES.get(extname(entry.name).toLowerCase()),
     }))
     .sort((left, right) => left.name.localeCompare(right.name, undefined, { numeric: true }));
-  if (files.length === 0) throw new Error(`No .webp/.jpg release files found for ${slug}`);
+  if (files.length === 0) throw new Error(`No matching .webp/.jpg release files found for ${slug}`);
   return files;
 }
 
@@ -101,7 +103,7 @@ async function main() {
     throw new Error("Provide at least one article slug");
   }
 
-  const files = (await Promise.all(options.slugs.map(collectReleaseFiles))).flat();
+  const files = (await Promise.all(options.slugs.map((slug) => collectReleaseFiles(slug, options.revision)))).flat();
   const plan = files.map((file) => ({
     ...file,
     key: objectKey(file, options.prefix),

@@ -33,7 +33,19 @@ The script produces:
 - `image-manifest-draft.json`: dimensions, byte sizes, source names, blank review fields, and `status: needs-confirmation`;
 - `article-preview.mdx`: article text with `PhotoEmbed` references for local review only.
 
-The staged dimensions account for the common iPhone `upper-right`/`lower-left` EXIF orientations. Before creating WebP/JPEG release derivatives, physically apply that orientation and remove the orientation tag; WebP files must never rely on EXIF to display upright. If a release derivative changes orientation, use a new immutable object path and update the photo dimensions and metadata together.
+The staged dimensions account for the common iPhone `upper-right`/`lower-left` EXIF orientations. Before creating WebP/JPEG release derivatives, physically apply that orientation and remove the orientation tag; WebP files must never rely on EXIF to display upright. Use the project command for this step:
+
+```bash
+npm run content:prepare-release -- <slug>
+```
+
+It reads `content/inbox/<slug>/image-manifest-draft.json`, normalizes all JPEG EXIF orientations (including mirrored variants), writes the paired files under `content/inbox/<slug>/release/`, and verifies their physical dimensions and absence of an Orientation tag. Never run `cwebp -metadata none` directly on an unnormalized source JPEG. If a release derivative changes orientation, use a new immutable object path and update the photo dimensions and metadata together.
+
+When replacing an object that has already been published with immutable caching, use a revision and limit the command to the changed images, then update their formal `media.path` and `media.fallbackPath`:
+
+```bash
+npm run content:prepare-release -- <slug> --revision r2 --only 05,11
+```
 
 Do not treat `article-preview.mdx` as publishable while its description, `placeId`, or photo metadata is incomplete. Keep staging files under `content/inbox/`; do not place them under `content/journals/`, `content/places/`, or `content/photos/` yet.
 

@@ -76,6 +76,8 @@ VITE_MEDIA_BASE_URL=https://images.zer.dpdns.org
 ```text
 本地整理图片和 metadata
     ↓
+运行 `npm run content:prepare-release -- <slug>`，先把 EXIF Orientation 物理写入像素
+    ↓
 本地运行页面和检查构图
     ↓
 上传最终发行图到 R2（使用稳定、不可变的路径）
@@ -91,6 +93,8 @@ GitHub Actions 校验并部署站点
 
 尚未确认发布的图片保留在 `content/inbox/`，通过 Capture 的 Base64 草稿或 inbox 预览检查，不写入正式 manifest。`content/inbox/` 默认是本地素材目录，不应因为正式内容提交而自动加入 Git；当前运行时代码没有 `public/media` 回退；正式 `content/photos/*.json` 只引用已经上传并验证的 R2 对象。
 
+不要直接对仍带 EXIF Orientation 的 JPEG 执行 `cwebp -metadata none`，这会丢掉方向标签却不会旋转像素。`content:prepare-release` 会处理 8 种方向并检查最终尺寸与标签。已经发布的对象使用 immutable 缓存；替换图片时使用 `--revision <tag> --only <indices>` 生成新路径，并同步 photo metadata，不要覆盖旧 URL 期待缓存刷新。
+
 ## 6. 发布和权限
 
 ### 使用项目 CLI 发布
@@ -99,6 +103,7 @@ Wrangler OAuth 登录后，直接从项目根目录发布某篇文章的发行�
 
 ```bash
 npx wrangler login
+npm run content:prepare-release -- almaty-1
 npm run content:publish-r2 -- --dry-run almaty-1
 npm run content:publish-r2 -- almaty-1
 ```
@@ -110,6 +115,8 @@ npm run content:publish-r2 -- almaty-1
 ```bash
 npm run content:publish-r2 -- --no-check almaty-1
 npm run content:publish-r2 -- --bucket jewelroam-media --prefix upload/photos/2026 almaty-1 almaty-3
+npm run content:prepare-release -- almaty-1 --revision r2 --only 05,11
+npm run content:publish-r2 -- --revision r2 almaty-1
 ```
 
 CLI 不会删除本地素材或 R2 对象，也不会修改正式 metadata；发布后仍需按本文件的顺序运行校验、提交 metadata 并推送 GitHub。

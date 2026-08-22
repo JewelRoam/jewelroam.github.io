@@ -5,12 +5,12 @@
   "takenAt": "2026-05-23",
   "placeId": "big-almaty-lake",
   "dimensions": {
-    "width": 5712,
-    "height": 4284
+    "width": 4284,
+    "height": 5712
   },
   "media": {
-    "path": "upload/photos/2026/almaty-4-11.webp",
-    "fallbackPath": "upload/photos/2026/almaty-4-11.jpg"
+    "path": "upload/photos/2026/almaty-4-11-r2.webp",
+    "fallbackPath": "upload/photos/2026/almaty-4-11-r2.jpg"
   },
   "rights": {
     "notice": "© 2026 JewelRoam. All rights reserved.",
