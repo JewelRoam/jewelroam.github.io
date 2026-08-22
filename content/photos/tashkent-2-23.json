@@ -1,0 +1,18 @@
+{
+  "id": "tashkent-2-23",
+  "title": "电影屏幕",
+  "alt": "黑暗影院中银幕上显示一名戴帽子的男子",
+  "takenAt": "2026-05-25",
+  "placeId": "tashkent",
+  "dimensions": {
+    "width": 5712,
+    "height": 4284
+  },
+  "media": {
+    "path": "upload/photos/2026/tashkent-2-23.jpg"
+  },
+  "rights": {
+    "notice": "© 2026 JewelRoam. All rights reserved.",
+    "licenseUrl": "https://jewelroam.github.io/rights"
+  }
+}

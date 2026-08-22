@@ -1,0 +1,18 @@
+{
+  "id": "tashkent-2-24",
+  "title": "影院合影",
+  "alt": "影院大厅内两人站在红地毯上合影，周围陈列电影海报",
+  "takenAt": "2026-05-25",
+  "placeId": "tashkent",
+  "dimensions": {
+    "width": 768,
+    "height": 1024
+  },
+  "media": {
+    "path": "upload/photos/2026/tashkent-2-24.jpg"
+  },
+  "rights": {
+    "notice": "© 2026 JewelRoam. All rights reserved.",
+    "licenseUrl": "https://jewelroam.github.io/rights"
+  }
+}

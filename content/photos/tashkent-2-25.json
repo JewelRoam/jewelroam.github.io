@@ -1,0 +1,18 @@
+{
+  "id": "tashkent-2-25",
+  "title": "乌兹别克烤肉",
+  "alt": "餐桌上摆满烤肉、烤鸡、烤蔬菜和番茄的餐盘",
+  "takenAt": "2026-05-25",
+  "placeId": "tashkent",
+  "dimensions": {
+    "width": 1536,
+    "height": 2048
+  },
+  "media": {
+    "path": "upload/photos/2026/tashkent-2-25.jpg"
+  },
+  "rights": {
+    "notice": "© 2026 JewelRoam. All rights reserved.",
+    "licenseUrl": "https://jewelroam.github.io/rights"
+  }
+}

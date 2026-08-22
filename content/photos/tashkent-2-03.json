@@ -1,0 +1,18 @@
+{
+  "id": "tashkent-2-03",
+  "title": "平面镜布局图",
+  "alt": "展示平面镜阵列和反射路径的工程图纸",
+  "takenAt": "2026-05-25",
+  "placeId": "parkent",
+  "dimensions": {
+    "width": 5712,
+    "height": 4284
+  },
+  "media": {
+    "path": "upload/photos/2026/tashkent-2-03.jpg"
+  },
+  "rights": {
+    "notice": "© 2026 JewelRoam. All rights reserved.",
+    "licenseUrl": "https://jewelroam.github.io/rights"
+  }
+}
