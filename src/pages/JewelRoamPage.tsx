@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { CopyText } from "../components/CopyText";
 import { Page } from "../components/Page";
+import { PlaylistEmbed, type PlaylistItem } from "../components/PlaylistEmbed";
 
 function ExternalLink({
   href,
@@ -25,47 +26,26 @@ function ExternalLink({
   );
 }
 
-const playlistGroups = [
+const playlistGroups: { label: string; items: PlaylistItem[] }[] = [
   {
     label: "2019-2026",
     items: [
-      [
-        "2026 интуиция",
-        "https://music.apple.com/cn/playlist/2026-%D0%B8%D0%BD%D1%82%D1%83%D0%B8%D1%86%D0%B8%D1%8F/pl.u-gxblgG7t5vZ91kN",
-      ],
-      [
-        "2026 задумываться",
-        "https://music.apple.com/cn/playlist/2026-%D0%B7%D0%B0%D0%B4%D1%83%D0%BC%D1%8B%D0%B2%D0%B0%D1%82%D1%8C%D1%81%D1%8F/pl.u-GgA5ka5sZep4gjJ",
-      ],
-      [
-        "2024-2025 Annihilation or Petrification?",
-        "https://music.apple.com/cn/playlist/2024-2025-annihilation-or-petrification/pl.u-WabZvAVudmYa7xB",
-      ],
-      [
-        "2023 Spanning",
-        "https://music.apple.com/cn/playlist/2023-spanning/pl.u-NpXmza7tmB7oqk2",
-      ],
-      [
-        "2022 monument",
-        "https://music.apple.com/cn/playlist/2022-monument/pl.u-WabZv4ZidmYa7xB",
-      ],
-      [
-        "2021 inner film",
-        "https://music.apple.com/cn/playlist/2021-inner-film/pl.u-NpXmzeWFmB7oqk2",
-      ],
-      [
-        "2019-2020 watch the matter",
-        "https://music.apple.com/cn/playlist/2019-2020-watch-the-matter/pl.u-jV890vLud63xKMr",
-      ],
+      { title: "2026 интуиция", href: "https://music.apple.com/cn/playlist/2026-%D0%B8%D0%BD%D1%82%D1%83%D0%B8%D1%86%D0%B8%D1%8F/pl.u-gxblgG7t5vZ91kN", platform: "Apple Music" },
+      { title: "2026 задумываться", href: "https://music.apple.com/cn/playlist/2026-%D0%B7%D0%B0%D0%B4%D1%83%D0%BC%D1%8B%D0%B2%D0%B0%D1%82%D1%8C%D1%81%D1%8F/pl.u-GgA5ka5sZep4gjJ", platform: "Apple Music" },
+      { title: "2024-2025 Annihilation or Petrification?", href: "https://music.apple.com/cn/playlist/2024-2025-annihilation-or-petrification/pl.u-WabZvAVudmYa7xB", platform: "Apple Music" },
+      { title: "2023 Spanning", href: "https://music.apple.com/cn/playlist/2023-spanning/pl.u-NpXmza7tmB7oqk2", platform: "Apple Music" },
+      { title: "2022 monument", href: "https://music.apple.com/cn/playlist/2022-monument/pl.u-WabZv4ZidmYa7xB", platform: "Apple Music" },
+      { title: "2021 inner film", href: "https://music.apple.com/cn/playlist/2021-inner-film/pl.u-NpXmzeWFmB7oqk2", platform: "Apple Music" },
+      { title: "2019-2020 watch the matter", href: "https://music.apple.com/cn/playlist/2019-2020-watch-the-matter/pl.u-jV890vLud63xKMr", platform: "Apple Music" },
     ],
   },
   {
     label: "2019 之前",
     items: [
-      ["ρ", "https://music.163.com/#/playlist?id=8387263303"],
-      ["ξ", "https://music.163.com/#/playlist?id=6613502033"],
-      ["γ", "https://music.163.com/#/playlist?id=5168675317"],
-      ["Ω", "https://music.163.com/#/playlist?id=5169873370"],
+      { title: "ρ", href: "https://music.163.com/#/playlist?id=8387263303", platform: "网易云音乐" },
+      { title: "ξ", href: "https://music.163.com/#/playlist?id=6613502033", platform: "网易云音乐" },
+      { title: "γ", href: "https://music.163.com/#/playlist?id=5168675317", platform: "网易云音乐" },
+      { title: "Ω", href: "https://music.163.com/#/playlist?id=5169873370", platform: "网易云音乐" },
     ],
   },
 ] as const;
@@ -306,10 +286,10 @@ export function JewelRoamPage() {
                 <h3 className="text-xs uppercase tracking-[0.16em] text-[#20211f]/50">
                   {group.label}
                 </h3>
-                <ul className="mt-3 space-y-2">
-                  {group.items.map(([title, href]) => (
-                    <li key={href}>
-                      <ExternalLink href={href}>{title}</ExternalLink>
+                <ul className="playlist-grid mt-3">
+                  {group.items.map((item) => (
+                    <li key={item.href}>
+                      <PlaylistEmbed item={item} />
                     </li>
                   ))}
                 </ul>
