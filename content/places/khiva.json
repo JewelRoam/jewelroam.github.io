@@ -1,0 +1,21 @@
+{
+  "id": "khiva",
+  "slug": "khiva",
+  "name": "Khiva",
+  "country": "乌兹别克斯坦",
+  "region": "希瓦市 · 伊钦卡拉古城",
+  "coordinates": {
+    "latitude": 41.3775,
+    "longitude": 60.3599
+  },
+  "geometry": {
+    "type": "Polygon",
+    "coordinates": [[
+      [60.26, 41.30],
+      [60.46, 41.30],
+      [60.48, 41.46],
+      [60.26, 41.46],
+      [60.26, 41.30]
+    ]]
+  }
+}
