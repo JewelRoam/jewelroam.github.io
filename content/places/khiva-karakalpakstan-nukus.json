@@ -1,0 +1,22 @@
+{
+  "id": "khiva-karakalpakstan-nukus",
+  "slug": "khiva-karakalpakstan-nukus",
+  "name": "Khiva—Karakalpakstan—Nukus",
+  "kind": "route",
+  "country": "乌兹别克斯坦",
+  "region": "希瓦—卡拉卡尔帕克斯坦—努库斯线路",
+  "coordinates": {
+    "latitude": 42.02,
+    "longitude": 60.45
+  },
+  "geometry": {
+    "type": "LineString",
+    "coordinates": [
+      [60.3599, 41.3775],
+      [61.02, 41.95],
+      [61.18, 41.95],
+      [60.02, 42.50],
+      [59.61, 42.46]
+    ]
+  }
+}
