@@ -1,11 +1,12 @@
 import type { ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { getPhoto, type Photo } from "../lib/content";
+import { ImageFrame } from "./ImageFrame";
 import { ResponsiveImage } from "./ResponsiveImage";
 
 type ArticleMediaProps = {
   children: ReactNode;
-  layout?: "single" | "stack" | "gallery";
+  layout?: "single" | "gallery";
 };
 
 export function ArticleMedia({ children, layout = "single" }: ArticleMediaProps) {
@@ -14,24 +15,26 @@ export function ArticleMedia({ children, layout = "single" }: ArticleMediaProps)
 
 export function ArticleImage({ photo, caption }: { photo: Photo; caption?: string }) {
   return (
-    <figure className="article-media__item">
+    <ImageFrame
+      className="article-media__item"
+      caption={caption}
+    >
       <ResponsiveImage
         photo={photo}
         sizes="(min-width: 768px) 48rem, 100vw"
-        className="article-image"
+        className="media-frame__image media-frame__image--bounded article-image"
       />
-      {caption && <figcaption className="mt-3 text-sm text-[#20211f]/55">{caption}</figcaption>}
-    </figure>
+    </ImageFrame>
   );
 }
 
 export function PhotoGallery({ ids }: { ids: string[] }) {
-  const photos = ids.map((id) => getPhoto(id)).filter((photo): photo is Photo => Boolean(photo));
-  if (!photos.length) return null;
+  const entries = ids.map((id) => ({ id, photo: getPhoto(id) }));
+  if (!entries.length) return null;
 
   return (
     <ArticleMedia layout="gallery">
-      {photos.map((photo) => (
+      {entries.map(({ id, photo }) => photo ? (
         <Link
           key={photo.id}
           to={`/photos/${photo.id}`}
@@ -40,6 +43,8 @@ export function PhotoGallery({ ids }: { ids: string[] }) {
         >
           <ArticleImage photo={photo} />
         </Link>
+      ) : (
+        <p key={id} className="article-media__missing" role="alert">图片引用缺失：{id}</p>
       ))}
     </ArticleMedia>
   );

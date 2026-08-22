@@ -189,6 +189,13 @@ function boundsFor(destinations: Destination[]): [[number, number], [number, num
   return [[minLng - paddingLng, minLat - paddingLat], [maxLng + paddingLng, maxLat + paddingLat]];
 }
 
+function topFeature(features: maplibregl.MapGeoJSONFeature[] | undefined) {
+  return [...(features ?? [])].sort((a, b) =>
+    Number(b.properties?.depth ?? 0) - Number(a.properties?.depth ?? 0) ||
+    String(a.properties?.id ?? a.id).localeCompare(String(b.properties?.id ?? b.id)),
+  )[0];
+}
+
 export function DestinationMap({ destinations, onSelect, className, ariaLabel = "Destinations map" }: DestinationMapProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<MapLibreMap | null>(null);
@@ -250,10 +257,7 @@ export function DestinationMap({ destinations, onSelect, className, ariaLabel = 
       if (id !== null) map.setFeatureState({ source: SOURCE_ID, id }, { hover: true });
     };
     const handleMove = (event: maplibregl.MapLayerMouseEvent) => {
-      const feature = [...(event.features ?? [])].sort((a, b) =>
-        Number(b.properties?.depth ?? 0) - Number(a.properties?.depth ?? 0) ||
-        String(a.properties?.id ?? a.id).localeCompare(String(b.properties?.id ?? b.id)),
-      )[0];
+      const feature = topFeature(event.features);
       map.getCanvas().style.cursor = feature ? "pointer" : "";
       setHover(feature?.id ?? null);
     };
@@ -262,10 +266,7 @@ export function DestinationMap({ destinations, onSelect, className, ariaLabel = 
       setHover(null);
     };
     const handleClick = (event: maplibregl.MapLayerMouseEvent) => {
-      const feature = [...(event.features ?? [])].sort((a, b) =>
-        Number(b.properties?.depth ?? 0) - Number(a.properties?.depth ?? 0) ||
-        String(a.properties?.id ?? a.id).localeCompare(String(b.properties?.id ?? b.id)),
-      )[0];
+      const feature = topFeature(event.features);
       const id = feature?.id;
       if (id === undefined || id === null) return;
       const destination = destinationsRef.current.find((entry) => entry.id === String(id) || entry.id === id);

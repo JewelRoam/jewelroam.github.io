@@ -1,5 +1,6 @@
 import { Link, Navigate, useParams } from "react-router-dom";
 import { Page } from "../components/Page";
+import { ImageFrame } from "../components/ImageFrame";
 import { ResponsiveImage } from "../components/ResponsiveImage";
 import { getPlace, getPlaceJournals, getPlacePhotos } from "../lib/content";
 
@@ -36,11 +37,13 @@ export function DestinationDetailPage() {
                   key={photo.id}
                   className="group"
                 >
-                  <ResponsiveImage
-                    photo={photo}
-                    sizes="(min-width: 640px) 45vw, 100vw"
-                    className="aspect-[4/3] w-full object-cover transition duration-500 group-hover:scale-[1.02]"
-                  />
+                  <ImageFrame>
+                    <ResponsiveImage
+                      photo={photo}
+                      sizes="(min-width: 640px) 45vw, 100vw"
+                      className="media-frame__image mx-auto transition duration-500 group-hover:scale-[1.02]"
+                    />
+                  </ImageFrame>
                   <div className="mt-3 text-sm">{photo.title}</div>
                 </Link>
               ))}

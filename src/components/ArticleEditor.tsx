@@ -25,39 +25,37 @@ import CreatableSelect from "react-select/creatable";
 import {
   appendImagesToHtml,
   extractImagesFromHtml,
-  parseArticleDraft,
+} from "../lib/article-document";
+import {
+  articleDraftSchema,
+  storedDraftSchema,
+  type ArticleDraft,
   type ArticleImage,
   type MediaLayout,
-} from "../lib/article-document";
+  type StoredDraft,
+} from "../lib/content-schema";
 import { places } from "../lib/content";
+import { issuesFromZod, summarizeValidationIssues } from "../lib/content-validation";
+import { ImageFrame } from "./ImageFrame";
 
 const DRAFT_KEY = "jewelroam:article-draft";
 const MAX_IMAGE_SIZE = 100 * 1024 * 1024;
 const IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif", "image/avif"];
 
-type Draft = {
-  schemaVersion: number;
-  kind: "journal";
-  title: string;
-  description: string;
-  placeId: string;
-  placeName: string;
-  createdAt: string;
-  updatedAt: string;
-  mediaLayout: MediaLayout;
-  html: string;
-  gallery: ArticleImage[];
-};
-
-type StoredDraft = Omit<Draft, "createdAt" | "updatedAt" | "placeId" | "placeName" | "mediaLayout" | "gallery"> & {
-  createdAt?: string;
-  updatedAt?: string;
-  placeId?: string;
-  placeName?: string;
-  savedAt?: string;
-  mediaLayout?: MediaLayout;
-  gallery?: ArticleImage[];
-};
+type EditableDraft = Pick<
+  ArticleDraft,
+  | "schemaVersion"
+  | "kind"
+  | "title"
+  | "description"
+  | "placeId"
+  | "placeName"
+  | "createdAt"
+  | "updatedAt"
+  | "mediaLayout"
+  | "html"
+  | "gallery"
+>;
 
 type PlaceOption = { value: string; label: string; name: string; existing: boolean };
 
@@ -73,24 +71,6 @@ function today() {
   return new Date(now.getTime() - now.getTimezoneOffset() * 60_000).toISOString().slice(0, 10);
 }
 
-function normalizeDraft(draft: StoredDraft): Draft {
-  const updatedAt = draft.updatedAt ?? draft.savedAt ?? new Date().toISOString();
-  const existingPlace = places.find((place) => place.id === draft.placeId);
-  return {
-    schemaVersion: draft.schemaVersion ?? 2,
-    kind: "journal",
-    title: draft.title,
-    description: draft.description,
-    placeId: draft.placeId ?? "",
-    placeName: draft.placeName ?? existingPlace?.name ?? "",
-    createdAt: draft.createdAt ?? updatedAt.slice(0, 10),
-    updatedAt,
-    mediaLayout: draft.mediaLayout ?? "inline",
-    html: draft.html,
-    gallery: draft.gallery ?? [],
-  };
-}
-
 function fileToDataUrl(file: File) {
   return new Promise<string>((resolve, reject) => {
     const reader = new FileReader();
@@ -101,24 +81,9 @@ function fileToDataUrl(file: File) {
 }
 
 async function readDraft() {
-  const draft = await get<StoredDraft>(DRAFT_KEY);
-  if (draft) {
-    const normalized = normalizeDraft(draft);
-    if (!draft.createdAt || !draft.updatedAt || !draft.placeName) await set(DRAFT_KEY, normalized);
-    return normalized;
-  }
-
-  const legacy = window.localStorage.getItem(DRAFT_KEY);
-  if (!legacy) return null;
-
-  try {
-    const migrated = normalizeDraft(JSON.parse(legacy) as StoredDraft);
-    await set(DRAFT_KEY, migrated);
-    window.localStorage.removeItem(DRAFT_KEY);
-    return migrated;
-  } catch {
-    return null;
-  }
+  const stored = await get<unknown>(DRAFT_KEY);
+  const parsed = storedDraftSchema.safeParse(stored);
+  return parsed.success ? parsed.data : null;
 }
 
 export function ArticleEditor() {
@@ -236,7 +201,7 @@ export function ArticleEditor() {
     const timer = window.setTimeout(() => {
       const nextUpdatedAt = new Date().toISOString();
       const savingRevision = revision;
-      const draft: Draft = {
+      const draft: EditableDraft = {
         schemaVersion: 2,
         kind: "journal",
         title,
@@ -270,7 +235,7 @@ export function ArticleEditor() {
       return;
     }
     const exportedAt = new Date().toISOString();
-    const payload = JSON.stringify({
+    const payload = articleDraftSchema.parse({
       schemaVersion: 2,
       kind: "journal",
       title,
@@ -284,8 +249,9 @@ export function ArticleEditor() {
       mediaLayout,
       html: editor.getHTML(),
       gallery,
-    }, null, 2);
-    const blob = new Blob([payload], { type: "application/json" });
+    });
+    const serialized = JSON.stringify(payload, null, 2);
+    const blob = new Blob([serialized], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
@@ -298,7 +264,6 @@ export function ArticleEditor() {
   const clearDraft = () => {
     if (!window.confirm("确定清空当前浏览器中的文章草稿吗？")) return;
     void del(DRAFT_KEY);
-    window.localStorage.removeItem(DRAFT_KEY);
     editor?.commands.clearContent(false);
     savedRevision.current = revision;
     setTitle("");
@@ -330,7 +295,19 @@ export function ArticleEditor() {
 
   const importDraft = async (file: File) => {
     try {
-      const imported = parseArticleDraft(JSON.parse(await file.text()));
+      let value: unknown;
+      try {
+        value = JSON.parse(await file.text());
+      } catch {
+        setStatus("导入失败：文件不是有效的 JSON");
+        return;
+      }
+      const result = articleDraftSchema.safeParse(value);
+      if (!result.success) {
+        setStatus(`导入失败：${summarizeValidationIssues(issuesFromZod(result.error))}`);
+        return;
+      }
+      const imported = result.data;
       if ((title.trim() || description.trim() || editor?.getText().trim() || gallery.length) && !window.confirm("导入会覆盖当前草稿，确定继续吗？")) return;
       setTitle(imported.title);
       setDescription(imported.description);
@@ -472,20 +449,29 @@ export function ArticleEditor() {
           {gallery.length > 0 && (
             <div className="editor-gallery__grid">
               {gallery.map((image) => (
-                <figure key={image.id} className="editor-gallery__item">
-                  <img src={image.src} alt={image.alt || image.sourceName} />
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setGallery((items) => items.filter((item) => item.id !== image.id));
-                      markChanged();
-                    }}
-                    aria-label={`移除${image.sourceName}`}
-                    title="移除图片"
-                  >
-                    <X size={15} />
-                  </button>
-                </figure>
+                <ImageFrame
+                  key={image.id}
+                  className="editor-gallery__item"
+                  action={
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setGallery((items) => items.filter((item) => item.id !== image.id));
+                        markChanged();
+                      }}
+                      aria-label={`移除${image.sourceName}`}
+                      title="移除图片"
+                    >
+                      <X size={15} />
+                    </button>
+                  }
+                >
+                  <img
+                    className="media-frame__image media-frame__image--bounded"
+                    src={image.src}
+                    alt={image.alt || image.sourceName}
+                  />
+                </ImageFrame>
               ))}
             </div>
           )}

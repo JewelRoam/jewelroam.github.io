@@ -1,42 +1,4 @@
-import { z } from "zod";
-
-export const MEDIA_LAYOUTS = ["inline", "gallery"] as const;
-export type MediaLayout = (typeof MEDIA_LAYOUTS)[number];
-
-const articleImageSchema = z.object({
-  id: z.string().min(1),
-  type: z.literal("image").default("image"),
-  src: z.string().min(1),
-  sourceName: z.string().default(""),
-  alt: z.string().default(""),
-  title: z.string().default(""),
-  caption: z.string().default(""),
-  width: z.number().positive().optional(),
-  height: z.number().positive().optional(),
-});
-
-export const articleDraftSchema = z.object({
-  schemaVersion: z.number().int().positive().default(2),
-  kind: z.literal("journal").default("journal"),
-  title: z.string().default(""),
-  description: z.string().default(""),
-  placeId: z.string().default(""),
-  placeName: z.string().default(""),
-  placeStatus: z.enum(["existing", "needs-place-record"]).default("needs-place-record"),
-  createdAt: z.string().default(""),
-  updatedAt: z.string().default(""),
-  exportedAt: z.string().default(""),
-  mediaLayout: z.enum(MEDIA_LAYOUTS).default("inline"),
-  html: z.string().default(""),
-  gallery: z.array(articleImageSchema).default([]),
-});
-
-export type ArticleImage = z.infer<typeof articleImageSchema>;
-export type ArticleDraft = z.infer<typeof articleDraftSchema>;
-
-export function parseArticleDraft(value: unknown): ArticleDraft {
-  return articleDraftSchema.parse(value);
-}
+import type { ArticleImage } from "./content-schema";
 
 function imageNode(image: ArticleImage) {
   const img = document.createElement("img");

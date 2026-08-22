@@ -63,11 +63,47 @@ const maxImageMb = Number(option("--max-image-mb", "100"));
 if (!Number.isFinite(maxImageMb) || maxImageMb <= 0) throw new Error("--max-image-mb must be a positive number");
 const maxImageBytes = maxImageMb * 1024 * 1024;
 const draft = JSON.parse(fs.readFileSync(path.resolve(input), "utf8"));
-if (typeof draft.html !== "string") throw new Error("Draft must contain an html string");
-const placeId = option("--place-id", draft.placeId ?? "");
-const placeName = option("--place-name", draft.placeName ?? "");
-const mediaLayout = draft.mediaLayout === "gallery" ? "gallery" : "inline";
-const gallery = Array.isArray(draft.gallery) ? draft.gallery : [];
+const requiredDraftFields = [
+  "schemaVersion",
+  "kind",
+  "title",
+  "description",
+  "placeId",
+  "placeName",
+  "placeStatus",
+  "createdAt",
+  "updatedAt",
+  "exportedAt",
+  "mediaLayout",
+  "html",
+  "gallery",
+];
+for (const field of requiredDraftFields) {
+  if (!(field in draft)) throw new Error(`Draft is missing required field: ${field}`);
+}
+if (draft.schemaVersion !== 2 || draft.kind !== "journal") throw new Error("Draft must use schemaVersion 2 and kind journal");
+if (!['inline', 'gallery'].includes(draft.mediaLayout)) throw new Error("Draft mediaLayout must be inline or gallery");
+if (!['existing', 'needs-place-record'].includes(draft.placeStatus)) throw new Error("Draft placeStatus is invalid");
+if (!Array.isArray(draft.gallery)) throw new Error("Draft gallery must be an array");
+for (const field of ["title", "description", "placeId", "placeName", "createdAt", "updatedAt", "exportedAt", "html"]) {
+  if (typeof draft[field] !== "string") throw new Error(`Draft field ${field} must be a string`);
+}
+if (!draft.placeName.trim()) throw new Error("Draft placeName must not be empty");
+for (const [index, image] of draft.gallery.entries()) {
+  if (!image || typeof image !== "object") throw new Error(`Draft gallery[${index}] must be an object`);
+  for (const field of ["id", "type", "src", "sourceName", "alt", "title", "caption"]) {
+    if (typeof image[field] !== "string") throw new Error(`Draft gallery[${index}].${field} must be a string`);
+  }
+  if (image.type !== "image") throw new Error(`Draft gallery[${index}].type must be image`);
+}
+if (draft.placeStatus === "existing" && !draft.placeId) throw new Error("Existing places require placeId");
+if (draft.placeStatus === "needs-place-record" && draft.placeId) throw new Error("New places must not have placeId");
+if (draft.mediaLayout === "inline" && draft.gallery.length) throw new Error("Inline drafts must keep gallery empty");
+if (typeof draft.html !== "string" || typeof draft.placeName !== "string") throw new Error("Draft html and placeName must be strings");
+const placeId = option("--place-id", draft.placeId);
+const placeName = option("--place-name", draft.placeName);
+const mediaLayout = draft.mediaLayout;
+const gallery = draft.gallery;
 
 const outputDir = path.resolve(output);
 const imageDir = path.join(outputDir, "images");
@@ -76,7 +112,7 @@ fs.mkdirSync(imageDir, { recursive: true });
 let imageIndex = 0;
 const images = [];
 const galleryHtml = mediaLayout === "gallery"
-  ? gallery.map((image) => `<img src=${JSON.stringify(image.src ?? "")} alt=${JSON.stringify(image.alt ?? image.sourceName ?? "")} title=${JSON.stringify(image.title ?? "")}>`).join("")
+  ? gallery.map((image) => `<img src=${JSON.stringify(image.src)} alt=${JSON.stringify(image.alt)} title=${JSON.stringify(image.title)}>`).join("")
   : "";
 const sourceHtml = `${draft.html}${galleryHtml}`.replace(/<img\b[^>]*>/gi, (tag) => {
   imageIndex += 1;
@@ -117,7 +153,7 @@ const sourceHtml = `${draft.html}${galleryHtml}`.replace(/<img\b[^>]*>/gi, (tag)
   return `@@IMAGE_${String(imageIndex).padStart(2, "0")}@@`;
 });
 
-const slug = option("--slug", `article-${draft.createdAt || "draft"}`);
+const slug = option("--slug", `article-${draft.createdAt}`);
 const bodySource = sourceHtml
   .replace(/<p>([\s\S]*?)<\/p>/gi, "$1\n\n")
   .replace(/<[^>]+>/g, "")
@@ -129,25 +165,25 @@ const body = mediaLayout === "gallery"
   : bodySource.replace(/@@IMAGE_(\d{2})@@/g, (_, index) => `\n<PhotoEmbed id="${slug}-${index}" />\n`);
 
 const source = {
-  schemaVersion: draft.schemaVersion ?? 2,
-  kind: draft.kind ?? "journal",
-  title: draft.title ?? "",
-  description: draft.description ?? "",
+  schemaVersion: draft.schemaVersion,
+  kind: draft.kind,
+  title: draft.title,
+  description: draft.description,
   placeId,
   placeName,
-  createdAt: draft.createdAt ?? "",
-  updatedAt: draft.updatedAt ?? "",
-  exportedAt: draft.exportedAt ?? "",
+  createdAt: draft.createdAt,
+  updatedAt: draft.updatedAt,
+  exportedAt: draft.exportedAt,
   mediaLayout,
   html: sourceHtml,
   // Keep the v2 gallery contract reviewable without duplicating embedded payloads.
-  gallery: gallery.map((image, index) => ({
-    id: image.id ?? `image-${String(index + 1).padStart(2, "0")}`,
-    type: image.type ?? "image",
-    sourceName: image.sourceName ?? image.alt ?? image.title ?? "",
-    alt: image.alt ?? "",
-    title: image.title ?? "",
-    caption: image.caption ?? "",
+  gallery: gallery.map((image) => ({
+    id: image.id,
+    type: image.type,
+    sourceName: image.sourceName,
+    alt: image.alt,
+    title: image.title,
+    caption: image.caption,
     filename: images[index]?.filename ?? "",
   })),
 };
@@ -179,13 +215,12 @@ const frontmatter = [
   `  createdAt: ${JSON.stringify(source.createdAt)},`,
   `  updatedAt: ${JSON.stringify(source.updatedAt)},`,
   `  mediaLayout: ${JSON.stringify(source.mediaLayout)},`,
-  "  tags: [],",
-  `  placeId: ${JSON.stringify(source.placeId ?? "")},`,
-  `  coverPhotoId: ${JSON.stringify(`${slug}-01`)},`,
+  `  placeId: ${JSON.stringify(source.placeId)}`,
   "};",
   "",
-  'import { PhotoEmbed } from "../../../src/components/PhotoEmbed";',
-  'import { PhotoGallery } from "../../../src/components/ArticleMedia";',
+  mediaLayout === "gallery"
+    ? 'import { PhotoGallery } from "../../../src/components/ArticleMedia";'
+    : 'import { PhotoEmbed } from "../../../src/components/PhotoEmbed";',
   "",
 ].join("\n");
 

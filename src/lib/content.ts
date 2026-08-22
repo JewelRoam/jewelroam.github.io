@@ -1,58 +1,16 @@
 import type { ComponentType } from "react";
-import { z } from "zod";
-import { MEDIA_LAYOUTS } from "./article-document";
+import type { ZodError } from "zod";
+import {
+  journalFrontmatterSchema,
+  photoSchema,
+  placeSchema,
+  type JournalFrontmatter,
+  type Photo,
+  type Place,
+} from "./content-schema";
+import { issuesFromZod, summarizeValidationIssues } from "./content-validation";
 
-export const PUBLIC_RIGHTS_URL = "https://jewelroam.github.io/rights" as const;
-
-const geoJsonPolygonSchema = z.object({
-  type: z.literal("Polygon"),
-  coordinates: z.array(z.array(z.tuple([z.number(), z.number()])).min(4)).min(1),
-});
-const geoJsonMultiPolygonSchema = z.object({
-  type: z.literal("MultiPolygon"),
-  coordinates: z.array(z.array(z.array(z.tuple([z.number(), z.number()])).min(4)).min(1)).min(1),
-});
-
-const placeSchema = z.object({
-  id: z.string().min(1),
-  slug: z.string().min(1),
-  name: z.string().min(1),
-  parentId: z.string().min(1).optional(),
-  country: z.string().min(1),
-  region: z.string().min(1).optional(),
-  coordinates: z.object({
-    latitude: z.number().gte(-90).lte(90),
-    longitude: z.number().gte(-180).lte(180),
-  }),
-  geometry: z.union([geoJsonPolygonSchema, geoJsonMultiPolygonSchema]),
-});
-
-const photoSchema = z.object({
-  id: z.string().min(1),
-  title: z.string().min(1),
-  alt: z.string().min(1),
-  takenAt: z.string().date(),
-  placeId: z.string().min(1),
-  dimensions: z.object({ width: z.number().positive(), height: z.number().positive() }),
-  media: z.object({ path: z.string().min(1), fallbackPath: z.string().min(1) }),
-  rights: z.object({ notice: z.string().min(1), licenseUrl: z.literal(PUBLIC_RIGHTS_URL) }),
-});
-
-const journalFrontmatterSchema = z.object({
-  slug: z.string().min(1),
-  title: z.string().min(1),
-  description: z.string().min(1),
-  createdAt: z.string().date(),
-  updatedAt: z.string().datetime({ offset: true }),
-  tags: z.array(z.string().min(1)),
-  placeId: z.string().min(1),
-  coverPhotoId: z.string().min(1).optional(),
-  mediaLayout: z.enum(MEDIA_LAYOUTS).default("inline"),
-});
-
-export type Place = z.infer<typeof placeSchema>;
-export type Photo = z.infer<typeof photoSchema>;
-export type JournalFrontmatter = z.infer<typeof journalFrontmatterSchema>;
+export type { JournalFrontmatter, Photo, Place } from "./content-schema";
 
 type JournalModule = {
   default: ComponentType<Record<string, unknown>>;
@@ -63,14 +21,30 @@ export type ParsedJournalModule = Omit<JournalModule, "frontmatter"> & {
   frontmatter: JournalFrontmatter;
 };
 
+function parseContent<T>(schema: {
+  safeParse(value: unknown): { success: true; data: T } | { success: false; error: ZodError };
+}, value: unknown, source: string) {
+  const result = schema.safeParse(value);
+  if (result.success) return result.data;
+  throw new Error(`内容数据无效：${summarizeValidationIssues(issuesFromZod(result.error, source))}`);
+}
+
+function parseJson(raw: string, source: string) {
+  try {
+    return JSON.parse(raw) as unknown;
+  } catch (error) {
+    throw new Error(`内容数据无效：${source}: JSON 解析失败（${error instanceof Error ? error.message : String(error)}）`);
+  }
+}
+
 const placeModules = import.meta.glob("../../content/places/*.json", {
   eager: true,
   query: "?raw",
   import: "default",
 }) as Record<string, string>;
 
-export const places: Place[] = Object.values(placeModules)
-  .map((raw) => placeSchema.parse(JSON.parse(raw)))
+export const places: Place[] = Object.entries(placeModules)
+  .map(([source, raw]) => parseContent(placeSchema, parseJson(raw, source), source))
   .sort((a, b) => a.name.localeCompare(b.name));
 
 const photoModules = import.meta.glob("../../content/photos/*.json", {
@@ -79,12 +53,16 @@ const photoModules = import.meta.glob("../../content/photos/*.json", {
   import: "default",
 }) as Record<string, string>;
 
-export const photos: Photo[] = Object.values(photoModules).map((raw) => photoSchema.parse(JSON.parse(raw)));
+export const photos: Photo[] = Object.entries(photoModules)
+  .map(([source, raw]) => parseContent(photoSchema, parseJson(raw, source), source));
 
 const journalModules = import.meta.glob("../../content/journals/*.mdx", { eager: true }) as Record<string, JournalModule>;
 
-export const journals: ParsedJournalModule[] = Object.values(journalModules)
-  .map((journal) => ({ ...journal, frontmatter: journalFrontmatterSchema.parse(journal.frontmatter) }))
+export const journals: ParsedJournalModule[] = Object.entries(journalModules)
+  .map(([source, journal]) => ({
+    ...journal,
+    frontmatter: parseContent<JournalFrontmatter>(journalFrontmatterSchema, journal.frontmatter, source),
+  }))
   .sort((a, b) => b.frontmatter.createdAt.localeCompare(a.frontmatter.createdAt));
 
 export function getPlace(idOrSlug: string) {

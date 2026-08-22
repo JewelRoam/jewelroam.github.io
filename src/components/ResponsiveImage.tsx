@@ -1,10 +1,10 @@
 import type { ImgHTMLAttributes } from "react";
 import type { Photo } from "../lib/content";
-import { imageFallbackUrl, imageSrcSet, transformImageUrl } from "../lib/media";
+import { imageFallbackUrl, imageSrcSet, imageWidths, transformImageUrl } from "../lib/media";
 
 type Props = Omit<ImgHTMLAttributes<HTMLImageElement>, "src" | "srcSet" | "alt" | "width" | "height"> & {
   photo: Photo;
-  width?: 640 | 1280 | 2048;
+  width?: (typeof imageWidths)[number];
   priority?: boolean;
 };
 

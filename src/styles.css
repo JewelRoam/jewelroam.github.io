@@ -126,6 +126,7 @@ a {
 .glass-menu.is-open .glass-menu__item:nth-child(2) { transition-delay: 60ms; }
 .glass-menu.is-open .glass-menu__item:nth-child(3) { transition-delay: 90ms; }
 .glass-menu.is-open .glass-menu__item:nth-child(4) { transition-delay: 120ms; }
+.glass-menu.is-open .glass-menu__item:nth-child(5) { transition-delay: 150ms; }
 .glass-menu.is-open .glass-menu__item:hover,
 .glass-menu.is-open .glass-menu__item:focus-visible {
   transform: translateX(0) translateY(-1px);
@@ -296,34 +297,56 @@ a {
   text-decoration: underline;
   text-underline-offset: 4px;
 }
+.media-frame {
+  margin: 0;
+  min-width: 0;
+}
+.media-frame__image {
+  display: block;
+  height: auto;
+  max-width: 100%;
+  object-fit: contain;
+  width: auto;
+}
+.media-frame__image--bounded {
+  max-height: var(--article-image-max-height);
+}
+.media-frame__caption {
+  color: rgb(32 33 31 / 0.55);
+  font-size: 0.875rem;
+  margin-top: 0.75rem;
+}
+.photo-page__image {
+  max-height: 78vh;
+  width: 100%;
+}
 .article-media {
   margin: 3rem 0;
   width: 100%;
 }
-.article-media--stack {
-  display: grid;
-  gap: 3rem;
-}
 .article-media--gallery {
+  align-items: start;
   display: grid;
   gap: 1rem;
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 .article-media--gallery .article-media__item {
-  height: 100%;
+  height: auto;
 }
-.article-media--gallery .article-image {
-  aspect-ratio: 4 / 3;
-  height: 100%;
-  max-height: none;
-  object-fit: cover;
-  width: 100%;
+.article-media--gallery .media-frame__image {
+  max-height: var(--article-image-max-height);
 }
 .article-media__item {
   margin: 0;
 }
 .article-media__link {
   display: block;
+}
+.article-media__missing {
+  border: 1px dashed rgb(32 33 31 / 0.28);
+  color: rgb(32 33 31 / 0.58);
+  margin: 0;
+  padding: 1rem;
 }
 .article-media__link:focus-visible {
   outline: 2px solid rgb(32 33 31 / 0.55);
@@ -607,11 +630,11 @@ a {
 .article-image,
 .editor-content img {
   display: block;
-  width: auto;
   height: auto;
-  max-width: 100%;
   max-height: var(--article-image-max-height);
+  max-width: 100%;
   object-fit: contain;
+  width: auto;
 }
 .article-image {
   margin-inline: auto;
@@ -665,16 +688,11 @@ a {
   margin-top: 1rem;
 }
 .editor-gallery__item {
-  aspect-ratio: 4 / 3;
   margin: 0;
   position: relative;
 }
 .editor-gallery__item img {
   background: rgb(32 33 31 / 0.04);
-  display: block;
-  height: 100%;
-  object-fit: contain;
-  width: 100%;
 }
 .editor-gallery__item button {
   align-items: center;
@@ -781,9 +799,11 @@ a {
 }
 .article-export-page__content img {
   display: block;
-  max-height: 1500px;
+  height: auto;
   max-width: 100%;
+  max-height: 1500px;
   object-fit: contain;
+  width: auto;
 }
 
 @page {

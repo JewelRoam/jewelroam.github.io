@@ -1,9 +1,6 @@
 import type { JournalFrontmatter } from "./content";
-import {
-  type ArticleDraft,
-  type ArticleImage,
-  replaceArticleMediaWithImages,
-} from "./article-document";
+import { articleDraftSchema, type ArticleDraft, type ArticleImage } from "./content-schema";
+import { replaceArticleMediaWithImages } from "./article-document";
 
 type JournalExportInput = {
   slug: string;
@@ -97,7 +94,7 @@ export async function createJournalDraft({ slug, frontmatter, placeName, article
   if (!prose) throw new Error("找不到文章正文");
 
   const { clone, images } = await prepareArticleClone(prose);
-  const layout = frontmatter.mediaLayout ?? "inline";
+  const layout = frontmatter.mediaLayout;
 
   if (layout === "gallery") {
     clone.querySelectorAll("img").forEach((image) => {
@@ -106,7 +103,7 @@ export async function createJournalDraft({ slug, frontmatter, placeName, article
   }
 
   const html = layout === "inline" ? replaceArticleMediaWithImages(clone.innerHTML) : clone.innerHTML;
-  return {
+  return articleDraftSchema.parse({
     schemaVersion: 2,
     kind: "journal",
     title: frontmatter.title,
@@ -120,7 +117,7 @@ export async function createJournalDraft({ slug, frontmatter, placeName, article
     mediaLayout: layout,
     html,
     gallery: layout === "gallery" ? images : [],
-  };
+  });
 }
 
 export async function exportJournalJson(input: JournalExportInput) {
@@ -178,38 +175,41 @@ export async function exportJournalPng(input: JournalExportInput) {
     throw new Error("PNG 导出需要图片域名允许跨域读取，请先为 R2 配置 CORS");
   }
   const stage = createExportStage();
-  const source = prepared.clone;
-  const blocks = exportBlocks(source);
-  let current = createPage(stage);
+  try {
+    const source = prepared.clone;
+    const blocks = exportBlocks(source);
+    let current = createPage(stage);
 
-  for (const block of blocks) {
-    const clone = block.cloneNode(true) as HTMLElement;
-    current.content.append(clone);
-    const hasImage = Boolean(clone.querySelector("img"));
-    if (current.content.scrollHeight > current.content.clientHeight && current.content.children.length > 1) {
-      current.content.removeChild(clone);
-      current = createPage(stage);
+    for (const block of blocks) {
+      const clone = block.cloneNode(true) as HTMLElement;
       current.content.append(clone);
+      const hasImage = Boolean(clone.querySelector("img"));
+      if (current.content.scrollHeight > current.content.clientHeight && current.content.children.length > 1) {
+        current.content.removeChild(clone);
+        current = createPage(stage);
+        current.content.append(clone);
+      }
+      if (hasImage && clone.getBoundingClientRect().height > current.content.clientHeight) {
+        clone.querySelectorAll("img").forEach((image) => {
+          image.style.maxHeight = "1500px";
+        });
+      }
     }
-    if (hasImage && clone.getBoundingClientRect().height > current.content.clientHeight) {
-      clone.querySelectorAll("img").forEach((image) => {
-        image.style.maxHeight = "1500px";
-      });
-    }
-  }
 
-  await document.fonts?.ready;
-  const zip = new JSZip();
-  const pages = [...stage.querySelectorAll<HTMLElement>(".article-export-page")];
-  for (const [index, page] of pages.entries()) {
-    const png = await toPng(page, {
-      cacheBust: true,
-      width: 1080,
-      height: 1920,
-      pixelRatio: 1,
-    });
-    zip.file(`${String(index + 1).padStart(3, "0")}.png`, png.split(",")[1], { base64: true });
+    await document.fonts?.ready;
+    const zip = new JSZip();
+    const pages = [...stage.querySelectorAll<HTMLElement>(".article-export-page")];
+    for (const [index, page] of pages.entries()) {
+      const png = await toPng(page, {
+        cacheBust: true,
+        width: 1080,
+        height: 1920,
+        pixelRatio: 1,
+      });
+      zip.file(`${String(index + 1).padStart(3, "0")}.png`, png.split(",")[1], { base64: true });
+    }
+    downloadBlob(await zip.generateAsync({ type: "blob" }), `${input.slug}-png.zip`);
+  } finally {
+    stage.remove();
   }
-  stage.remove();
-  downloadBlob(await zip.generateAsync({ type: "blob" }), `${input.slug}-png.zip`);
 }

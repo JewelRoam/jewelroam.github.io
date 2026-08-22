@@ -1,12 +1,23 @@
 import { NavLink } from "react-router-dom";
 import { GlassMenu } from "./GlassMenu";
 
+type NavItem = {
+  href: string;
+  label: string;
+  external?: boolean;
+};
+
 const navItems = [
-  ["/destinations", "Destinations"],
-  ["/journals", "Journals"],
-  ["/editor", "Capture"],
-  ["/jewelroam", "JewelRoam"],
-] as const;
+  { href: "/destinations", label: "Destinations" },
+  { href: "/journals", label: "Journals" },
+  { href: "/editor", label: "Capture" },
+  { href: "/jewelroam", label: "JewelRoam" },
+  {
+    href: "https://jewelroam.github.io/ZaiChang/",
+    label: "ZaiChang",
+    external: true,
+  },
+] satisfies NavItem[];
 
 export function GlassNav() {
   return (
@@ -25,17 +36,29 @@ export function GlassNav() {
       >
         {(open, close) => (
           <>
-            {navItems.map(([href, label]) => (
-              <NavLink
-                key={href}
-                to={href}
-                onClick={close}
-                className={({ isActive }) => `glass-menu__item${isActive ? " is-active" : ""}`}
-                tabIndex={open ? 0 : -1}
-              >
-                {label}
-              </NavLink>
-            ))}
+            {navItems.map((item) =>
+              item.external ? (
+                <a
+                  key={item.href}
+                  href={item.href}
+                  onClick={close}
+                  className="glass-menu__item"
+                  tabIndex={open ? 0 : -1}
+                >
+                  {item.label}
+                </a>
+              ) : (
+                <NavLink
+                  key={item.href}
+                  to={item.href}
+                  onClick={close}
+                  className={({ isActive }) => `glass-menu__item${isActive ? " is-active" : ""}`}
+                  tabIndex={open ? 0 : -1}
+                >
+                  {item.label}
+                </NavLink>
+              ),
+            )}
           </>
         )}
       </GlassMenu>

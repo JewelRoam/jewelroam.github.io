@@ -4,7 +4,13 @@ import { ArticleImage, ArticleMedia } from "./ArticleMedia";
 
 export function PhotoEmbed({ id, caption }: { id: string; caption?: string }) {
   const photo = getPhoto(id);
-  if (!photo) return null;
+  if (!photo) {
+    return (
+      <ArticleMedia>
+        <p className="article-media__missing" role="alert">图片引用缺失：{id}</p>
+      </ArticleMedia>
+    );
+  }
 
   return (
     <ArticleMedia>

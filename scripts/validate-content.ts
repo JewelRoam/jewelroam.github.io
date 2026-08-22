@@ -1,140 +1,188 @@
 import { readFileSync, readdirSync } from "node:fs";
-import { join } from "node:path";
-import vm from "node:vm";
+import { join, relative } from "node:path";
+import ts from "typescript";
 import { z } from "zod";
-
-const PUBLIC_RIGHTS_URL = "https://jewelroam.github.io/rights" as const;
-
-const geoJsonPolygonSchema = z.object({
-  type: z.literal("Polygon"),
-  coordinates: z.array(z.array(z.tuple([z.number(), z.number()])).min(4)).min(1),
-});
-const geoJsonMultiPolygonSchema = z.object({
-  type: z.literal("MultiPolygon"),
-  coordinates: z.array(z.array(z.array(z.tuple([z.number(), z.number()])).min(4)).min(1)).min(1),
-});
-
-const placeSchema = z.object({
-  id: z.string().min(1),
-  slug: z.string().min(1),
-  name: z.string().min(1),
-  parentId: z.string().min(1).optional(),
-  country: z.string().min(1),
-  region: z.string().min(1).optional(),
-  coordinates: z.object({
-    latitude: z.number().gte(-90).lte(90),
-    longitude: z.number().gte(-180).lte(180),
-  }),
-  geometry: z.union([geoJsonPolygonSchema, geoJsonMultiPolygonSchema]),
-});
-
-const photoSchema = z.object({
-  id: z.string().min(1),
-  title: z.string().min(1),
-  alt: z.string().min(1),
-  takenAt: z.string().date(),
-  placeId: z.string().min(1),
-  dimensions: z.object({ width: z.number().positive(), height: z.number().positive() }),
-  media: z.object({ path: z.string().min(1), fallbackPath: z.string().min(1) }),
-  rights: z.object({ notice: z.string().min(1), licenseUrl: z.literal(PUBLIC_RIGHTS_URL) }),
-});
-
-const journalSchema = z.object({
-  slug: z.string().min(1),
-  title: z.string().min(1),
-  description: z.string().min(1),
-  createdAt: z.string().date(),
-  updatedAt: z.string().datetime({ offset: true }),
-  tags: z.array(z.string().min(1)),
-  placeId: z.string().min(1),
-  coverPhotoId: z.string().min(1).optional(),
-  mediaLayout: z.enum(["inline", "gallery"]).default("inline"),
-});
-
-type Journal = z.infer<typeof journalSchema>;
-
-function parseFrontmatter(file: string): Journal {
-  const source = readFileSync(file, "utf8");
-  const match = source.match(/export\s+const\s+frontmatter\s*=\s*(\{[\s\S]*?\})\s*;?/);
-  if (!match) throw new Error(`Missing frontmatter export: ${file}`);
-
-  try {
-    const value = vm.runInNewContext(`(${match[1]})`, Object.create(null), { timeout: 1000 });
-    return journalSchema.parse(value);
-  } catch (error) {
-    throw new Error(`Invalid journal frontmatter in ${file}: ${error instanceof Error ? error.message : String(error)}`);
-  }
-}
+import {
+  journalFrontmatterSchema,
+  photoSchema,
+  placeSchema,
+  type Photo,
+  type Place,
+} from "../src/lib/content-schema";
+import {
+  formatValidationIssue,
+  issuesFromZod,
+  validateContentGraph,
+  type ContentRecord,
+  type JournalContentRecord,
+  type ValidationIssue,
+} from "../src/lib/content-validation";
 
 const contentDir = join(process.cwd(), "content");
-const placeFiles = readdirSync(join(contentDir, "places")).filter((file) => file.endsWith(".json"));
-const photoFiles = readdirSync(join(contentDir, "photos")).filter((file) => file.endsWith(".json"));
-const journalFiles = readdirSync(join(contentDir, "journals")).filter((file) => file.endsWith(".mdx"));
+const issues: ValidationIssue[] = [];
 
-const places = placeFiles.map((file) => placeSchema.parse(JSON.parse(readFileSync(join(contentDir, "places", file), "utf8"))));
-const photos = photoFiles.map((file) => photoSchema.parse(JSON.parse(readFileSync(join(contentDir, "photos", file), "utf8"))));
-const journals = journalFiles.map((file) => {
-  const path = join(contentDir, "journals", file);
-  return { file: path, frontmatter: parseFrontmatter(path) };
-});
-
-function assertUnique(values: string[], label: string) {
-  const seen = new Set<string>();
-  for (const value of values) {
-    if (seen.has(value)) throw new Error(`Duplicate ${label}: ${value}`);
-    seen.add(value);
-  }
+function sourcePath(path: string) {
+  return relative(process.cwd(), path);
 }
 
-assertUnique(places.map((place) => place.id), "place id");
-assertUnique(places.map((place) => place.slug), "place slug");
-assertUnique(photos.map((photo) => photo.id), "photo id");
-assertUnique(journals.map(({ frontmatter }) => frontmatter.slug), "journal slug");
-
-const placeIds = new Set(places.map((place) => place.id));
-for (const place of places) {
-  if (place.parentId && !placeIds.has(place.parentId)) {
-    throw new Error(`Place ${place.id} references unknown parent: ${place.parentId}`);
-  }
-
-  const seen = new Set<string>();
-  let current: typeof place | undefined = place;
-  while (current?.parentId) {
-    if (seen.has(current.id)) throw new Error(`Place hierarchy contains a cycle at: ${current.id}`);
-    seen.add(current.id);
-    current = places.find((candidate) => candidate.id === current?.parentId);
-  }
-}
-const photoById = new Map(photos.map((photo) => [photo.id, photo]));
-
-for (const photo of photos) {
-  if (!placeIds.has(photo.placeId)) throw new Error(`Photo ${photo.id} references unknown place: ${photo.placeId}`);
+function contentFiles(directory: string, extension: string) {
+  return readdirSync(join(contentDir, directory))
+    .filter((file) => file.endsWith(extension))
+    .sort()
+    .map((file) => join(contentDir, directory, file));
 }
 
-for (const { file, frontmatter } of journals) {
-  if (!placeIds.has(frontmatter.placeId)) {
-    throw new Error(`Journal ${frontmatter.slug} references unknown place: ${frontmatter.placeId}`);
+function staticSyntaxError(sourceFile: ts.SourceFile, node: ts.Node, message: string) {
+  const position = sourceFile.getLineAndCharacterOfPosition(node.getStart(sourceFile));
+  return new Error(`${position.line + 1}:${position.character + 1}: ${message}`);
+}
+
+function staticValue(node: ts.Expression, sourceFile: ts.SourceFile): unknown {
+  if (ts.isParenthesizedExpression(node) || ts.isAsExpression(node) || ts.isSatisfiesExpression(node)) {
+    return staticValue(node.expression, sourceFile);
   }
-  if (frontmatter.coverPhotoId) {
-    const cover = photoById.get(frontmatter.coverPhotoId);
-    if (!cover) throw new Error(`Journal ${frontmatter.slug} references unknown cover photo: ${frontmatter.coverPhotoId}`);
-    if (cover.placeId !== frontmatter.placeId) {
-      throw new Error(`Journal ${frontmatter.slug} cover photo ${cover.id} belongs to ${cover.placeId}, not ${frontmatter.placeId}`);
+  if (ts.isStringLiteralLike(node)) return node.text;
+  if (ts.isNumericLiteral(node)) return Number(node.text);
+  if (node.kind === ts.SyntaxKind.TrueKeyword) return true;
+  if (node.kind === ts.SyntaxKind.FalseKeyword) return false;
+  if (node.kind === ts.SyntaxKind.NullKeyword) return null;
+  if (ts.isPrefixUnaryExpression(node) && node.operator === ts.SyntaxKind.MinusToken && ts.isNumericLiteral(node.operand)) {
+    return -Number(node.operand.text);
+  }
+  if (ts.isArrayLiteralExpression(node)) {
+    return node.elements.map((element) => {
+      if (ts.isSpreadElement(element) || ts.isOmittedExpression(element)) {
+        throw staticSyntaxError(sourceFile, element, "Spread and omitted elements are not allowed in static content");
+      }
+      return staticValue(element, sourceFile);
+    });
+  }
+  if (ts.isObjectLiteralExpression(node)) {
+    return Object.fromEntries(node.properties.map((property) => {
+      if (!ts.isPropertyAssignment(property)) {
+        throw staticSyntaxError(sourceFile, property, "Frontmatter must contain static property assignments");
+      }
+      const name = property.name;
+      if (!ts.isIdentifier(name) && !ts.isStringLiteralLike(name) && !ts.isNumericLiteral(name)) {
+        throw staticSyntaxError(sourceFile, name, "Computed frontmatter keys are not allowed");
+      }
+      return [name.text, staticValue(property.initializer, sourceFile)];
+    }));
+  }
+
+  throw staticSyntaxError(sourceFile, node, "Frontmatter values must be static JSON-compatible literals");
+}
+
+function parseFrontmatter(source: string, file: string): unknown {
+  const sourceFile = ts.createSourceFile(file, source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
+  for (const statement of sourceFile.statements) {
+    if (!ts.isVariableStatement(statement)) continue;
+    const exported = ts.getModifiers(statement)?.some((modifier) => modifier.kind === ts.SyntaxKind.ExportKeyword);
+    if (!exported) continue;
+    const declaration = statement.declarationList.declarations.find(
+      (candidate) => ts.isIdentifier(candidate.name) && candidate.name.text === "frontmatter",
+    );
+    if (!declaration?.initializer) continue;
+    return staticValue(declaration.initializer, sourceFile);
+  }
+  throw new Error("Missing exported frontmatter object");
+}
+
+function parseStaticExpression(source: string) {
+  const sourceFile = ts.createSourceFile("article-expression.tsx", `(${source})`, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
+  const statement = sourceFile.statements[0];
+  if (!statement || !ts.isExpressionStatement(statement)) throw new Error("Invalid static expression");
+  return staticValue(statement.expression, sourceFile);
+}
+
+function extractPhotoIds(source: string, file: string) {
+  const ids: string[] = [];
+  for (const match of source.matchAll(/<\s+(PhotoEmbed|PhotoGallery)\b/g)) {
+    issues.push({ source: file, path: "article", message: `${match[1]} must start without whitespace after <` });
+  }
+  const tags = source.matchAll(/<(PhotoEmbed|PhotoGallery)\b[^>]*?(\/?>)/g);
+
+  for (const match of tags) {
+    const name = match[1];
+    const tag = match[0];
+    if (match[2] !== "/>" ) {
+      issues.push({ source: file, path: "article", message: `${name} must use a self-closing tag` });
+      continue;
+    }
+
+    if (name === "PhotoEmbed") {
+      const id = tag.match(/\bid="([^"]+)"/);
+      if (id) ids.push(id[1]);
+      else issues.push({ source: file, path: "article.PhotoEmbed", message: "PhotoEmbed requires a static string id" });
+      continue;
+    }
+
+    const gallery = tag.match(/\bids\s*=\s*\{(\[[\s\S]*?\])\}/);
+    if (!gallery) {
+      issues.push({ source: file, path: "article.PhotoGallery", message: "PhotoGallery requires a static ids array" });
+      continue;
+    }
+
+    try {
+      const result = z.array(z.string().min(1)).safeParse(parseStaticExpression(gallery[1]));
+      if (result.success) ids.push(...result.data);
+      else issues.push(...issuesFromZod(result.error, file).map((issue) => ({ ...issue, path: `article.PhotoGallery${issue.path ? `.${issue.path}` : ""}` })));
+    } catch (error) {
+      issues.push({ source: file, path: "article.PhotoGallery", message: error instanceof Error ? error.message : String(error) });
     }
   }
 
-  const source = readFileSync(file, "utf8");
-  const embeds = [...source.matchAll(/<PhotoEmbed\b[^>]*\bid=["']([^"']+)["']/g)].map((match) => match[1]);
-  const galleryIds = [...source.matchAll(/<PhotoGallery\b[^>]*\bids=\{(\[[\s\S]*?\])\}/g)].flatMap((match) =>
-    z.array(z.string().min(1)).parse(vm.runInNewContext(`(${match[1]})`, Object.create(null), { timeout: 1000 })),
-  );
-  for (const photoId of [...embeds, ...galleryIds]) {
-    const photo = photoById.get(photoId);
-    if (!photo) throw new Error(`Journal ${frontmatter.slug} embeds unknown photo: ${photoId}`);
-    if (photo.placeId !== frontmatter.placeId) {
-      throw new Error(`Journal ${frontmatter.slug} embeds photo ${photo.id} from another place: ${photo.placeId}`);
-    }
-  }
+  return ids;
 }
 
-console.log(`Validated ${places.length} place(s), ${journals.length} journal(s), and ${photos.length} photo record(s).`);
+function loadJsonRecords<T>(directory: string, schema: z.ZodType<T>): ContentRecord<T>[] {
+  const records: ContentRecord<T>[] = [];
+  for (const path of contentFiles(directory, ".json")) {
+    const source = sourcePath(path);
+    let value: unknown;
+    try {
+      value = JSON.parse(readFileSync(path, "utf8"));
+    } catch (error) {
+      issues.push({ source, message: `Invalid JSON: ${error instanceof Error ? error.message : String(error)}` });
+      continue;
+    }
+
+    const result = schema.safeParse(value);
+    if (result.success) records.push({ source, value: result.data });
+    else issues.push(...issuesFromZod(result.error, source));
+  }
+  return records;
+}
+
+function loadJournals(): JournalContentRecord[] {
+  const records: JournalContentRecord[] = [];
+  for (const path of contentFiles("journals", ".mdx")) {
+    const file = sourcePath(path);
+    const source = readFileSync(path, "utf8");
+    let frontmatter: unknown;
+    try {
+      frontmatter = parseFrontmatter(source, file);
+    } catch (error) {
+      issues.push({ source: file, path: "frontmatter", message: error instanceof Error ? error.message : String(error) });
+      continue;
+    }
+
+    const result = journalFrontmatterSchema.safeParse(frontmatter);
+    if (result.success) records.push({ source: file, value: result.data, photoIds: extractPhotoIds(source, file) });
+    else issues.push(...issuesFromZod(result.error, file));
+  }
+  return records;
+}
+
+const places = loadJsonRecords<Place>("places", placeSchema);
+const photos = loadJsonRecords<Photo>("photos", photoSchema);
+const journals = loadJournals();
+issues.push(...validateContentGraph({ places, photos, journals }));
+
+if (issues.length) {
+  console.error(`Content validation failed with ${issues.length} issue(s):`);
+  for (const issue of issues) console.error(`- ${formatValidationIssue(issue)}`);
+  process.exitCode = 1;
+} else {
+  console.log(`Validated ${places.length} place(s), ${journals.length} journal(s), and ${photos.length} photo record(s).`);
+}

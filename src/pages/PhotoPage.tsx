@@ -1,4 +1,5 @@
 import { Navigate, useParams } from "react-router-dom";
+import { ImageFrame } from "../components/ImageFrame";
 import { ResponsiveImage } from "../components/ResponsiveImage";
 import { getPhoto, getPlace } from "../lib/content";
 
@@ -12,12 +13,14 @@ export function PhotoPage() {
 
   return (
     <article className="page-shell">
-      <ResponsiveImage
-        photo={photo}
-        priority
-        sizes="(min-width: 1024px) 88vw, 100vw"
-        className="max-h-[78vh] w-full object-contain"
-      />
+      <ImageFrame>
+        <ResponsiveImage
+          photo={photo}
+          priority
+          sizes="(min-width: 1024px) 88vw, 100vw"
+          className="media-frame__image photo-page__image"
+        />
+      </ImageFrame>
       <div className="mt-7 flex flex-wrap justify-between gap-5 border-t border-[#20211f]/10 pt-5 text-sm">
         <div>
           <h1 className="font-serif text-2xl">{photo.title}</h1>

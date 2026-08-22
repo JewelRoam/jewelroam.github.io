@@ -11,9 +11,8 @@ Formal MDX under `content/journals/*.mdx` uses:
   description: string;       // non-empty in the current app
   createdAt: "YYYY-MM-DD";
   updatedAt: ISO-8601 with timezone;
-  tags: string[];
   placeId: string;            // exactly one place per Journal
-  coverPhotoId?: string;
+  mediaLayout: "inline" | "gallery";
 }
 ```
 
@@ -64,8 +63,8 @@ Dimensions, media paths, and image formats can be generated. Title, alt, date, `
 
 ## Current project references
 
-- Runtime schema: `src/lib/content.ts`
-- Photo validation: `scripts/validate-content.ts`
+- Runtime schema: `src/lib/content-schema.ts`
+- Content validation: `scripts/validate-content.ts`
 - Publication workflow: `docs/codex/CONTENT_WORKFLOW.md`
 - Public rights section and the only allowed published `licenseUrl`: `https://jewelroam.github.io/rights`
 - Draft manifests may keep `rights.notice` and `rights.licenseUrl` empty while awaiting confirmation; empty draft values must never reach `content/photos/*.json`.
