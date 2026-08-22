@@ -52,10 +52,7 @@ export function JournalPage() {
       <h1 className="mt-4 font-serif text-5xl leading-tight">
         {journal.frontmatter.title}
       </h1>
-      <p className="mt-6 text-lg leading-8 text-[#20211f]/65">
-        {journal.frontmatter.description}
-      </p>
-      <div className="prose-jewel mt-14">
+      <div className="prose-jewel mt-10">
         <Content />
       </div>
       </article>

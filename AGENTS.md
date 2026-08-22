@@ -1,6 +1,17 @@
 # JewelRoam
 
-JewelRoam 是一个以旅行、摄影和 Journals 为核心的静态个人网站。核心界面固定为 `Destinations`、`Journals`、`Capture` 和 `JewelRoam`，菜单另保留 `ZaiChang` 外链入口；根路径直接进入 `JewelRoam`。
+这是一个由 Agent 协作维护的个人网站。项目核心界面固定为 `Destinations`、`Journals`、`Capture` 和 `JewelRoam`，菜单另保留 `ZaiChang` 外链入口；根路径直接进入 `JewelRoam`。
+
+## Agent 约定
+
+- 优先遵循本文件和 `docs/codex/` 中的项目规则；框架默认约定不能覆盖项目已有的数据协议。
+- 如果代码实现与当前对话上下文或项目文档不一致，可能代表其它 Agent 正在推进不同的更新意图；不要擅自覆盖，及时向用户确认。
+- 保持代码简洁、明确、可维护；少写注释，避免无意义的薄转发、重复协议和过度抽象。
+- 项目流程文档写入 `docs/codex/`；`docs/manus/` 是历史研究文档，不要改动，除非用户明确要求。
+- 项目专属可复用流程放在仓库内的 `.agents/skills/`，不依赖本机全局 skill。
+- 修改完成后按风险运行相关检查；常规代码改动至少运行 `npm run typecheck`，内容或构建相关改动追加 `npm run content:validate` 和 `npm run build`。
+- 不要自动提交或推送，除非用户明确要求。
+- `content/inbox/` 是本地素材和中间产物目录，不应因为正式内容提交而自动加入 Git。
 
 ## 本地开发
 
@@ -26,9 +37,9 @@ R2 的账户、bucket、图片域名和 Image Transformations 开通步骤见 [`
 
 原始 RAW、编辑工程和高分辨率母版不应提交到此仓库或公开 R2 bucket。
 
-图片发布遵循“本地确认 → 上传 R2 → 检查 URL → 提交 manifest → 部署站点”的顺序；不要让 GitHub 先发布一个尚未上传到 R2 的图片路径。
+图片发布遵循“本地确认 → 上传 R2 → 检查 URL → 提交 manifest → 部署站点”的顺序；不要让 GitHub 先发布一个尚未上传 R2 的图片路径。
 
-日常写作和图片交接流程见 [`docs/codex/CONTENT_WORKFLOW.md`](docs/codex/CONTENT_WORKFLOW.md)。本地启动后打开 `/capture`，即可直接写文章并把图片拖进正文；确认后再导出 JSON 交给 agent 上传 R2。
+日常写作和图片交接流程见 [`docs/codex/CONTENT_WORKFLOW.md`](docs/codex/CONTENT_WORKFLOW.md)。本地启动后打开 `/capture`，即可直接写文章并把图片拖进正文；确认后再导出 JSON 交给 Agent 上传 R2。
 
 Capture 的页面动作按编辑流程分层：顶部只保留页面说明，文章信息集中在标题、摘要、地点和创建日期区域，格式工具固定在编辑区上方，自动保存状态、最近修改时间、清空和 `JSON` 导出位于正文底部。窄屏下图片导入动作会单独换行，避免工具按钮被截断。
 
