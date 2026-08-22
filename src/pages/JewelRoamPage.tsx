@@ -126,7 +126,7 @@ export function JewelRoamPage() {
               <p className="mt-3">
                 怀着憧憬奔赴北京，踏入BUPT，开始学习通信。
                 <br />
-                后来，有幸入选了叶培大创新创业实验班，所谓的“北邮总裁班”。
+                后来，有幸入选了叶培大创新创业实验班。
               </p>
             </div>
             <div>
@@ -194,8 +194,7 @@ export function JewelRoamPage() {
               </h3>
               <p className="mt-3">
                 瞄准应急管理、智慧农业、交通运输等场景，做了一个遥感解译、地信数据要素相关的项目，
-                取得软著 6 项、专利 4
-                项，与国家减灾中心达成两期合作总金额两百万余元；
+                取得软著 6 项、专利 4 项，与国家减灾中心达成两期合作总金额两百万余元；
                 <br />
                 “互联网+”国创赛全国铜奖、北京赛区一等奖；第十届通信与信息处理国际会议金奖；
                 计算机设计大赛一等奖；“挑战杯”特等奖；全国大创成果展“最佳人气奖”、百强创业团队……
@@ -214,12 +213,47 @@ export function JewelRoamPage() {
                 在潮汕的 观潮 KwanTeo 电影节，关注文化叙事、在地化艺术创作。
                 <br />
                 <br />
-                主创、策划了粤东首个 Hackathon 北回归线极客节，这里有：
+                主创、策划了粤东首个 Hackathon{" "}
+                <ExternalLink href="https://23-5-n-geekday.github.io/">
+                  北回归线极客节
+                </ExternalLink>
+                ，这里有：
                 <br />
                 AI Agent 智能体、Embodied AI
                 具身智能共两赛道、三组别、150+选手参赛；
                 <br />
                 智源、百度、阿里云、字节、算能、地瓜、非夕、拓竹、矽递、老鹰基金、潮创会……
+                <br />
+                相关报道：
+                <span className="ml-1 inline-flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                  <ExternalLink href="https://strbmob.strtv.cn/qnbmob/content/202604/07/c191905.html">
+                    特区青年报
+                  </ExternalLink>
+                  <ExternalLink href="https://t.cj.sina.com.cn/articles/view/2833534593/a8e44e8102001acsq">
+                    新浪财经
+                  </ExternalLink>
+                  <ExternalLink href="https://hosting.wavpub.cn/ccccchenxiaoyao/2026/01/18/13-%e4%b8%93%e6%b3%a8ai%e7%9a%84%e6%bd%ae%e6%b1%95%e9%9d%92%e5%b9%b4%ef%bc%8c%e6%83%b3%e6%8a%8a%e6%9e%81%e5%ae%A2%e7%b2%be%e7%a5%9e%e5%b8%a6%e5%9b%9e%e6%95%85%e4%b9%a1%ef%bd%9c%e5%af%b9%e8%af%9d/">
+                    岂北
+                  </ExternalLink>
+                  <ExternalLink href="https://www.gd.chinanews.com.cn/2026/2026-02-27/446656.shtml">
+                    中国新闻网
+                  </ExternalLink>
+                  <ExternalLink href="https://www.pingwest.com/a/310818">
+                    品玩
+                  </ExternalLink>
+                  <ExternalLink href="https://www.v2ex.com/t/1192703">
+                    V2EX
+                  </ExternalLink>
+                  <ExternalLink href="https://wxredian.com/art?id=4e3ca017deebf355330cd5c9f3cb12f8">
+                    观潮
+                  </ExternalLink>
+                  <ExternalLink href="https://www.xiaoyuzhoufm.com/episode/696bb917df9e07cdc45ec65d">
+                    小宇宙
+                  </ExternalLink>
+                  <ExternalLink href="https://www.163.com/dy/article/KG8I6A4T0511N33R.html">
+                    网易
+                  </ExternalLink>
+                </span>
                 <br />
                 不过个人最大的收获可能是认识了可以在北京每周约饭、一起做饭的老乡～
               </p>
