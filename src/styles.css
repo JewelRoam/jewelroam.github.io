@@ -378,7 +378,7 @@ a {
 .site-header {
   inset: 0 0 auto;
   pointer-events: none;
-  position: absolute;
+  position: fixed;
   z-index: 40;
 }
 .site-header__inner {
@@ -1251,8 +1251,8 @@ a {
     min-width: min(14rem, calc(100vw - 2rem));
     padding: 0.4rem;
     position: absolute;
-    right: 0;
-    top: calc(100% + 0.45rem);
+    right: calc(100% + 0.45rem);
+    top: 0;
     transform-origin: top right;
     width: min(13rem, calc(100vw - 3rem));
   }
