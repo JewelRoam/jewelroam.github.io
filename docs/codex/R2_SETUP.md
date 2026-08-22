@@ -46,6 +46,8 @@ VITE_MEDIA_BASE_URL=https://images.zer.dpdns.org
 
 项目不区分 staging 和 production，只使用一个 R2 bucket 和一个图片域名。R2 是发布目标，GitHub 仓库仍然是文章、图片 manifest 和代码的来源。
 
+正式照片 metadata 的 `rights.licenseUrl` 统一固定为 `https://jewelroam.github.io/rights`。草稿可以暂时留空，但不得把空值或其他页面地址写入 `content/photos/*.json`。
+
 每次新增或替换图片时按这个顺序操作：
 
 ```text
@@ -67,6 +69,27 @@ GitHub Actions 校验并部署站点
 尚未确认发布的图片保留在 `content/inbox/`，通过 Capture 的 Base64 草稿或 inbox 预览检查，不写入正式 manifest。`content/inbox/` 默认是本地素材目录，不应因为正式内容提交而自动加入 Git；当前运行时代码没有 `public/media` 回退；正式 `content/photos/*.json` 只引用已经上传并验证的 R2 对象。
 
 ## 6. 发布和权限
+
+### 使用项目 CLI 发布
+
+Wrangler OAuth 登录后，直接从项目根目录发布某篇文章的发行图：
+
+```bash
+npx wrangler login
+npm run content:publish-r2 -- --dry-run almaty-1
+npm run content:publish-r2 -- almaty-1
+```
+
+可以一次传入多个 slug。CLI 只读取 `content/inbox/<slug>/release/` 下的 `.webp`、`.jpg` 和 `.jpeg`，将它们上传到固定的 `jewelroam-media/upload/photos/2026/`，并为每个对象检查公开 URL；WebP 还会检查 640px Image Transformations URL。实际发布前先运行 `--dry-run`，确认文件清单无误。
+
+常用覆盖参数：
+
+```bash
+npm run content:publish-r2 -- --no-check almaty-1
+npm run content:publish-r2 -- --bucket jewelroam-media --prefix upload/photos/2026 almaty-1 almaty-3
+```
+
+CLI 不会删除本地素材或 R2 对象，也不会修改正式 metadata；发布后仍需按本文件的顺序运行校验、提交 metadata 并推送 GitHub。
 
 当前代码仓库不保存 Cloudflare 密钥。若后续增加 GitHub Actions 自动上传图片，使用 GitHub Secrets 保存：
 

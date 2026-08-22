@@ -35,10 +35,19 @@ Do not treat `article-preview.mdx` as publishable while its description, `placeI
 2. Confirm the number and order of `PhotoEmbed` references matches the manifest.
 3. Run the project's content validation and production build.
 4. Read [references/r2-release-checklist.md](references/r2-release-checklist.md) before generating formal manifests or upload commands.
-5. Stop and report missing metadata, unconfirmed rights, missing R2 objects, or a blank article description. Do not silently substitute values.
+5. Stop and report missing metadata, unconfirmed rights, missing R2 objects, or a blank article description. Do not silently substitute values. For a confirmed published photo, `rights.licenseUrl` must be exactly `https://jewelroam.github.io/rights`; draft manifests may leave it blank until confirmation.
 
 ## R2 Gate
 
 R2 upload is a separate action. Require an immediate user confirmation that names the exact image set, destination bucket/domain, and public release scope. Before that confirmation, do not call an R2 upload command, create public URLs, delete inbox files, or modify published content.
 
 After confirmation, create the formal `content/photos/*.json`, update the MDX under `content/journals/`, ensure its single `placeId` exists in `content/places/`, upload the approved release files to the configured R2 bucket, verify the public custom-domain URLs, and rerun validation/build. Report the exact objects and URLs changed.
+
+For this repository, use the project CLI instead of the Cloudflare dashboard:
+
+```bash
+npm run content:publish-r2 -- --dry-run <slug>
+npm run content:publish-r2 -- <slug>
+```
+
+It reads only `content/inbox/<slug>/release/`, uploads the release `.webp`/`.jpg` files to `jewelroam-media/upload/photos/2026/`, and checks the custom-domain URL plus the 640px transformation URL. Run the dry run first and keep the exact slug/file set in the release record.

@@ -1,0 +1,16 @@
+{
+  "id": "almaty-1-03",
+  "title": "拉面馆与混凝土建筑",
+  "alt": "街边拉面馆招牌前，一幢灰色混凝土建筑矗立在蓝天和树木间",
+  "takenAt": "2026-05-21",
+  "placeId": "almaty",
+  "dimensions": { "width": 6048, "height": 4032 },
+  "media": {
+    "path": "upload/photos/2026/almaty-1-03.webp",
+    "fallbackPath": "upload/photos/2026/almaty-1-03.jpg"
+  },
+  "rights": {
+    "notice": "© 2026 JewelRoam. All rights reserved.",
+    "licenseUrl": "https://jewelroam.github.io/rights"
+  }
+}

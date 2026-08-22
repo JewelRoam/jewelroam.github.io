@@ -1,0 +1,22 @@
+{
+  "id": "almaty",
+  "slug": "almaty",
+  "name": "Almaty",
+  "country": "哈萨克斯坦",
+  "region": "阿拉木图市",
+  "coordinates": {
+    "latitude": 43.2389,
+    "longitude": 76.8897
+  },
+  "geometry": {
+    "type": "Polygon",
+    "coordinates": [[
+      [76.55, 43.10],
+      [77.05, 43.10],
+      [77.20, 43.35],
+      [76.95, 43.45],
+      [76.55, 43.35],
+      [76.55, 43.10]
+    ]]
+  }
+}

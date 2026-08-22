@@ -68,7 +68,7 @@ media:
       url: https://github.com/JewelRoam/jewelroam-media/releases/download/photos-2026-q1/coast-window-1600.webp
 rights:
   notice: "© 2026 JewelRoam. All rights reserved."
-  licenseUrl: https://jewelroam.github.io/jewelroam#rights
+  licenseUrl: https://jewelroam.github.io/rights
 ```
 
 React 的 `ResponsiveImage` 只渲染清单提供的地址、尺寸与 `alt`；文章和图集使用图片 `id` 引用。这样从 GitHub Releases 改用 R2 时，只改变 `media` 数据或生成清单的脚本，文章、组件、链接结构和版权字段均无需改动。

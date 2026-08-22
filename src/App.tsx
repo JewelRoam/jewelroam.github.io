@@ -6,6 +6,7 @@ import { EditorPage } from "./pages/EditorPage";
 import { JournalPage } from "./pages/JournalPage";
 import { JournalsPage } from "./pages/JournalsPage";
 import { PhotoPage } from "./pages/PhotoPage";
+import { RightsPage } from "./pages/RightsPage";
 
 export function App() {
   return (
@@ -17,6 +18,7 @@ export function App() {
       <Route path="/journals" element={<JournalsPage />} />
       <Route path="/journals/:slug" element={<JournalPage />} />
       <Route path="/jewelroam" element={<JewelRoamPage />} />
+      <Route path="/rights" element={<RightsPage />} />
       <Route path="/editor" element={<EditorPage />} />
       <Route path="*" element={<Navigate to="/jewelroam" replace />} />
     </Routes>

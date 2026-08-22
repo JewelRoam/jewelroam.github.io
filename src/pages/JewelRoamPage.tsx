@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { Link } from "react-router-dom";
 import { CopyText } from "../components/CopyText";
 import { Page } from "../components/Page";
 
@@ -317,13 +318,15 @@ export function JewelRoamPage() {
           </div>
         </section>
 
-        <section id="rights" className="border-t border-[#20211f]/10 pt-8">
+        <section className="border-t border-[#20211f]/10 pt-8">
           <h2 className="font-serif text-2xl text-[#20211f]">Rights</h2>
-          <div className="mt-6 text-base leading-8">
-            <p>
-              除非页面另有说明，站内图片、文字内容不得复制、改编、转载或用于商业用途。
-              如需转载、出版、展览或商业授权，请通过项目维护者提供的联系方式说明使用范围、媒介和期限。
-            </p>
+          <div className="mt-6 text-base leading-7">
+            <Link
+              to="/rights"
+              className="underline decoration-[#20211f]/20 underline-offset-4 transition hover:decoration-[#20211f]/70"
+            >
+              Rights <span aria-hidden="true" className="ml-1 text-xs text-[#20211f]/40">↗</span>
+            </Link>
           </div>
         </section>
       </div>

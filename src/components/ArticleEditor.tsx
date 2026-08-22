@@ -63,8 +63,8 @@ function normalizeDraft(draft: StoredDraft): Draft {
   return {
     title: draft.title,
     description: draft.description,
-    placeId: draft.placeId ?? places[0]?.id ?? "",
-    placeName: draft.placeName ?? existingPlace?.name ?? places[0]?.name ?? "",
+    placeId: draft.placeId ?? "",
+    placeName: draft.placeName ?? existingPlace?.name ?? "",
     createdAt: draft.createdAt ?? updatedAt.slice(0, 10),
     updatedAt,
     html: draft.html,
@@ -104,8 +104,8 @@ async function readDraft() {
 export function ArticleEditor() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [placeId, setPlaceId] = useState(places[0]?.id ?? "");
-  const [placeName, setPlaceName] = useState(places[0]?.name ?? "");
+  const [placeId, setPlaceId] = useState("");
+  const [placeName, setPlaceName] = useState("");
   const [createdAt, setCreatedAt] = useState(today);
   const [updatedAt, setUpdatedAt] = useState("");
   const [status, setStatus] = useState("正在读取本地草稿…");
@@ -210,12 +210,13 @@ export function ArticleEditor() {
 
   const exportDraft = () => {
     if (!editor) return;
-    if (!placeName.trim()) {
+    const normalizedPlaceName = placeName.trim();
+    if (!normalizedPlaceName) {
       setStatus("请先选择或输入一个地点");
       return;
     }
     const exportedAt = new Date().toISOString();
-    const payload = JSON.stringify({ title, description, placeId, placeName, placeStatus: placeId ? "existing" : "needs-place-record", createdAt, updatedAt: exportedAt, html: editor.getHTML(), exportedAt }, null, 2);
+    const payload = JSON.stringify({ title, description, placeId, placeName: normalizedPlaceName, placeStatus: placeId ? "existing" : "needs-place-record", createdAt, updatedAt: exportedAt, html: editor.getHTML(), exportedAt }, null, 2);
     const blob = new Blob([payload], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
@@ -233,8 +234,8 @@ export function ArticleEditor() {
     editor?.commands.clearContent(false);
     savedRevision.current = revision;
     setTitle("");
-    setPlaceId(places[0]?.id ?? "");
-    setPlaceName(places[0]?.name ?? "");
+    setPlaceId("");
+    setPlaceName("");
     setDescription("");
     setCreatedAt(today());
     setUpdatedAt("");

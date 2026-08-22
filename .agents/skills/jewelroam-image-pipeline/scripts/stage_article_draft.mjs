@@ -85,6 +85,7 @@ const sourceHtml = draft.html.replace(/<img\b[^>]*>/gi, (tag) => {
     takenAt: "",
     placeId: draft.placeId ?? "",
     placeName: draft.placeName ?? "",
+    // Rights stay pending in drafts; confirmed published records use the project Rights page.
     rights: { notice: "", licenseUrl: "" },
   });
   return `@@IMAGE_${String(imageIndex).padStart(2, "0")}@@`;

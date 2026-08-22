@@ -34,7 +34,10 @@ Each `content/photos/*.json` record requires:
   placeId: string;            // exactly one place per Photo
   dimensions: { width: number; height: number };
   media: { path: string; fallbackPath: string };
-  rights: { notice: string; licenseUrl: valid URL };
+  rights: {
+    notice: string;
+    licenseUrl: "https://jewelroam.github.io/rights";
+  };
 }
 ```
 
@@ -45,4 +48,5 @@ Dimensions, media paths, and image formats can be generated. Title, alt, date, `
 - Runtime schema: `src/lib/content.ts`
 - Photo validation: `scripts/validate-content.ts`
 - Publication workflow: `docs/codex/CONTENT_WORKFLOW.md`
-- Public rights section: `https://jewelroam.github.io/jewelroam#rights`
+- Public rights section and the only allowed published `licenseUrl`: `https://jewelroam.github.io/rights`
+- Draft manifests may keep `rights.notice` and `rights.licenseUrl` empty while awaiting confirmation; empty draft values must never reach `content/photos/*.json`.

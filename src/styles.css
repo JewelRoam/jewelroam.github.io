@@ -1,6 +1,7 @@
 @import "tailwindcss";
 
 :root {
+  --article-image-max-height: min(60dvh, 32rem);
   --page-gutter: 1.5rem;
   --page-top-space: 3rem;
   font-family:
@@ -362,7 +363,7 @@ a {
   font-size: 0.98rem;
 }
 .editor-context-fields {
-  align-items: end;
+  align-items: start;
   display: grid;
   gap: 1.5rem;
   grid-template-columns: minmax(0, 1fr) minmax(10rem, 14rem);
@@ -546,7 +547,7 @@ a {
   width: auto;
   height: auto;
   max-width: 100%;
-  max-height: min(78dvh, 48rem);
+  max-height: var(--article-image-max-height);
   object-fit: contain;
 }
 .article-image {

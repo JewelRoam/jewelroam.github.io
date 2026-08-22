@@ -111,7 +111,7 @@ jewelroam.github.io/
 
 | 实体 | 必填字段 | 关键约束 |
 | --- | --- | --- |
-| `Photo` | `id`、`title`、`alt`、`takenAt`、`dimensions`、`renditions`、`rights` | `id` 永不复用；每一幅公开图片都有可访问的 `rights.licenseUrl`。 |
+| `Photo` | `id`、`title`、`alt`、`takenAt`、`dimensions`、`renditions`、`rights` | `id` 永不复用；每一幅公开图片的 `rights.licenseUrl` 固定指向 `https://jewelroam.github.io/rights`。 |
 | `PhotoSeries` | `slug`、`title`、`summary`、`photoIds`、`publishedAt` | `photoIds` 必须存在且顺序稳定；系列删除前先处理被文章引用的图片。 |
 | `Post` | `slug`、`title`、`description`、`publishedAt`、`tags`、`body` | 不在正文硬编码 CDN URL；统一以图片 `id` 引用。 |
 | `RightsPolicy` | `owner`、`notice`、`licenseType`、`licenseUrl`、`contactUrl` | 默认 `all-rights-reserved`；任何非默认许可必须显式配置。 |
@@ -134,8 +134,8 @@ rights:
   owner: JewelRoam
   notice: "© 2026 JewelRoam. All rights reserved."
   licenseType: all-rights-reserved
-  licenseUrl: https://jewelroam.github.io/jewelroam#rights
-  acquireLicenseUrl: https://jewelroam.github.io/jewelroam#rights
+  licenseUrl: https://jewelroam.github.io/rights
+  acquireLicenseUrl: https://jewelroam.github.io/rights
   iptcEmbedded: true
   visibleWatermark: false
 ```
@@ -215,8 +215,8 @@ rights: all-rights-reserved
 Creator              = JewelRoam / 实名或工作室名
 Credit Line          = © JewelRoam
 Copyright Notice     = © 2026 JewelRoam. All rights reserved.
-Web Statement Rights = https://jewelroam.github.io/jewelroam#rights
-Licensor URL         = https://jewelroam.github.io/jewelroam#rights
+Web Statement Rights = https://jewelroam.github.io/rights
+Licensor URL         = https://jewelroam.github.io/rights
 Source               = Original photograph by JewelRoam
 ```
 
@@ -234,8 +234,8 @@ Source               = Original photograph by JewelRoam
   "creator": { "@type": "Person", "name": "JewelRoam" },
   "creditText": "JewelRoam",
   "copyrightNotice": "© 2026 JewelRoam. All rights reserved.",
-  "license": "https://jewelroam.github.io/jewelroam#rights",
-  "acquireLicensePage": "https://jewelroam.github.io/jewelroam#rights"
+  "license": "https://jewelroam.github.io/rights",
+  "acquireLicensePage": "https://jewelroam.github.io/rights"
 }
 ```
 

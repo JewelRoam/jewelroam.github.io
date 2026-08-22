@@ -1,0 +1,16 @@
+{
+  "id": "almaty-1-08",
+  "title": "城市公园里的纪念碑",
+  "alt": "树荫下的纪念碑雕塑，中央人物张开双臂，石座上刻有文字",
+  "takenAt": "2026-05-21",
+  "placeId": "almaty",
+  "dimensions": { "width": 3024, "height": 4032 },
+  "media": {
+    "path": "upload/photos/2026/almaty-1-08.webp",
+    "fallbackPath": "upload/photos/2026/almaty-1-08.jpg"
+  },
+  "rights": {
+    "notice": "© 2026 JewelRoam. All rights reserved.",
+    "licenseUrl": "https://jewelroam.github.io/rights"
+  }
+}

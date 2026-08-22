@@ -3,6 +3,8 @@ import { join } from "node:path";
 import vm from "node:vm";
 import { z } from "zod";
 
+const PUBLIC_RIGHTS_URL = "https://jewelroam.github.io/rights" as const;
+
 const geoJsonPolygonSchema = z.object({
   type: z.literal("Polygon"),
   coordinates: z.array(z.array(z.tuple([z.number(), z.number()])).min(4)).min(1),
@@ -33,7 +35,7 @@ const photoSchema = z.object({
   placeId: z.string().min(1),
   dimensions: z.object({ width: z.number().positive(), height: z.number().positive() }),
   media: z.object({ path: z.string().min(1), fallbackPath: z.string().min(1) }),
-  rights: z.object({ notice: z.string().min(1), licenseUrl: z.string().url() }),
+  rights: z.object({ notice: z.string().min(1), licenseUrl: z.literal(PUBLIC_RIGHTS_URL) }),
 });
 
 const journalSchema = z.object({

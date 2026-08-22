@@ -36,6 +36,6 @@ Photo N ── 1 Place
 
 ## 图片与发布边界
 
-Capture 的草稿和 Base64 图片仅保存在当前浏览器 IndexedDB；它不直接写仓库或上传 R2。正式发行图进入 `jewelroam-media`，页面只通过 `src/lib/media.ts` 生成自定义域名和 Image Transformations URL。`content/inbox/` 是本地素材和中间产物目录，不属于运行时内容源；除非用户明确要求，不应提交或删除其中的素材。
+Capture 的草稿和 Base64 图片仅保存在当前浏览器 IndexedDB；它不直接写仓库或上传 R2。正式发行图进入 `jewelroam-media`，页面只通过 `src/lib/media.ts` 生成自定义域名和 Image Transformations URL。每张正式照片 metadata 的 `rights.licenseUrl` 固定为 `https://jewelroam.github.io/rights`；`content/inbox/` 是本地素材和中间产物目录，不属于运行时内容源；除非用户明确要求，不应提交或删除其中的素材。
 
 发布顺序固定为：本地确认内容与发行文件，上传并验证 R2 对象，写入正式内容记录，运行校验和构建，最后提交并推送 GitHub。仓库不区分 staging 与 production。

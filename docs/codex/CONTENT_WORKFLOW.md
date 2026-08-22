@@ -42,7 +42,7 @@ http://127.0.0.1:5173/editor
 
 批量图片或无法在编辑器中预览的原始文件，仍可以放进 `content/inbox/`，再让 agent 扫描处理。该目录默认作为本地素材保留，不自动提交到 Git；正式内容只写入 `content/journals/`、`content/places/` 和 `content/photos/`。
 
-4. agent 给出图片名称、尺寸、alt、拍摄日期、地点、版权字段和文章引用的变更预览；同时确认 Journal 与每张图片绑定的唯一 `placeId`。
+4. agent 给出图片名称、尺寸、alt、拍摄日期、地点、版权字段和文章引用的变更预览；同时确认 Journal 与每张图片绑定的唯一 `placeId`。已确认公开发布的正式照片，其 `rights.licenseUrl` 必须统一为 `https://jewelroam.github.io/rights`；草稿阶段可以留空，不能把空值写入正式 `content/photos/*.json`。
 5. 你确认内容无误后，再说：
 
    ```text

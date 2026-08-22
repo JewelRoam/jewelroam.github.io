@@ -9,6 +9,7 @@
 - Formal photo records: `content/photos/*.json`
 - Formal Journals: `content/journals/*.mdx`
 - Formal places: `content/places/*.json`
+- Published photo `rights.licenseUrl`: `https://jewelroam.github.io/rights` (the only allowed value)
 
 ## Required photo record
 
@@ -26,7 +27,7 @@
   },
   "rights": {
     "notice": "confirmed copyright notice",
-    "licenseUrl": "https://jewelroam.github.io/jewelroam#rights"
+    "licenseUrl": "https://jewelroam.github.io/rights"
   }
 }
 ```

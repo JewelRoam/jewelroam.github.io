@@ -8,7 +8,8 @@
     "build": "tsc --noEmit && vite build && cp node_modules/maplibre-gl/dist/maplibre-gl-worker.mjs dist/maplibre-gl-worker.mjs && cp node_modules/maplibre-gl/dist/maplibre-gl-shared.mjs dist/maplibre-gl-shared.mjs && cp dist/index.html dist/404.html",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
-    "content:validate": "tsx scripts/validate-content.ts"
+    "content:validate": "tsx scripts/validate-content.ts",
+    "content:publish-r2": "node scripts/publish-r2.mjs"
   },
   "dependencies": {
     "@mdx-js/react": "^3.1.0",
