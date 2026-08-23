@@ -8,9 +8,11 @@ import {
   type ExportProgress,
   type ExportSettings,
 } from "../lib/article-export";
+import { useExportTask } from "../hooks/useExportTask";
 import { ActionMenu } from "./ActionMenu";
-import { ExportProgressDialog } from "./ExportProgressDialog";
-import { ExportSettingsDialog } from "./ExportSettingsDialog";
+import { ExportDialog } from "./ExportDialog";
+import { exportProgressLabel, ExportProgressPanel } from "./ExportProgressDialog";
+import { ExportSettingsPanel } from "./ExportSettingsDialog";
 
 export function ArticleExportMenu({
   slug,
@@ -23,40 +25,19 @@ export function ArticleExportMenu({
   placeNames?: string[];
   getArticle: () => HTMLElement | null;
 }) {
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState("");
   const [settingsMode, setSettingsMode] = useState<ExportSettings["mode"] | null>(null);
   const [maxPageCount, setMaxPageCount] = useState(1);
-  const [progress, setProgress] = useState<ExportProgress | null>(null);
+  const { busy, clearError, error, progress, run: runExport } = useExportTask();
 
-  const run = async (action: (article: HTMLElement, onProgress: (progress: ExportProgress) => void) => Promise<void> | void) => {
-    const article = getArticle();
-    if (!article) {
-      setError("找不到文章内容");
-      return;
-    }
-    setBusy(true);
-    setError("");
-    setProgress(null);
-    try {
-      await action(article, setProgress);
-    } catch (reason) {
-      setError(reason instanceof Error ? reason.message : "导出失败，请稍后重试");
-    } finally {
-      setBusy(false);
-      setProgress(null);
-    }
+  const run = (action: (article: HTMLElement, onProgress: (progress: ExportProgress) => void) => Promise<void> | void) => {
+    void runExport(async (onProgress) => {
+      const article = getArticle();
+      if (!article) throw new Error("找不到文章内容");
+      await action(article, onProgress);
+    });
   };
 
-  const progressLabel = progress?.stage === "loading-images"
-    ? `读取图片 ${progress.current ?? 0} / ${progress.total ?? 0}`
-    : progress?.stage === "building-layout"
-      ? "计算排版"
-      : progress?.stage === "rendering"
-        ? `生成页面 ${progress.current ?? 0} / ${progress.total ?? 0}`
-        : progress?.stage === "packing"
-          ? "打包文件"
-          : "准备中…";
+  const progressLabel = exportProgressLabel(progress);
 
   return (
     <div className="journal-export-menu">
@@ -77,7 +58,9 @@ export function ArticleExportMenu({
             onSelect: () => {
               const article = getArticle();
               if (!article) {
-                setError("找不到文章内容");
+                run(() => {
+                  throw new Error("找不到文章内容");
+                });
                 return;
               }
               setMaxPageCount(getExportPageCountLimit(article));
@@ -88,21 +71,34 @@ export function ArticleExportMenu({
             label: "导出 JSON",
             icon: <FileJson size={15} />,
             disabled: busy,
-            onSelect: () => run((article) => exportJournalJson({ slug, frontmatter, placeNames, article })),
+            onSelect: () => run((article, onProgress) => exportJournalJson({ slug, frontmatter, placeNames, article }, onProgress)),
           },
         ]}
       />
-      {error && <p className="journal-export-menu__error" role="status">{error}</p>}
-      <ExportProgressDialog open={busy} label={progressLabel} />
-      <ExportSettingsDialog
-        maxPageCount={maxPageCount}
-        mode={settingsMode}
-        onClose={() => setSettingsMode(null)}
-        onExport={(nextSettings) => {
-          setSettingsMode(null);
-          void run((article, onProgress) => exportJournalVisual({ slug, frontmatter, placeNames, article }, nextSettings, onProgress));
+      <ExportDialog
+        open={busy || Boolean(error) || settingsMode !== null}
+        variant={busy || error ? "progress" : "settings"}
+        titleId={busy || error ? "export-progress-title" : "export-settings-title"}
+        onCancel={() => {
+          if (busy) return;
+          if (error) clearError();
+          else setSettingsMode(null);
         }}
-      />
+      >
+        {busy || error ? (
+          <ExportProgressPanel label={progressLabel} error={error || undefined} onClose={clearError} />
+        ) : (
+          <ExportSettingsPanel
+            maxPageCount={maxPageCount}
+            mode={settingsMode}
+            onClose={() => setSettingsMode(null)}
+            onExport={(nextSettings) => {
+              setSettingsMode(null);
+              void run((article, onProgress) => exportJournalVisual({ slug, frontmatter, placeNames, article }, nextSettings, onProgress));
+            }}
+          />
+        )}
+      </ExportDialog>
     </div>
   );
 }

@@ -1,11 +1,10 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import type { Editor } from "@tiptap/core";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Image from "@tiptap/extension-image";
 import Placeholder from "@tiptap/extension-placeholder";
 import { FileHandler } from "@tiptap/extension-file-handler";
-import { del, get, set } from "idb-keyval";
 import {
   Bold,
   Download,
@@ -28,33 +27,21 @@ import {
 } from "../lib/article-document";
 import {
   articleDraftSchema,
-  storedDraftSchema,
-  type ArticleDraft,
   type ArticleImage,
   type MediaLayout,
   type StoredDraft,
 } from "../lib/content-schema";
+import { downloadJson } from "../lib/article-export";
 import { places } from "../lib/content";
 import { issuesFromZod, summarizeValidationIssues } from "../lib/content-validation";
+import { useArticleDraftPersistence } from "../hooks/useArticleDraftPersistence";
+import { useExportTask } from "../hooks/useExportTask";
+import { ExportDialog } from "./ExportDialog";
+import { exportProgressLabel, ExportProgressPanel } from "./ExportProgressDialog";
 import { ImageFrame } from "./ImageFrame";
 
-const DRAFT_KEY = "jewelroam:article-draft";
 const MAX_IMAGE_SIZE = 100 * 1024 * 1024;
 const IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif", "image/avif"];
-
-type EditableDraft = Pick<
-  ArticleDraft,
-  | "schemaVersion"
-  | "kind"
-  | "title"
-  | "description"
-  | "places"
-  | "createdAt"
-  | "updatedAt"
-  | "mediaLayout"
-  | "html"
-  | "gallery"
->;
 
 type PlaceOption = { value: string; label: string; name: string; existing: boolean };
 type SelectedPlace = { id: string; name: string };
@@ -80,39 +67,34 @@ function fileToDataUrl(file: File) {
   });
 }
 
-async function readDraft() {
-  const stored = await get<unknown>(DRAFT_KEY);
-  const parsed = storedDraftSchema.safeParse(stored);
-  return parsed.success ? parsed.data : null;
-}
-
 export function ArticleEditor() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [selectedPlaces, setSelectedPlaces] = useState<SelectedPlace[]>([]);
   const [createdAt, setCreatedAt] = useState(today);
-  const [updatedAt, setUpdatedAt] = useState("");
   const [mediaLayout, setMediaLayout] = useState<MediaLayout>("inline");
   const [gallery, setGallery] = useState<ArticleImage[]>([]);
-  const [status, setStatus] = useState("正在读取本地草稿…");
-  const [hydrated, setHydrated] = useState(false);
+  const [notice, setNotice] = useState("");
   const [revision, setRevision] = useState(0);
-  const savedRevision = useRef(0);
   const fileInput = useRef<HTMLInputElement>(null);
   const importInput = useRef<HTMLInputElement>(null);
+  const { busy: exportBusy, clearError: clearExportError, error: exportError, progress: exportProgress, run: runExport } = useExportTask();
 
-  const markChanged = useCallback(() => setRevision((value) => value + 1), []);
+  const markChanged = useCallback(() => {
+    setNotice("");
+    setRevision((value) => value + 1);
+  }, []);
 
   const insertImages = useCallback(async (currentEditor: Editor, files: File[], position?: number) => {
     const validFiles = files.filter((file) => IMAGE_TYPES.includes(file.type) && file.size <= MAX_IMAGE_SIZE);
     const rejectedCount = files.length - validFiles.length;
 
     if (!validFiles.length) {
-      setStatus("没有可导入的图片；支持 JPEG、PNG、WebP、GIF、AVIF，单张不超过 100 MB");
+      setNotice("没有可导入的图片；支持 JPEG、PNG、WebP、GIF、AVIF，单张不超过 100 MB");
       return;
     }
 
-    setStatus(`正在导入 ${validFiles.length} 张图片…`);
+    setNotice(`正在导入 ${validFiles.length} 张图片…`);
     try {
       const sources = await Promise.all(validFiles.map(fileToDataUrl));
       const importedImages = sources.map((src, index): ArticleImage => ({
@@ -128,7 +110,7 @@ export function ArticleEditor() {
       if (mediaLayout === "gallery") {
         setGallery((items) => [...items, ...importedImages]);
         markChanged();
-        setStatus(`${validFiles.length} 张图片已加入图集${rejectedCount ? `，跳过 ${rejectedCount} 个不支持的文件` : ""}`);
+        setNotice(`${validFiles.length} 张图片已加入图集${rejectedCount ? `，跳过 ${rejectedCount} 个不支持的文件` : ""}`);
         return;
       }
 
@@ -142,9 +124,9 @@ export function ArticleEditor() {
       if (position === undefined) chain.insertContent(content).run();
       else chain.insertContentAt(position, content).run();
 
-      setStatus(`${validFiles.length} 张图片已加入草稿${rejectedCount ? `，跳过 ${rejectedCount} 个不支持的文件` : ""}`);
+      setNotice(`${validFiles.length} 张图片已加入草稿${rejectedCount ? `，跳过 ${rejectedCount} 个不支持的文件` : ""}`);
     } catch {
-      setStatus("图片读取失败，请移除异常文件后重试");
+      setNotice("图片读取失败，请移除异常文件后重试");
     }
   }, [markChanged, mediaLayout]);
 
@@ -165,101 +147,87 @@ export function ArticleEditor() {
     onUpdate: markChanged,
   });
 
-  useEffect(() => {
-    if (!editor) return;
-    let active = true;
+  const createDraft = useCallback((nextUpdatedAt: string): StoredDraft => ({
+    schemaVersion: 3,
+    kind: "journal",
+    title,
+    description,
+    places: selectedPlaces,
+    createdAt,
+    updatedAt: nextUpdatedAt,
+    mediaLayout,
+    html: editor?.getHTML() || "<p></p>",
+    gallery,
+  }), [createdAt, description, editor, gallery, mediaLayout, selectedPlaces, title]);
 
-    void readDraft().then((draft) => {
-      if (!active) return;
-      if (draft) {
-        setTitle(draft.title);
-        setDescription(draft.description);
-        setSelectedPlaces(draft.places);
-        setCreatedAt(draft.createdAt);
-        setUpdatedAt(draft.updatedAt);
-        setMediaLayout(draft.mediaLayout);
-        setGallery(draft.gallery);
-        editor.commands.setContent(draft.html, { emitUpdate: false });
-        setStatus("本地草稿已恢复");
-      } else {
-        setStatus("草稿将自动保存在当前浏览器");
-      }
-      setHydrated(true);
-    });
-
-    return () => {
-      active = false;
-    };
+  const applyDraft = useCallback((draft: StoredDraft) => {
+    setTitle(draft.title);
+    setDescription(draft.description);
+    setSelectedPlaces(draft.places);
+    setCreatedAt(draft.createdAt);
+    setMediaLayout(draft.mediaLayout);
+    setGallery(draft.gallery);
+    editor?.commands.setContent(draft.html, { emitUpdate: false });
+    setNotice("本地草稿已恢复");
   }, [editor]);
 
-  useEffect(() => {
-    if (!editor || !hydrated || revision === savedRevision.current) return;
-    setStatus("保存中…");
+  const {
+    clearStoredDraft,
+    hydrated,
+    setUpdatedAt,
+    state: persistenceState,
+    updatedAt,
+  } = useArticleDraftPersistence({ editor, revision, createDraft, applyDraft });
 
-    const timer = window.setTimeout(() => {
-      const nextUpdatedAt = new Date().toISOString();
-      const savingRevision = revision;
-      const draft: EditableDraft = {
+  const persistenceMessage = persistenceState === "loading"
+    ? "正在读取本地草稿…"
+    : persistenceState === "saving"
+      ? "保存中…"
+      : persistenceState === "saved"
+        ? "已自动保存"
+        : persistenceState === "error"
+          ? "自动保存失败，请先导出草稿"
+          : "草稿将自动保存在当前浏览器";
+  const status = notice || persistenceMessage;
+
+  const exportDraft = () => {
+    void runExport(async (onProgress) => {
+      if (!hydrated) throw new Error("本地草稿仍在读取，请稍后再导出");
+      if (!editor) throw new Error("编辑器尚未准备好，请稍后再试");
+      if (!title.trim()) throw new Error("请先填写文章标题");
+      if (!selectedPlaces.length) throw new Error("请先选择或输入至少一个地点");
+
+      const exportedAt = new Date().toISOString();
+      const result = articleDraftSchema.safeParse({
         schemaVersion: 3,
         kind: "journal",
         title,
         description,
         places: selectedPlaces,
         createdAt,
-        updatedAt: nextUpdatedAt,
+        updatedAt: updatedAt || exportedAt,
+        exportedAt,
         mediaLayout,
         html: editor.getHTML(),
         gallery,
-      };
+      });
+      if (!result.success) {
+        throw new Error(`文章内容无法导出：${summarizeValidationIssues(issuesFromZod(result.error))}`);
+      }
 
-      void set(DRAFT_KEY, draft)
-        .then(() => {
-          savedRevision.current = savingRevision;
-          setUpdatedAt(nextUpdatedAt);
-          setStatus("已自动保存");
-        })
-        .catch(() => setStatus("自动保存失败，请先导出草稿"));
-    }, 600);
-
-    return () => window.clearTimeout(timer);
-  }, [createdAt, description, editor, gallery, hydrated, mediaLayout, revision, selectedPlaces, title]);
-
-  const exportDraft = () => {
-    if (!editor) return;
-    if (!selectedPlaces.length) {
-      setStatus("请先选择或输入至少一个地点");
-      return;
-    }
-    const exportedAt = new Date().toISOString();
-    const payload = articleDraftSchema.parse({
-      schemaVersion: 3,
-      kind: "journal",
-      title,
-      description,
-      places: selectedPlaces,
-      createdAt,
-      updatedAt: updatedAt || exportedAt,
-      exportedAt,
-      mediaLayout,
-      html: editor.getHTML(),
-      gallery,
+      onProgress({ stage: "serializing", current: 1, total: 1 });
+      const filename = `${title.trim().replace(/[^\w\u4e00-\u9fff-]+/g, "-") || "jewelroam-draft"}.json`;
+      onProgress({ stage: "downloading", current: 0, total: 1 });
+      await downloadJson(result.data, filename);
+      onProgress({ stage: "downloading", current: 1, total: 1 });
+      setNotice("草稿已导出，可以交给 agent 做发布准备");
     });
-    const serialized = JSON.stringify(payload, null, 2);
-    const blob = new Blob([serialized], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `${title.trim().replace(/[^\w\u4e00-\u9fff-]+/g, "-") || "jewelroam-draft"}.json`;
-    link.click();
-    URL.revokeObjectURL(url);
-    setStatus("草稿已导出，可以交给 agent 做发布准备");
   };
 
   const clearDraft = () => {
     if (!window.confirm("确定清空当前浏览器中的文章草稿吗？")) return;
-    void del(DRAFT_KEY);
+    void clearStoredDraft();
     editor?.commands.clearContent(false);
-    savedRevision.current = revision;
     setTitle("");
     setSelectedPlaces([]);
     setDescription("");
@@ -267,7 +235,7 @@ export function ArticleEditor() {
     setUpdatedAt("");
     setMediaLayout("inline");
     setGallery([]);
-    setStatus("草稿已清空");
+    setNotice("草稿已清空");
   };
 
   const toggleMediaLayout = (nextLayout: MediaLayout) => {
@@ -292,12 +260,12 @@ export function ArticleEditor() {
       try {
         value = JSON.parse(await file.text());
       } catch {
-        setStatus("导入失败：文件不是有效的 JSON");
+        setNotice("导入失败：文件不是有效的 JSON");
         return;
       }
       const result = articleDraftSchema.safeParse(value);
       if (!result.success) {
-        setStatus(`导入失败：${summarizeValidationIssues(issuesFromZod(result.error))}`);
+        setNotice(`导入失败：${summarizeValidationIssues(issuesFromZod(result.error))}`);
         return;
       }
       const imported = result.data;
@@ -311,9 +279,9 @@ export function ArticleEditor() {
       setGallery(imported.gallery);
       editor?.commands.setContent(imported.html, { emitUpdate: false });
       markChanged();
-      setStatus("JSON 草稿已导入");
+      setNotice("JSON 草稿已导入");
     } catch (error) {
-      setStatus(error instanceof Error ? `导入失败：${error.message}` : "导入失败：JSON 格式无效");
+      setNotice(error instanceof Error ? `导入失败：${error.message}` : "导入失败：JSON 格式无效");
     }
   };
 
@@ -486,7 +454,7 @@ export function ArticleEditor() {
         <div className="editor-actions">
           <button type="button" onClick={() => importInput.current?.click()} className="editor-button editor-button-muted"><Upload size={16} /><span>导入 JSON</span></button>
           <button type="button" onClick={clearDraft} className="editor-button editor-button-muted"><Trash2 size={16} /><span>清空草稿</span></button>
-          <button type="button" onClick={exportDraft} className="editor-button editor-button-dark"><Download size={16} /><span>导出 JSON</span></button>
+          <button type="button" onClick={() => void exportDraft()} disabled={exportBusy || !hydrated} className="editor-button editor-button-dark"><Download size={16} /><span>导出 JSON</span></button>
         </div>
       </footer>
       <input
@@ -500,6 +468,20 @@ export function ArticleEditor() {
           event.target.value = "";
         }}
       />
+      <ExportDialog
+        open={exportBusy || Boolean(exportError)}
+        variant="progress"
+        titleId="export-progress-title"
+        onCancel={() => {
+          if (!exportBusy) clearExportError();
+        }}
+      >
+        <ExportProgressPanel
+          label={exportProgressLabel(exportProgress)}
+          error={exportError || undefined}
+          onClose={clearExportError}
+        />
+      </ExportDialog>
     </section>
   );
 }
