@@ -1,10 +1,10 @@
 import { z } from "zod";
 
-export const PUBLIC_RIGHTS_URL = "https://jewelroam.github.io/rights" as const;
-export const MEDIA_LAYOUTS = ["inline", "gallery"] as const;
+const PUBLIC_RIGHTS_URL = "https://jewelroam.github.io/rights" as const;
+const MEDIA_LAYOUTS = ["inline", "gallery"] as const;
 export type MediaLayout = (typeof MEDIA_LAYOUTS)[number];
 
-export const articleImageSchema = z.object({
+const articleImageSchema = z.object({
   id: z.string().min(1),
   type: z.literal("image"),
   src: z.string().min(1),
@@ -19,7 +19,7 @@ export const articleImageSchema = z.object({
 const articleDraftShape = {
   schemaVersion: z.literal(3),
   kind: z.literal("journal"),
-  title: z.string(),
+  title: z.string().trim().min(1, "标题不能为空"),
   description: z.string(),
   places: z.array(z.object({
     id: z.string(),
@@ -47,7 +47,7 @@ export const storedDraftSchema = z.object({
   places: z.array(z.object({
     id: z.string(),
     name: z.string().min(1),
-  }).strict()).min(1),
+  }).strict()),
   createdAt: z.string().date(),
   updatedAt: z.string().datetime({ offset: true }),
   mediaLayout: z.enum(MEDIA_LAYOUTS),
@@ -82,8 +82,7 @@ const geoJsonLineStringSchema = z.object({
   coordinates: z.array(coordinatePairSchema).min(2),
 }).strict();
 
-export const placeKinds = ["area", "route"] as const;
-export type PlaceKind = (typeof placeKinds)[number];
+const placeKinds = ["area", "route"] as const;
 
 export const placeSchema = z.object({
   id: z.string().min(1),

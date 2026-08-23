@@ -13,7 +13,7 @@ if (import.meta.env.PROD) {
   maplibregl.setWorkerUrl(`${import.meta.env.BASE_URL}maplibre-gl-worker.mjs`);
 }
 
-export type DestinationCenter = [number, number];
+type DestinationCenter = [number, number];
 export type DestinationGeometry = LineString | Polygon | MultiPolygon;
 
 /** The map deliberately accepts plain records so it can be used by content loaders and the editor. */

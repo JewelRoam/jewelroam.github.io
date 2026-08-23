@@ -1,6 +1,7 @@
 const mediaBaseUrl = (import.meta.env.VITE_MEDIA_BASE_URL || "https://images.zer.dpdns.org").replace(/\/$/, "");
 
-export const imageWidths = [640, 1280, 2048] as const;
+const imageWidths = [640, 1280, 2048] as const;
+export type ImageWidth = (typeof imageWidths)[number];
 
 /** Builds Cloudflare Image Transformations URLs without leaking provider details into components. */
 export function transformImageUrl(path: string, width: number) {

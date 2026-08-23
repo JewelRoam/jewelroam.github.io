@@ -1,6 +1,6 @@
 import { Navigate, useParams } from "react-router-dom";
 import { ImageFrame } from "../components/ImageFrame";
-import { ResponsiveImage } from "../components/ResponsiveImage";
+import { OriginalImage } from "../components/ResponsiveImage";
 import { getPhoto, getPlace } from "../lib/content";
 
 export function PhotoPage() {
@@ -14,10 +14,9 @@ export function PhotoPage() {
   return (
     <article className="page-shell">
       <ImageFrame>
-        <ResponsiveImage
+        <OriginalImage
           photo={photo}
           priority
-          sizes="(min-width: 1024px) 88vw, 100vw"
           className="media-frame__image photo-page__image"
         />
       </ImageFrame>

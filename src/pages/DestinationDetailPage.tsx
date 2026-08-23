@@ -1,6 +1,7 @@
 import { Link, Navigate, useParams } from "react-router-dom";
 import { Page } from "../components/Page";
 import { ImageFrame } from "../components/ImageFrame";
+import { JournalListItem } from "../components/JournalListItem";
 import { ResponsiveImage } from "../components/ResponsiveImage";
 import { getPlace, getPlaceJournals, getPlacePhotos } from "../lib/content";
 
@@ -61,24 +62,12 @@ export function DestinationDetailPage() {
           {placeJournals.length ? (
             <div className="divide-y divide-[#20211f]/10">
               {placeJournals.map((journal) => (
-                <Link
+                <JournalListItem
                   key={journal.frontmatter.slug}
-                  to={`/journals/${journal.frontmatter.slug}`}
-                  className="block py-6 first:pt-0"
-                >
-                  <p className="text-xs text-[#20211f]/50">
-                    创建于{" "}
-                    <time dateTime={journal.frontmatter.createdAt}>
-                      {journal.frontmatter.createdAt}
-                    </time>
-                  </p>
-                  <h3 className="mt-2 font-serif text-2xl">
-                    {journal.frontmatter.title}
-                  </h3>
-                  <p className="mt-2 leading-7 text-[#20211f]/65">
-                    {journal.frontmatter.description}
-                  </p>
-                </Link>
+                  journal={journal.frontmatter}
+                  headingLevel="h3"
+                  className="py-6 first:pt-0"
+                />
               ))}
             </div>
           ) : (

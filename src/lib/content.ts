@@ -53,7 +53,7 @@ const photoModules = import.meta.glob("../../content/photos/*.json", {
   import: "default",
 }) as Record<string, string>;
 
-export const photos: Photo[] = Object.entries(photoModules)
+const photos: Photo[] = Object.entries(photoModules)
   .map(([source, raw]) => parseContent(photoSchema, parseJson(raw, source), source));
 
 const journalModules = import.meta.glob("../../content/journals/*.mdx", { eager: true }) as Record<string, JournalModule>;
