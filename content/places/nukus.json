@@ -1,0 +1,21 @@
+{
+  "id": "nukus",
+  "slug": "nukus",
+  "name": "Nukus",
+  "country": "乌兹别克斯坦",
+  "region": "卡拉卡尔帕克斯坦共和国 · 努库斯市",
+  "coordinates": {
+    "latitude": 42.4619,
+    "longitude": 59.6166
+  },
+  "geometry": {
+    "type": "Polygon",
+    "coordinates": [[
+      [59.43, 42.34],
+      [59.80, 42.34],
+      [59.80, 42.60],
+      [59.43, 42.60],
+      [59.43, 42.34]
+    ]]
+  }
+}
