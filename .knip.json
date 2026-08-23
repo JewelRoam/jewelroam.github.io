@@ -1,0 +1,24 @@
+{
+  "entry": [
+    "src/main.tsx",
+    "scripts/**/*.ts",
+    ".agents/skills/jewelroam-image-pipeline/scripts/stage_article_draft.mjs",
+    ".agents/skills/jewelroam-image-pipeline/scripts/prepare_release_images.mjs"
+  ],
+  "project": [
+    "src/**/*.{ts,tsx}",
+    "scripts/**/*.{ts,tsx}",
+    ".agents/skills/jewelroam-image-pipeline/scripts/**/*.mjs"
+  ],
+  "ignore": [
+    "content/**",
+    "docs/**",
+    "dist/**"
+  ],
+  "ignoreDependencies": [
+    "tailwindcss"
+  ],
+  "ignoreBinaries": [
+    "sips"
+  ]
+}

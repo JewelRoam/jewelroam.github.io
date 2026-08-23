@@ -39,14 +39,18 @@ Photo N ── 1 Place
 
 一个 Journal 可以属于多个 Place；每张 Photo 仍只属于一个归档地点。Place 默认是面状区域，也可以标记为 `kind: "route"`，使用 `LineString` 表示一段近似旅行线路。正式数据分别位于 `content/places`、`content/journals` 和 `content/photos`，字段协议集中在 `src/lib/content-schema.ts`。
 
-内容校验分为两个边界：浏览器端用共享 Schema 的 `safeParse` 校验导入 JSON 和静态内容，并把错误转换成带文件/字段路径的提示；正式 ArticleDraft 协议和 IndexedDB StoredDraft 协议都只接受当前格式，不迁移旧数据。Node 端的 `npm run content:validate` 读取整个仓库，用同一份 Schema 校验单文件，再由 `src/lib/content-validation.ts` 检查 ID 唯一性、地点层级、GeoJSON 环和 Journal/Photo 引用关系。Node 脚本用 TypeScript AST 读取 MDX 中导出的静态 `frontmatter`，对 PhotoEmbed/PhotoGallery 只接受明确的静态属性，不执行文章代码，也不再维护另一份字段协议。
+内容校验分为两个边界：浏览器端用共享 Schema 的 `safeParse` 校验导入 JSON 和静态内容，并把错误转换成带文件/字段路径的提示；正式 ArticleDraft 协议要求标题和地点，IndexedDB StoredDraft 协议允许编辑中的空标题或空地点，只接受当前格式，不迁移旧数据。草稿恢复、串行保存和过期写入淘汰由 `useArticleDraftPersistence` 统一处理。Node 端的 `npm run content:validate` 读取整个仓库，用同一份 Schema 校验单文件，再由 `src/lib/content-validation.ts` 检查 ID 唯一性、地点层级、GeoJSON 环和 Journal/Photo 引用关系。Node 脚本用 TypeScript AST 读取 MDX 中导出的静态 `frontmatter`，对 PhotoEmbed/PhotoGallery 只接受明确的静态属性，不执行文章代码，也不再维护另一份字段协议。
 
 Place 可以通过可选的 `parentId` 表达包含关系，例如 `Big Almaty Lake → Almaty`。线路型 Place（例如 `Tashkent—Samarkand`）用于照片发生在移动途中、无法合理归到单一城市的场景；它的路线几何是归档和展示用的近似线，不代表精确 GPS 轨迹。Journal 的 `placeIds` 表达文章涉及的地点集合，文章内每张 Photo 的 `placeId` 必须属于这个集合。地图 GeoJSON 会按层级排序，让父区域先绘制、子区域后绘制；区域使用立体面状图层，线路使用独立的高亮线图层。重叠区域的悬停和点击始终优先选择层级更深的地点。校验器会检查父级存在且层级无循环，避免依赖文件名顺序产生歧义。
 
 ## 图片与发布边界
 
-Capture 的草稿和 Base64 图片仅保存在当前浏览器 IndexedDB；它不直接写仓库或上传 R2。正式照片以一份清理 EXIF 后的全尺寸 JPEG 进入 `jewelroam-media`，页面只通过 `src/lib/media.ts` 请求 Cloudflare Image Transformations 的缩略图。每张正式照片 metadata 的 `rights.licenseUrl` 固定为 `https://jewelroam.github.io/rights`；`content/inbox/` 是本地素材和中间产物目录，不属于运行时内容源；除非用户明确要求，不应提交或删除其中的素材。
+Capture 的草稿和 Base64 图片仅保存在当前浏览器 IndexedDB；它不直接写仓库或上传 R2。正式照片以一份清理 EXIF 后的全尺寸 JPEG 进入 `jewelroam-media`。`ResponsiveImage` 负责 Journal 和 Destinations 中的 Cloudflare Image Transformations 响应式缩略图，图片详情页使用 `OriginalImage` 直接读取 R2 原图。每张正式照片 metadata 的 `rights.licenseUrl` 固定为 `https://jewelroam.github.io/rights`；`content/inbox/` 是本地素材和中间产物目录，不属于运行时内容源；除非用户明确要求，不应提交或删除其中的素材。
 
-Capture 与 Journal JSON 导出共用 `schemaVersion: 3` 的文章协议，`places` 保存地点 ID 与名称，正式 Journal frontmatter 使用 `placeIds` 数组，并以 `mediaLayout: "inline" | "gallery"` 区分展示方式。对用户和 Agent 来说，一篇文章仍然是一个可导入/导出的 JSON 文件；仓库内部没有引入额外的 sidecar 元数据格式。Journal 的视觉导出先生成统一页面 DOM，再按本次弹窗选择写入 PNG/JPG ZIP 或 PDF；比例切分支持 `1:1`、`2:3`、`3:4`、`9:16`，张数切分通过滑动条选择 1–18 张，并按文章块数量自动收窄上限。连续图片会使用 justified layout 计算 2/3 张一组的几何位置，不裁切图片。视觉导出必须读取图片像素，因此要求 R2 CORS 允许站点来源。
+Capture 与 Journal JSON 导出共用 `schemaVersion: 3` 的文章协议，标题、地点和创建日期是导出必填项，摘要可选；`places` 保存地点 ID 与名称，正式 Journal frontmatter 使用 `placeIds` 数组，并以 `mediaLayout: "inline" | "gallery"` 区分展示方式。对用户和 Agent 来说，一篇文章仍然是一个可导入/导出的 JSON 文件；仓库内部没有引入额外的 sidecar 元数据格式。Capture 和 Journal JSON 导出共用 `useExportTask`、`ExportDialog` 和进度面板，以扁平阶段依次显示校验、读取图片、解码图片、整理 JSON 和准备下载，失败时保留具体错误状态，不生成静默缺图文件。普通 JSON 下载采用分块 Blob；估算超过 64 MB 时，在支持 File System Access API 的浏览器中改用原生文件流，避免同时保留完整 Blob 和大量 Base64 分块，不支持时会明确提示文件过大。Journal 的视觉导出先生成统一页面 DOM，再按本次弹窗选择写入 PNG/JPG ZIP 或 PDF；比例切分支持 `1:1`、`2:3`、`3:4`、`9:16`，张数切分通过滑动条选择 1–18 张，并按文章块数量自动收窄上限。连续图片会使用 justified layout 计算 2/3 张一组的几何位置，不裁切图片。导出进度按扁平阶段依次显示图片读取、图片解码、排版、渲染和打包。视觉导出必须读取图片像素，因此要求 R2 CORS 允许站点来源。
 
 发布顺序固定为：本地确认内容与发行文件，上传并验证 R2 对象，写入正式内容记录，运行校验和构建，最后提交并推送 GitHub。仓库不区分 staging 与 production。
+
+## 提交前质量检查
+
+仓库使用 `knip` 检查未使用文件、依赖、导出和未声明的脚本工具。`npm run quality:commit` 会依次运行类型检查、内容校验、死代码检查和已暂存差异的空白检查，并由 `simple-git-hooks` 自动接入 `pre-commit`。Tailwind CSS 是通过 `src/styles.css` 的 CSS import 使用的，`sips` 是 macOS 图片处理脚本依赖的系统命令；这两项在 `.knip.json` 中显式记录为已核实的检查例外。
