@@ -230,10 +230,7 @@ function boundsFor(destinations: Destination[]): [[number, number], [number, num
     maxLng = Math.max(maxLng, lng);
     maxLat = Math.max(maxLat, lat);
   }
-  // Keep a useful initial view for one-place collections as well as many places.
-  const paddingLng = Math.max((maxLng - minLng) * 0.8, 5);
-  const paddingLat = Math.max((maxLat - minLat) * 0.8, 3);
-  return [[minLng - paddingLng, minLat - paddingLat], [maxLng + paddingLng, maxLat + paddingLat]];
+  return [[minLng, minLat], [maxLng, maxLat]];
 }
 
 function topFeature(features: maplibregl.MapGeoJSONFeature[] | undefined) {
