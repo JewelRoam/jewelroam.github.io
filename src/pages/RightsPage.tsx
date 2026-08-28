@@ -3,6 +3,7 @@ import { Page } from "../components/Page";
 export function RightsPage() {
   return (
     <Page
+      className="page-detail"
       title="Rights"
       intro="关于站内图片、文字内容的使用与许可。"
     >

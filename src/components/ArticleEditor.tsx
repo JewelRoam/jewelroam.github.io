@@ -41,6 +41,7 @@ import { exportProgressLabel, ExportProgressPanel } from "./ExportProgressDialog
 import { ImageFrame } from "./ImageFrame";
 
 const MAX_IMAGE_SIZE = 100 * 1024 * 1024;
+const IMAGE_READ_CONCURRENCY = 2;
 const IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif", "image/avif"];
 
 type PlaceOption = { value: string; label: string; name: string; existing: boolean };
@@ -67,10 +68,24 @@ function fileToDataUrl(file: File) {
   });
 }
 
+async function filesToDataUrls(files: File[]) {
+  const sources: string[] = [];
+  for (let index = 0; index < files.length; index += IMAGE_READ_CONCURRENCY) {
+    const batch = files.slice(index, index + IMAGE_READ_CONCURRENCY);
+    sources.push(...await Promise.all(batch.map(fileToDataUrl)));
+  }
+  return sources;
+}
+
+function createImageId() {
+  const uuid = globalThis.crypto?.randomUUID?.();
+  return `image-${uuid || `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`}`;
+}
+
 export function ArticleEditor() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [selectedPlaces, setSelectedPlaces] = useState<SelectedPlace[]>([]);
+  const [selectedPlace, setSelectedPlace] = useState<SelectedPlace | null>(null);
   const [createdAt, setCreatedAt] = useState(today);
   const [mediaLayout, setMediaLayout] = useState<MediaLayout>("inline");
   const [gallery, setGallery] = useState<ArticleImage[]>([]);
@@ -96,9 +111,9 @@ export function ArticleEditor() {
 
     setNotice(`正在导入 ${validFiles.length} 张图片…`);
     try {
-      const sources = await Promise.all(validFiles.map(fileToDataUrl));
+      const sources = await filesToDataUrls(validFiles);
       const importedImages = sources.map((src, index): ArticleImage => ({
-        id: `image-${Date.now()}-${index + 1}`,
+        id: createImageId(),
         type: "image",
         src,
         sourceName: validFiles[index].name,
@@ -148,22 +163,23 @@ export function ArticleEditor() {
   });
 
   const createDraft = useCallback((nextUpdatedAt: string): StoredDraft => ({
-    schemaVersion: 3,
+    schemaVersion: 4,
     kind: "journal",
     title,
     description,
-    places: selectedPlaces,
+    placeId: selectedPlace?.id ?? "",
+    placeName: selectedPlace?.name ?? "",
     createdAt,
     updatedAt: nextUpdatedAt,
     mediaLayout,
     html: editor?.getHTML() || "<p></p>",
     gallery,
-  }), [createdAt, description, editor, gallery, mediaLayout, selectedPlaces, title]);
+  }), [createdAt, description, editor, gallery, mediaLayout, selectedPlace, title]);
 
   const applyDraft = useCallback((draft: StoredDraft) => {
     setTitle(draft.title);
     setDescription(draft.description);
-    setSelectedPlaces(draft.places);
+    setSelectedPlace(draft.placeName ? { id: draft.placeId, name: draft.placeName } : null);
     setCreatedAt(draft.createdAt);
     setMediaLayout(draft.mediaLayout);
     setGallery(draft.gallery);
@@ -195,15 +211,16 @@ export function ArticleEditor() {
       if (!hydrated) throw new Error("本地草稿仍在读取，请稍后再导出");
       if (!editor) throw new Error("编辑器尚未准备好，请稍后再试");
       if (!title.trim()) throw new Error("请先填写文章标题");
-      if (!selectedPlaces.length) throw new Error("请先选择或输入至少一个地点");
+      if (!selectedPlace?.name.trim()) throw new Error("请先选择或输入一个地点");
 
       const exportedAt = new Date().toISOString();
       const result = articleDraftSchema.safeParse({
-        schemaVersion: 3,
+        schemaVersion: 4,
         kind: "journal",
         title,
         description,
-        places: selectedPlaces,
+        placeId: selectedPlace?.id ?? "",
+        placeName: selectedPlace?.name ?? "",
         createdAt,
         updatedAt: updatedAt || exportedAt,
         exportedAt,
@@ -229,7 +246,7 @@ export function ArticleEditor() {
     void clearStoredDraft();
     editor?.commands.clearContent(false);
     setTitle("");
-    setSelectedPlaces([]);
+    setSelectedPlace(null);
     setDescription("");
     setCreatedAt(today());
     setUpdatedAt("");
@@ -272,7 +289,7 @@ export function ArticleEditor() {
       if ((title.trim() || description.trim() || editor?.getText().trim() || gallery.length) && !window.confirm("导入会覆盖当前草稿，确定继续吗？")) return;
       setTitle(imported.title);
       setDescription(imported.description);
-      setSelectedPlaces(imported.places);
+      setSelectedPlace(imported.placeName ? { id: imported.placeId, name: imported.placeName } : null);
       setCreatedAt(imported.createdAt || today());
       setUpdatedAt(imported.updatedAt);
       setMediaLayout(imported.mediaLayout);
@@ -300,52 +317,55 @@ export function ArticleEditor() {
 
   return (
     <section className="page-shell editor-shell">
-      <header className="editor-header">
-        <h1 className="font-serif text-5xl">Capture</h1>
-        <p className="editor-intro">我曾偶尔使用 Apple 的 Notes 或 Journal app 记录想法，但它们始终没有提供一个足够顺手的图文编辑工作流，于是自己做了这个编辑器。图片支持同时拖入、粘贴或选择多张，暂存在浏览器 IndexedDB 中，并嵌入为 Base64 编码，随文章一起导出为 JSON，方便后续交给 Agent 继续整理与上线。</p>
+      <header className="editor-header page-header">
+        <h1 className="page-title font-serif">Capture</h1>
+        <p className="editor-intro page-intro">我曾偶尔使用 Apple 的 Notes 或 Journal app 记录想法，但它们始终没有提供一个足够顺手的图文编辑工作流，于是自己做了这个编辑器。图片支持同时拖入、粘贴或选择多张，暂存在浏览器 IndexedDB 中，并嵌入为 Base64 编码，随文章一起导出为 JSON，方便后续交给 Agent 继续整理与上线。</p>
       </header>
 
       <div className="editor-meta">
         <div className="editor-title-fields">
-          <input className="editor-title-input" value={title} onChange={(event) => { setTitle(event.target.value); markChanged(); }} placeholder="文章标题" aria-label="文章标题" />
-          <input className="editor-description-input" value={description} onChange={(event) => { setDescription(event.target.value); markChanged(); }} placeholder="一句话摘要（可选）" aria-label="文章摘要" />
+          <label className="editor-title-label" htmlFor="editor-title">文章标题</label>
+          <input id="editor-title" className="editor-title-input" value={title} onChange={(event) => { setTitle(event.target.value); markChanged(); }} placeholder="开始输入标题" />
+          <label className="editor-title-label" htmlFor="editor-description">文章摘要 <span>可选</span></label>
+          <input id="editor-description" className="editor-description-input" value={description} onChange={(event) => { setDescription(event.target.value); markChanged(); }} placeholder="用一句话记录这次停留" />
         </div>
         <div className="editor-context-fields">
           <div className="editor-field editor-place-field">
             <label htmlFor="editor-place-select">地点</label>
-            <CreatableSelect<PlaceOption, true>
+            <CreatableSelect<PlaceOption, false>
               inputId="editor-place-select"
-              aria-label="Journal 地点，可多选"
+              aria-label="Journal 地点"
               className="editor-place-select"
               classNamePrefix="place-select"
               options={PLACE_OPTIONS}
-              value={selectedPlaces.map((place) => PLACE_OPTIONS.find((option) => option.value === place.id) ?? {
-                value: place.id || place.name,
-                label: place.name,
-                name: place.name,
-                existing: Boolean(place.id),
-              })}
-              onChange={(options) => {
-                setSelectedPlaces(options.map((option) => ({
+              value={selectedPlace
+                ? PLACE_OPTIONS.find((option) => option.value === selectedPlace.id) ?? {
+                  value: selectedPlace.id || selectedPlace.name,
+                  label: selectedPlace.name,
+                  name: selectedPlace.name,
+                  existing: Boolean(selectedPlace.id),
+                }
+                : null}
+              onChange={(option) => {
+                setSelectedPlace(option ? {
                   id: option.existing ? option.value : "",
                   name: option.name,
-                })));
+                } : null);
                 markChanged();
               }}
               onCreateOption={(input) => {
                 const name = input.trim();
-                if (!name || selectedPlaces.some((place) => place.name === name)) return;
-                setSelectedPlaces((places) => [...places, { id: "", name }]);
+                if (!name) return;
+                setSelectedPlace({ id: "", name });
                 markChanged();
               }}
               formatCreateLabel={(input) => `新建地点“${input}”`}
               noOptionsMessage={() => "输入新地点并按回车"}
-              placeholder="搜索或输入一个或多个地点"
-              isClearable={false}
-              isMulti
+              placeholder="搜索或输入地点"
+              isClearable
               unstyled
             />
-            {selectedPlaces.some((place) => !place.id) && <p className="editor-place-note">新地点将在发布前由 Agent 补全坐标和地图区域。</p>}
+            {selectedPlace && !selectedPlace.id && <p className="editor-place-note">新地点将在发布前由 Agent 补全坐标和地图区域。</p>}
           </div>
           <label className="editor-field editor-date-field">
             <span>创建日期</span>
@@ -356,21 +376,25 @@ export function ArticleEditor() {
 
       <div className="editor-layout-switcher" role="group" aria-label="图片展示方式">
         <span className="editor-layout-switcher__label">图片</span>
-        <button
-          type="button"
-          className={mediaLayout === "inline" ? "is-active" : ""}
-          onClick={() => toggleMediaLayout("inline")}
-        >
-          随文插入
-        </button>
-        <button
-          type="button"
-          className={mediaLayout === "gallery" ? "is-active" : ""}
-          onClick={() => toggleMediaLayout("gallery")}
-        >
-          <LayoutGrid size={15} />
-          图集展示
-        </button>
+        <div className="editor-layout-options">
+          <button
+            type="button"
+            className={mediaLayout === "inline" ? "is-active" : ""}
+            aria-pressed={mediaLayout === "inline"}
+            onClick={() => toggleMediaLayout("inline")}
+          >
+            随文插入
+          </button>
+          <button
+            type="button"
+            className={mediaLayout === "gallery" ? "is-active" : ""}
+            aria-pressed={mediaLayout === "gallery"}
+            onClick={() => toggleMediaLayout("gallery")}
+          >
+            <LayoutGrid size={15} />
+            图集展示
+          </button>
+        </div>
       </div>
 
       <div className="editor-toolbar" aria-label="编辑工具">

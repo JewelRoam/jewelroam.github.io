@@ -16,6 +16,7 @@ export function DestinationDetailPage() {
 
   return (
     <Page
+      className="page-detail"
       title={place.name}
       intro={
         [place.region, place.country].filter(Boolean).join(" · ") ||

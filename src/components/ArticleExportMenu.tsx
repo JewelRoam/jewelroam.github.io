@@ -17,12 +17,12 @@ import { ExportSettingsPanel } from "./ExportSettingsDialog";
 export function ArticleExportMenu({
   slug,
   frontmatter,
-  placeNames,
+  placeName,
   getArticle,
 }: {
   slug: string;
   frontmatter: JournalFrontmatter;
-  placeNames?: string[];
+  placeName?: string;
   getArticle: () => HTMLElement | null;
 }) {
   const [settingsMode, setSettingsMode] = useState<ExportSettings["mode"] | null>(null);
@@ -71,7 +71,7 @@ export function ArticleExportMenu({
             label: "导出 JSON",
             icon: <FileJson size={15} />,
             disabled: busy,
-            onSelect: () => run((article, onProgress) => exportJournalJson({ slug, frontmatter, placeNames, article }, onProgress)),
+            onSelect: () => run((article, onProgress) => exportJournalJson({ slug, frontmatter, placeName, article }, onProgress)),
           },
         ]}
       />
@@ -94,7 +94,7 @@ export function ArticleExportMenu({
             onClose={() => setSettingsMode(null)}
             onExport={(nextSettings) => {
               setSettingsMode(null);
-              void run((article, onProgress) => exportJournalVisual({ slug, frontmatter, placeNames, article }, nextSettings, onProgress));
+              void run((article, onProgress) => exportJournalVisual({ slug, frontmatter, placeName, article }, nextSettings, onProgress));
             }}
           />
         )}

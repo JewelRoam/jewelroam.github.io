@@ -83,10 +83,10 @@ export function JewelRoamPage() {
       }
     >
       <div className="space-y-6 text-lg leading-9 text-[#20211f]/75">
-        <section className="border-t border-[#20211f]/10 pt-8">
+        <section className="history-section border-t border-[#20211f]/10 pt-8">
           <h2 className="font-serif text-2xl text-[#20211f]">History</h2>
-          <div className="mt-6 space-y-8 text-base leading-7">
-            <p className="text-[#20211f]/60">
+          <div className="history-timeline mt-6 text-base leading-7">
+            <p className="history-lede text-[#20211f]/60">
               还记得初中班主任说，期待你们以后回看，“人间曙，疏林平楚，历历来时路。”
               <br />
               很喜欢 OnePlus 之前的广告词，“Never Settle”，

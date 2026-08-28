@@ -17,14 +17,12 @@ const articleImageSchema = z.object({
 }).strict();
 
 const articleDraftShape = {
-  schemaVersion: z.literal(3),
+  schemaVersion: z.literal(4),
   kind: z.literal("journal"),
   title: z.string().trim().min(1, "标题不能为空"),
   description: z.string(),
-  places: z.array(z.object({
-    id: z.string(),
-    name: z.string().min(1),
-  }).strict()).min(1),
+  placeId: z.string(),
+  placeName: z.string().trim().min(1, "地点名称不能为空"),
   createdAt: z.string().date(),
   updatedAt: z.string().datetime({ offset: true }),
   exportedAt: z.string().datetime({ offset: true }),
@@ -40,14 +38,12 @@ export const articleDraftSchema = z.object(articleDraftShape).strict().superRefi
 });
 
 export const storedDraftSchema = z.object({
-  schemaVersion: z.literal(3),
+  schemaVersion: z.literal(4),
   kind: z.literal("journal"),
   title: z.string(),
   description: z.string(),
-  places: z.array(z.object({
-    id: z.string(),
-    name: z.string().min(1),
-  }).strict()),
+  placeId: z.string(),
+  placeName: z.string(),
   createdAt: z.string().date(),
   updatedAt: z.string().datetime({ offset: true }),
   mediaLayout: z.enum(MEDIA_LAYOUTS),
@@ -116,7 +112,7 @@ export const journalFrontmatterSchema = z.object({
   description: z.string().min(1),
   createdAt: z.string().date(),
   updatedAt: z.string().datetime({ offset: true }),
-  placeIds: z.array(z.string().min(1)).min(1),
+  placeId: z.string().min(1),
   mediaLayout: z.enum(MEDIA_LAYOUTS),
 }).strict();
 

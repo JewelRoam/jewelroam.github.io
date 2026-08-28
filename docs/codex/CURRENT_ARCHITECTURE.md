@@ -7,7 +7,7 @@
 - `Destinations`：以 MapLibre 渲染的全视口地点地图；地点悬停抬升，点击进入地点归档。生产构建会将 MapLibre worker 及其 shared 模块作为静态资源一并发布，确保 GitHub Pages 上的 GeoJSON 图层正常渲染。
 - `Journals`：按创建日期排列的文章列表与正文；文章右上角提供“比例切分”“张数切分”和“导出 JSON”菜单。比例切分支持固定比例分页，张数切分通过滑动条在 1–18 张内选择，短文章会按可用内容块自动收窄上限；前两项均可选择 PNG、JPG 或 PDF。
 - `Capture`：浏览器本地写作、图片导入、自动保存和 JSON 导入导出工具。图片可选择随文插入或在正文后集中为响应式图集；页面顶部只显示标题与说明，正文底部显示自动保存状态、真实修改时间和草稿动作。
-- `JewelRoam`：个人信息、经历、公开链接、Playlists 与 Rights。
+- `JewelRoam`：个人信息、经历、公开链接、Playlists 与 Rights。Playlist 使用官方 Apple Music / 网易云 iframe，在响应式网格中直接平铺，不再包第二层卡片；Apple 播放器因底部操作行保留 `392px`，网易云保留 `384px`，不需要 MusicKit 或用户认证。
 - `ZaiChang`：指向独立仓库站点的外链入口，不属于本站内容路由。
 
 根路径和未知路径进入 `JewelRoam`。路由集中在 `src/App.tsx`，页面实现位于 `src/pages/`；可复用界面位于 `src/components/`。
@@ -24,7 +24,19 @@
 
 详情页和非一级路由由 `src/components/BackButton.tsx` 在右上角提供圆形返回按钮，Journal 的导出菜单会追加到同一按钮栈中，所有按钮纵向对齐；返回按钮固定为按钮栈最下方。应用内导航优先返回上一页，直接打开详情页时回退到对应的一级入口。
 
+Journal 不为右侧按钮栈增加整页顶部留白。标题区从统一的 `48px` 顶部开始，并用 `.journal-intro` 的最小高度容纳三枚浮动按钮；窄屏标题只占用按钮左侧的可用宽度，正文则在工具轨结束后开始。这样按钮仍是边缘浮层，不会压住标题或首段，也不会把整篇文章无条件推到 `232px` 以下。视觉导出会将该展示包装层展开为原有 metadata 与标题块，不把浏览器安全区写进导出分页。
+
 `Destinations` 不使用普通页面外框。`.destinations-stage` 占满 `100svh`，地图填满舞台，标题简介位于地图之上，站点导航位于最高层。地图不显示缩放或复位按钮：触控端单指移动、双指缩放，桌面端可拖拽和滚轮缩放；旋转与俯仰手势禁用。地图通过 `ResizeObserver` 响应视口和容器尺寸变化。
+
+## 视觉系统
+
+本站的视觉层次有意保持简单：纸张承载正文，玻璃只负责导航和工具，地图作为带有轻微立体感的背景场景。`--canvas`、`--paper`、`--ink` 和 `--accent` 集中在 `src/styles.css`，普通页面只使用响应式 gutter，不再由一个全局最大宽度容器包住内容。形态按角色而不是按组件随意取值：正文纸面使用 `2px`，常规输入与文字按钮使用 `6px`，媒体与弹窗使用 `8px`，玻璃工具条使用 `12px`；浮动菜单保持胶囊，只有纯图标动作使用正圆。导航胶囊、返回按钮和 Capture 工具栏共享同一套半透明边框、内高光和阴影；在 `prefers-reduced-transparency` 下会退回不透明纸面。
+
+照片详情页的 `PhotoLoupe` 是唯一较强的视觉交互。基础照片先按正常优先级加载，用户点击放大按钮后才挂载第二份原图，用鼠标移动、触摸拖动或方向键查看局部；`Escape` 可退出，动画和透明度均尊重系统辅助功能偏好。`ResponsiveImage` 为缩略图保留原始比例，在加载中维持版面尺寸，转换 URL 失败后只尝试一次原图，并显示可操作的错误状态。
+
+`DestinationMap` 使用本地 GeoJSON 的立体面和路线图层，地点名称由可访问的 DOM marker 呈现，不依赖远端 glyph 字体。每个地点的区域、路线和 marker 小点会按稳定的地点 ID 从六种低饱和印刷色中取色，显式传入的 `color` 仍可覆盖默认分配；因此列表重排或刷新不会导致地点跳色。标记会根据视口和相邻地点做轻量碰撞避让，拥挤时折叠为点，悬停、聚焦或激活时恢复名称；地图无法直接操作时，聚焦隐藏的地点列表仍提供键盘入口。地图页保持全视口，不额外添加装饰性卡片。
+
+Capture 的编辑顺序遵循“说明 → 文章信息 → 格式工具 → 正文 → 保存与导出”：标题和简介使用普通页面标题节奏，图片展示方式使用明确的分段控件，分组外框为 `8px`，选中项为 `6px` 的纸面控件，深色只保留给最终执行动作；格式工具以玻璃工具条吸附到统一的顶部安全区，正文则保持接近印刷纸面的直角边缘；图片导入在窄屏下独立换行。自动保存状态和最近修改时间固定在正文之后，避免与固定导航争夺层级。
 
 ## 内容关系
 
@@ -33,21 +45,25 @@ Place 是 Journal 和 Photo 的共同归档键：
 ```text
 Place 1 ── N Journals
 Place 1 ── N Photos
-Journal N ── N Places
+Journal 1 ── 1 primary Place
 Photo N ── 1 Place
 ```
 
-一个 Journal 可以属于多个 Place；每张 Photo 仍只属于一个归档地点。Place 默认是面状区域，也可以标记为 `kind: "route"`，使用 `LineString` 表示一段近似旅行线路。正式数据分别位于 `content/places`、`content/journals` 和 `content/photos`，字段协议集中在 `src/lib/content-schema.ts`。
+一个 Journal 只绑定一个主归档 Place；每张 Photo 仍只属于一个实际地点，跨地点叙事中的照片地点可以与 Journal 主地点不同。Place 默认是面状区域，也可以标记为 `kind: "route"`，使用 `LineString` 表示一段近似旅行线路。正式数据分别位于 `content/places`、`content/journals` 和 `content/photos`，字段协议集中在 `src/lib/content-schema.ts`。
 
-内容校验分为两个边界：浏览器端用共享 Schema 的 `safeParse` 校验导入 JSON 和静态内容，并把错误转换成带文件/字段路径的提示；正式 ArticleDraft 协议要求标题和地点，IndexedDB StoredDraft 协议允许编辑中的空标题或空地点，只接受当前格式，不迁移旧数据。草稿恢复、串行保存和过期写入淘汰由 `useArticleDraftPersistence` 统一处理。Node 端的 `npm run content:validate` 读取整个仓库，用同一份 Schema 校验单文件，再由 `src/lib/content-validation.ts` 检查 ID 唯一性、地点层级、GeoJSON 环和 Journal/Photo 引用关系。Node 脚本用 TypeScript AST 读取 MDX 中导出的静态 `frontmatter`，对 PhotoEmbed/PhotoGallery 只接受明确的静态属性，不执行文章代码，也不再维护另一份字段协议。
+迁移记录：`tashkent-1` 的主归档地点为 `tashkent`（27 张照片中 23 张属于该地）；`tashkent-2` 的主归档地点为 `parkent`（26 张照片中 15 张属于该地）。两篇文章的照片仍保留各自实际 `placeId`，没有复制或改写照片事实。
 
-Place 可以通过可选的 `parentId` 表达包含关系，例如 `Big Almaty Lake → Almaty`。线路型 Place（例如 `Tashkent—Samarkand`）用于照片发生在移动途中、无法合理归到单一城市的场景；它的路线几何是归档和展示用的近似线，不代表精确 GPS 轨迹。Journal 的 `placeIds` 表达文章涉及的地点集合，文章内每张 Photo 的 `placeId` 必须属于这个集合。地图 GeoJSON 会按层级排序，让父区域先绘制、子区域后绘制；区域使用立体面状图层，线路使用独立的高亮线图层。重叠区域的悬停和点击始终优先选择层级更深的地点。校验器会检查父级存在且层级无循环，避免依赖文件名顺序产生歧义。
+内容校验分为两个边界：浏览器端用共享 Schema 的 `safeParse` 校验导入 JSON 和静态内容，并把错误转换成带文件/字段路径的提示；正式 ArticleDraft 协议要求标题和一个地点名称，IndexedDB StoredDraft 协议允许编辑中的空标题或空地点，只接受当前格式，不迁移旧数据。草稿恢复、串行保存和过期写入淘汰由 `useArticleDraftPersistence` 统一处理。Node 端的 `npm run content:validate` 读取整个仓库，用同一份 Schema 校验单文件，再由 `src/lib/content-validation.ts` 检查 ID 唯一性、地点层级、GeoJSON 环和 Journal/Photo 引用关系。Node 脚本用 TypeScript AST 读取 MDX 中导出的静态 `frontmatter`，对 PhotoEmbed/PhotoGallery 只接受明确的静态属性，不执行文章代码，也不再维护另一份字段协议。
+
+Place 可以通过可选的 `parentId` 表达包含关系，例如 `Big Almaty Lake → Almaty`。线路型 Place（例如 `Tashkent—Samarkand`）用于照片发生在移动途中、无法合理归到单一城市的场景；它的路线几何是归档和展示用的近似线，不代表精确 GPS 轨迹。Journal 的 `placeId` 是唯一主归档地点，文章内每张 Photo 的 `placeId` 则独立记录实际拍摄地点，因此跨地点叙事不需要把 Journal 变成一对多关系。地图 GeoJSON 会按层级排序，让父区域先绘制、子区域后绘制；区域使用立体面状图层，线路使用独立的高亮线图层。重叠区域的悬停和点击始终优先选择层级更深的地点。校验器会检查父级存在且层级无循环，避免依赖文件名顺序产生歧义。
 
 ## 图片与发布边界
 
 Capture 的草稿和 Base64 图片仅保存在当前浏览器 IndexedDB；它不直接写仓库或上传 R2。正式照片以一份清理 EXIF 后的全尺寸 JPEG 进入 `jewelroam-media`。`ResponsiveImage` 负责 Journal 和 Destinations 中的 Cloudflare Image Transformations 响应式缩略图，图片详情页使用 `OriginalImage` 直接读取 R2 原图。每张正式照片 metadata 的 `rights.licenseUrl` 固定为 `https://jewelroam.github.io/rights`；`content/inbox/` 是本地素材和中间产物目录，不属于运行时内容源；除非用户明确要求，不应提交或删除其中的素材。
 
-Capture 与 Journal JSON 导出共用 `schemaVersion: 3` 的文章协议，标题、地点和创建日期是导出必填项，摘要可选；`places` 保存地点 ID 与名称，正式 Journal frontmatter 使用 `placeIds` 数组，并以 `mediaLayout: "inline" | "gallery"` 区分展示方式。对用户和 Agent 来说，一篇文章仍然是一个可导入/导出的 JSON 文件；仓库内部没有引入额外的 sidecar 元数据格式。Capture 和 Journal JSON 导出共用 `useExportTask`、`ExportDialog` 和进度面板，以扁平阶段依次显示校验、读取图片、解码图片、整理 JSON 和准备下载，失败时保留具体错误状态，不生成静默缺图文件。普通 JSON 下载采用分块 Blob；估算超过 64 MB 时，在支持 File System Access API 的浏览器中改用原生文件流，避免同时保留完整 Blob 和大量 Base64 分块，不支持时会明确提示文件过大。Journal 的视觉导出先生成统一页面 DOM，再按本次弹窗选择写入 PNG/JPG ZIP 或 PDF；比例切分支持 `1:1`、`2:3`、`3:4`、`9:16`，张数切分通过滑动条选择 1–18 张，并按文章块数量自动收窄上限。连续图片会使用 justified layout 计算 2/3 张一组的几何位置，不裁切图片。导出进度按扁平阶段依次显示图片读取、图片解码、排版、渲染和打包。视觉导出必须读取图片像素，因此要求 R2 CORS 允许站点来源。
+`content/inbox/` 中既有的旧版导出不做隐式迁移；协议升级后必须重新导出当前格式，避免把数组地点字段误当成单一主地点。
+
+Capture 与 Journal JSON 导出共用 `schemaVersion: 4` 的文章协议，标题、地点名称和创建日期是导出必填项，摘要可选；草稿使用单数 `placeId` 与 `placeName`，正式 Journal frontmatter 使用单数 `placeId`，并以 `mediaLayout: "inline" | "gallery"` 区分展示方式。尚未建立正式 Place 时草稿的 `placeId` 可以为空，发布前必须补全。对用户和 Agent 来说，一篇文章仍然是一个可导入/导出的 JSON 文件；仓库内部没有引入额外的 sidecar 元数据格式。Capture 和 Journal JSON 导出共用 `useExportTask`、`ExportDialog` 和进度面板，以扁平阶段依次显示校验、读取图片、解码图片、整理 JSON 和准备下载，失败时保留具体错误状态，不生成静默缺图文件。普通 JSON 下载采用分块 Blob；估算超过 64 MB 时，在支持 File System Access API 的浏览器中改用原生文件流，避免同时保留完整 Blob 和大量 Base64 分块，不支持时会明确提示文件过大。Journal 的视觉导出先生成统一页面 DOM，再按本次弹窗选择写入 PNG/JPG ZIP 或 PDF；比例切分支持 `1:1`、`2:3`、`3:4`、`9:16`，张数切分通过滑动条选择 1–18 张，并按文章块数量自动收窄上限。连续图片会使用 justified layout 计算 2/3 张一组的几何位置，不裁切图片。导出进度按扁平阶段依次显示图片读取、图片解码、排版、渲染和打包。视觉导出必须读取图片像素，因此要求 R2 CORS 允许站点来源。
 
 发布顺序固定为：本地确认内容与发行文件，上传并验证 R2 对象，写入正式内容记录，运行校验和构建，最后提交并推送 GitHub。仓库不区分 staging 与 production。
 

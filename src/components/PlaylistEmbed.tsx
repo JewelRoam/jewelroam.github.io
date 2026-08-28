@@ -1,3 +1,5 @@
+import { ArrowUpRight, Music2 } from "lucide-react";
+
 type PlaylistItem = {
   title: string;
   href: string;
@@ -50,13 +52,13 @@ function ExternalPlaylistLink({ item }: { item: PlaylistItem }) {
     >
       <span className="playlist-link-row__title">
         <span aria-hidden="true" className="playlist-link-row__mark">
-          ♫
+          <Music2 size={16} strokeWidth={1.6} />
         </span>
         {item.title}
       </span>
       <span className="playlist-link-row__platform">
         {item.platform}
-        <span aria-hidden="true">↗</span>
+        <ArrowUpRight size={15} strokeWidth={1.6} aria-hidden="true" />
       </span>
     </a>
   );
@@ -76,11 +78,11 @@ export function PlaylistEmbed({ item }: { item: PlaylistItem }) {
     <figure className="playlist-embed-frame">
       <figcaption className="playlist-embed-frame__caption">
         <span className="playlist-embed-frame__title">
-          <span aria-hidden="true">♫</span>
+          <Music2 size={16} strokeWidth={1.6} aria-hidden="true" />
           {item.title}
         </span>
         <a href={item.href} target="_blank" rel="noreferrer">
-          {item.platform} <span aria-hidden="true">↗</span>
+          {item.platform} <ArrowUpRight size={14} strokeWidth={1.6} aria-hidden="true" />
         </a>
       </figcaption>
       <iframe

@@ -1,6 +1,6 @@
 import { Navigate, useParams } from "react-router-dom";
 import { ImageFrame } from "../components/ImageFrame";
-import { OriginalImage } from "../components/ResponsiveImage";
+import { PhotoLoupe } from "../components/PhotoLoupe";
 import { getPhoto, getPlace } from "../lib/content";
 
 export function PhotoPage() {
@@ -12,24 +12,22 @@ export function PhotoPage() {
   const place = getPlace(photo.placeId);
 
   return (
-    <article className="page-shell">
-      <ImageFrame>
-        <OriginalImage
+    <article className="page-shell photo-detail">
+      <ImageFrame className="photo-detail__frame">
+        <PhotoLoupe
           photo={photo}
           priority
           className="media-frame__image photo-page__image"
         />
       </ImageFrame>
-      <div className="mt-7 flex flex-wrap justify-between gap-5 border-t border-[#20211f]/10 pt-5 text-sm">
+      <div className="photo-detail__meta">
         <div>
-          <h1 className="font-serif text-2xl">{photo.title}</h1>
-          <p className="mt-2 text-[#20211f]/55">
+          <h1 className="photo-detail__title">{photo.title}</h1>
+          <p className="photo-detail__place">
             {place?.name ?? "未标注地点"} · {photo.takenAt}
           </p>
         </div>
-        <p className="max-w-xs text-right text-[#20211f]/55">
-          {photo.rights.notice}
-        </p>
+        <p className="photo-detail__rights">{photo.rights.notice}</p>
       </div>
     </article>
   );

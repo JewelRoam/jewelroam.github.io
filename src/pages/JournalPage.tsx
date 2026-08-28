@@ -2,7 +2,7 @@ import { createPortal } from "react-dom";
 import { useEffect, useRef, useState } from "react";
 import { Link, Navigate, useParams } from "react-router-dom";
 import { ArticleExportMenu } from "../components/ArticleExportMenu";
-import { getJournal, getPlaces } from "../lib/content";
+import { getJournal, getPlace } from "../lib/content";
 
 export function JournalPage() {
   const slug = decodeURIComponent(useParams().slug || "");
@@ -17,12 +17,12 @@ export function JournalPage() {
   if (!journal) return <Navigate to="/journals" replace />;
 
   const Content = journal.default;
-  const journalPlaces = getPlaces(journal.frontmatter.placeIds);
+  const journalPlace = getPlace(journal.frontmatter.placeId);
   const exportMenu = (
     <ArticleExportMenu
       slug={journal.frontmatter.slug}
       frontmatter={journal.frontmatter}
-      placeNames={journalPlaces.map((place) => place.name)}
+      placeName={journalPlace?.name ?? journal.frontmatter.placeId}
       getArticle={() => articleRef.current}
     />
   );
@@ -32,29 +32,31 @@ export function JournalPage() {
       {headerActions
         ? createPortal(<div className="journal-actions">{exportMenu}</div>, headerActions)
         : null}
-      <article ref={articleRef} data-journal-article="true" className="journal-article px-6 pb-20 pt-16 lg:px-10 lg:pt-16">
-      <div className="journal-header">
-        <p className="text-xs text-[#20211f]/50">
-          创建于{" "}
-          <time dateTime={journal.frontmatter.createdAt}>
-            {journal.frontmatter.createdAt}
-          </time>
-          {journalPlaces.map((place) => (
-            <span key={place.id}>
-              {" "}·{" "}
-              <Link className="underline underline-offset-4" to={`/destinations/${place.slug}`}>
-                {place.name}
-              </Link>
-            </span>
-          ))}
-        </p>
-      </div>
-      <h1 className="mt-4 font-serif text-5xl leading-tight">
-        {journal.frontmatter.title}
-      </h1>
-      <div className="prose-jewel mt-10">
-        <Content />
-      </div>
+      <article ref={articleRef} data-journal-article="true" className="journal-article page-shell">
+        <div className="journal-intro">
+          <div className="journal-header">
+            <p className="journal-meta">
+              创建于{" "}
+              <time dateTime={journal.frontmatter.createdAt}>
+                {journal.frontmatter.createdAt}
+              </time>
+              {journalPlace ? (
+                <span>
+                  {" "}·{" "}
+                  <Link className="underline underline-offset-4" to={`/destinations/${journalPlace.slug}`}>
+                    {journalPlace.name}
+                  </Link>
+                </span>
+              ) : null}
+            </p>
+          </div>
+          <h1 className="journal-title font-serif">
+            {journal.frontmatter.title}
+          </h1>
+        </div>
+        <div className="prose-jewel">
+          <Content />
+        </div>
       </article>
     </>
   );

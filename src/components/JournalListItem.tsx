@@ -1,30 +1,40 @@
 import { Link } from "react-router-dom";
+import { ArrowUpRight } from "lucide-react";
 import type { JournalFrontmatter } from "../lib/content";
 
 type JournalListItemProps = {
   journal: JournalFrontmatter;
-  placeNames?: string[];
+  placeName?: string;
   headingLevel?: "h2" | "h3";
   className?: string;
 };
 
 export function JournalListItem({
   journal,
-  placeNames = [],
+  placeName,
   headingLevel = "h2",
   className = "py-7 first:pt-0",
 }: JournalListItemProps) {
   const Heading = headingLevel;
+  const year = journal.createdAt.slice(0, 4);
 
   return (
-    <Link to={`/journals/${journal.slug}`} className={`block ${className}`}>
-      <p className="text-xs text-[#20211f]/50">
-        创建于{" "}
-        <time dateTime={journal.createdAt}>{journal.createdAt}</time>
-        {placeNames.length ? ` · ${placeNames.join("、")}` : ""}
-      </p>
-      <Heading className="mt-2 font-serif text-2xl">{journal.title}</Heading>
-      <p className="mt-2 leading-7 text-[#20211f]/65">{journal.description}</p>
+    <Link to={`/journals/${journal.slug}`} className={`journal-list-item ${className}`}>
+      <time className="journal-list-item__year" dateTime={journal.createdAt} aria-label={`创建于${year}年`}>
+        {year}
+      </time>
+      <div className="journal-list-item__content">
+        <p className="journal-list-item__meta">
+          创建于{" "}
+          <time dateTime={journal.createdAt}>{journal.createdAt}</time>
+          {placeName ? ` · ${placeName}` : ""}
+        </p>
+        <Heading className="journal-list-item__title font-serif">{journal.title}</Heading>
+        <p className="journal-list-item__description">{journal.description}</p>
+      </div>
+      <span className="journal-list-item__arrow" aria-hidden="true">
+        <ArrowUpRight size={17} strokeWidth={1.6} />
+      </span>
     </Link>
   );
 }

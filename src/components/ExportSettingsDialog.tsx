@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { X } from "lucide-react";
 import type { ExportFormat, ExportRatio, ExportSettings } from "../lib/article-export";
 
 type ExportSettingsPanelProps = {
@@ -47,7 +48,9 @@ export function ExportSettingsPanel({ maxPageCount, mode, onClose, onExport }: E
           <p className="export-dialog__eyebrow">EXPORT</p>
           <h2 id="export-settings-title">{draft.mode === "ratio" ? "比例切分" : "张数切分"}</h2>
         </div>
-        <button type="button" className="export-dialog__close" onClick={onClose} aria-label="关闭设置">×</button>
+        <button type="button" className="export-dialog__close" onClick={onClose} aria-label="关闭设置">
+          <X size={17} strokeWidth={1.7} aria-hidden="true" />
+        </button>
       </div>
 
       <fieldset className="export-dialog__section">
@@ -101,7 +104,7 @@ export function ExportSettingsPanel({ maxPageCount, mode, onClose, onExport }: E
             />
             <output>{draft.mode === "count" ? draft.pageCount : 1} 张</output>
           </div>
-          <p className="export-dialog__hint">可选 1–{countLimit} 张，文章会按内容高度均衡分配。</p>
+          <p className="export-dialog__hint">可选 1-{countLimit} 张，文章会按内容高度均衡分配。</p>
         </fieldset>
       )}
 

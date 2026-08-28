@@ -78,20 +78,14 @@ const requiredDraftFields = [
 for (const field of requiredDraftFields) {
   if (!(field in draft)) throw new Error(`Draft is missing required field: ${field}`);
 }
-if (![2, 3].includes(draft.schemaVersion) || draft.kind !== "journal") throw new Error("Draft must use schemaVersion 3 and kind journal");
+if (draft.schemaVersion !== 4 || draft.kind !== "journal") throw new Error("Draft must use schemaVersion 4 and kind journal");
 if (!['inline', 'gallery'].includes(draft.mediaLayout)) throw new Error("Draft mediaLayout must be inline or gallery");
 if (!Array.isArray(draft.gallery)) throw new Error("Draft gallery must be an array");
 for (const field of ["title", "description", "createdAt", "updatedAt", "exportedAt", "html"]) {
   if (typeof draft[field] !== "string") throw new Error(`Draft field ${field} must be a string`);
 }
-const draftPlaces = draft.schemaVersion === 3
-  ? draft.places
-  : [{ id: draft.placeId, name: draft.placeName }];
-if (!Array.isArray(draftPlaces) || !draftPlaces.length) throw new Error("Draft must contain at least one place");
-for (const [index, place] of draftPlaces.entries()) {
-  if (!place || typeof place !== "object" || typeof place.id !== "string" || typeof place.name !== "string" || !place.name.trim()) {
-    throw new Error(`Draft places[${index}] must contain an id and name`);
-  }
+if (typeof draft.placeId !== "string" || typeof draft.placeName !== "string" || !draft.placeName.trim()) {
+  throw new Error("Draft must contain placeId and a non-empty placeName");
 }
 for (const [index, image] of draft.gallery.entries()) {
   if (!image || typeof image !== "object") throw new Error(`Draft gallery[${index}] must be an object`);
@@ -103,11 +97,8 @@ for (const [index, image] of draft.gallery.entries()) {
 if (draft.mediaLayout === "inline" && draft.gallery.length) throw new Error("Inline drafts must keep gallery empty");
 const overridePlaceId = option("--place-id", "");
 const overridePlaceName = option("--place-name", "");
-const places = overridePlaceId
-  ? [{ id: overridePlaceId, name: overridePlaceName || draftPlaces[0].name }]
-  : draftPlaces.map((place) => ({ id: place.id, name: place.name.trim() }));
-const placeIds = places.filter((place) => place.id).map((place) => place.id);
-const placeNames = places.map((place) => place.name);
+const placeId = overridePlaceId || draft.placeId;
+const placeName = (overridePlaceName || draft.placeName).trim();
 const mediaLayout = draft.mediaLayout;
 const gallery = draft.gallery;
 
@@ -151,8 +142,7 @@ const sourceHtml = `${draft.html}${galleryHtml}`.replace(/<img\b[^>]*>/gi, (tag)
     title: "",
     alt: "",
     takenAt: "",
-    placeIds,
-    placeNames,
+    placeId: "",
     // Rights stay pending in drafts; confirmed published records use the project Rights page.
     rights: { notice: "", licenseUrl: "" },
   });
@@ -171,11 +161,12 @@ const body = mediaLayout === "gallery"
   : bodySource.replace(/@@IMAGE_(\d{2})@@/g, (_, index) => `\n<PhotoEmbed id="${slug}-${index}" />\n`);
 
 const source = {
-  schemaVersion: 3,
+  schemaVersion: 4,
   kind: draft.kind,
   title: draft.title,
   description: draft.description,
-  places,
+  placeId,
+  placeName,
   createdAt: draft.createdAt,
   updatedAt: draft.updatedAt,
   exportedAt: draft.exportedAt,
@@ -198,11 +189,16 @@ const manifest = {
   description: source.description,
   createdAt: source.createdAt,
   updatedAt: source.updatedAt,
-  proposedPlaces: source.places.map((place) => ({ ...place, id: place.id || null, status: place.id ? "existing" : "needs-place-record" })),
+  proposedPlace: {
+    id: source.placeId || null,
+    name: source.placeName,
+    status: source.placeId ? "existing" : "needs-place-record",
+  },
   images: images.map((image) => ({ ...image, id: `${slug}-${String(image.index).padStart(2, "0")}` })),
   missingFields: [
     ...(source.description ? [] : ["article.description"]),
-    ...(source.places.every((place) => place.id) ? [] : ["article.places[].id"]),
+    ...(source.placeId ? [] : ["article.placeId"]),
+    ...(source.placeName ? [] : ["article.placeName"]),
     "images[].title",
     "images[].alt",
     "images[].takenAt",
@@ -219,7 +215,7 @@ const frontmatter = [
   `  createdAt: ${JSON.stringify(source.createdAt)},`,
   `  updatedAt: ${JSON.stringify(source.updatedAt)},`,
   `  mediaLayout: ${JSON.stringify(source.mediaLayout)},`,
-  `  placeIds: ${JSON.stringify(source.places.filter((place) => place.id).map((place) => place.id))}`,
+  `  placeId: ${JSON.stringify(source.placeId)}`,
   "};",
   "",
   mediaLayout === "gallery"

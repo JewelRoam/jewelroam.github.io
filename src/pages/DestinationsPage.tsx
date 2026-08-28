@@ -25,11 +25,23 @@ export function DestinationsPage() {
         }}
       />
       <div className="destinations-stage__intro">
-        <h1 className="font-serif text-5xl">Destinations</h1>
-        <p className="mt-5 leading-7 text-[#20211f]/65">
+        <h1 className="page-title font-serif">Destinations</h1>
+        <p className="page-intro">
           在地图上回看那些曾经停留的地方。
         </p>
       </div>
+      <nav className="destinations-stage__fallback" aria-label="目的地列表">
+        <h2>Browse destinations</h2>
+        <ul>
+          {destinations.map((place) => (
+            <li key={place.id}>
+              <a href={`/destinations/${place.slug}`}>
+                {place.name}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </nav>
     </section>
   );
 }

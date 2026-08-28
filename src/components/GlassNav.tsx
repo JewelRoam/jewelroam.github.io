@@ -1,4 +1,5 @@
 import { NavLink } from "react-router-dom";
+import { Menu, X } from "lucide-react";
 import { GlassMenu } from "./GlassMenu";
 
 type NavItem = {
@@ -27,12 +28,9 @@ export function GlassNav() {
         closeLabel="Close navigation"
         variant="primary"
         menuId="primary-navigation"
-        icon={
-          <span className="glass-menu__icon" aria-hidden="true">
-            <span />
-            <span />
-          </span>
-        }
+        icon={(open) => open
+          ? <X size={18} strokeWidth={1.7} aria-hidden="true" />
+          : <Menu size={18} strokeWidth={1.7} aria-hidden="true" />}
       >
         {(open, close) => (
           <>

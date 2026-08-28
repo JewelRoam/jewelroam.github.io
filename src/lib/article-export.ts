@@ -28,7 +28,7 @@ export type ExportProgress =
 export type JournalExportInput = {
   slug: string;
   frontmatter: JournalFrontmatter;
-  placeNames?: string[];
+  placeName?: string;
   article: HTMLElement;
 };
 
@@ -335,7 +335,7 @@ async function prepareArticleClone(article: HTMLElement, onProgress?: ExportProg
 }
 
 async function createJournalDraft(
-  { slug, frontmatter, placeNames, article }: JournalExportInput,
+  { slug, frontmatter, placeName, article }: JournalExportInput,
   onProgress?: ExportProgressHandler,
 ): Promise<ArticleDraft> {
   const prose = article.querySelector<HTMLElement>(".prose-jewel");
@@ -355,11 +355,12 @@ async function createJournalDraft(
 
   const html = layout === "inline" ? replaceArticleMediaWithImages(clone.innerHTML) : clone.innerHTML;
   return articleDraftSchema.parse({
-    schemaVersion: 3,
+    schemaVersion: 4,
     kind: "journal",
     title: frontmatter.title,
     description: frontmatter.description,
-    places: frontmatter.placeIds.map((id, index) => ({ id, name: placeNames?.[index] ?? id })),
+    placeId: frontmatter.placeId,
+    placeName: placeName ?? frontmatter.placeId,
     createdAt: frontmatter.createdAt,
     updatedAt: frontmatter.updatedAt,
     exportedAt: new Date().toISOString(),
@@ -382,7 +383,11 @@ function exportBlocks(article: HTMLElement) {
   const prose = article.querySelector<HTMLElement>(".prose-jewel");
   if (!prose) return [];
   const source = [...article.children].flatMap((child) =>
-    child === prose ? [...prose.children] : [child],
+    child === prose
+      ? [...prose.children]
+      : child.classList.contains("journal-intro")
+        ? [...child.children]
+        : [child],
   );
   return source.flatMap((element) => {
     if (!element.classList.contains("article-media--gallery")) return [element];

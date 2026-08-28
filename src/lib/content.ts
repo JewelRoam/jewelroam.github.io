@@ -69,10 +69,6 @@ export function getPlace(idOrSlug: string) {
   return places.find((place) => place.id === idOrSlug || place.slug === idOrSlug);
 }
 
-export function getPlaces(ids: string[]) {
-  return ids.map((id) => getPlace(id)).filter((place): place is Place => Boolean(place));
-}
-
 export function getPhoto(id: string) {
   return photos.find((photo) => photo.id === id);
 }
@@ -86,5 +82,5 @@ export function getPlacePhotos(placeId: string) {
 }
 
 export function getPlaceJournals(placeId: string) {
-  return journals.filter((journal) => journal.frontmatter.placeIds.includes(placeId));
+  return journals.filter((journal) => journal.frontmatter.placeId === placeId);
 }
