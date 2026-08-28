@@ -34,7 +34,7 @@ http://127.0.0.1:5173/capture
 
 点击“导出 JSON”会下载一个 `schemaVersion: 4` 的 JSON 文件，其中包含 `createdAt`、真实 `updatedAt`、单数 `placeId`/`placeName`、`mediaLayout`、正文和图片。标题、地点名称和创建日期是导出必填项，尚未建立正式 Place 时 `placeId` 可以暂为空。摘要仍然可选。Capture 和 Journal 的 JSON 导出都使用同一个导出进度弹窗，按“校验 → 读取图片 → 解码图片 → 整理 JSON → 准备下载”展示状态；如果地点、文章协议、图片读取/解码、序列化或下载失败，会保留错误弹窗，不会静默生成缺字段或缺图片的文件。Capture 可以重新导入同一格式；旧版 `schemaVersion` 或数组 `places` 文件会被严格拒绝。Journal 页面也使用完全相同的格式导出。把文件交给 agent 后可以生成正式 MDX、图片 manifest 和 R2 发布清单。
 
-Journal 的视觉导出先生成统一的导出页面，再分别写入图片 ZIP 或 PDF，因此不同格式共用字号、图片间距和智能图片组排版。导出菜单只提供“比例切分”“张数切分”和“导出 JSON”；前两项会打开当前操作专用的居中弹窗，比例切分支持 `1:1`、`2:3`、`3:4`、`9:16`，张数切分通过滑动条在 1–18 张内选择，短文章会按可用内容块自动收窄上限，格式均可选择 PNG、JPG 或 PDF。设置只对本次导出生效，不会保存状态。导出过程中会显示居中的进度弹窗，按扁平阶段依次报告图片读取、图片解码、排版、渲染和打包。视觉导出需要图片域名允许浏览器跨域读取。
+Journal 的视觉导出先生成统一的导出页面，再分别写入图片 ZIP 或 PDF，因此不同格式共用字号、图片间距和智能图片组排版。正文网页与视觉导出共用同一个比例几何函数，但分别使用阅读和固定画布参数；网页中的连续图片使用显式 `PhotoSequence`，不会在运行时扫描并改写已经渲染的正文。视觉导出保持原始图片顺序，在分页前将连续图片按每组最多六张排版，不直接复用网页的响应式 DOM。导出菜单只提供“比例切分”“张数切分”和“导出 JSON”；前两项会打开当前操作专用的居中弹窗，比例切分支持 `1:1`、`2:3`、`3:4`、`9:16`，张数切分通过滑动条在 1–18 张内选择，短文章会按可用内容块自动收窄上限，格式均可选择 PNG、JPG 或 PDF。设置只对本次导出生效，不会保存状态。导出过程中会显示居中的进度弹窗，按扁平阶段依次报告图片读取、图片解码、排版、渲染和打包。视觉导出需要图片域名允许浏览器跨域读取。
 
 导入时浏览器会先解析 JSON，再按严格的共享文章 Schema 检查字段和协议关系；未知字段、错误日期、地点状态不一致或 inline/gallery 数据冲突都会被拒绝，错误会显示具体字段路径，不会覆盖当前草稿。本地 IndexedDB 使用单独的可缺省草稿 Schema，只服务于自动保存和恢复，不把编辑中的空标题或空地点误判为正式文章。Capture 和 Journal 的 JSON 下载采用分块 Blob，避免多张 Base64 图片合并成单个超大字符串时触发浏览器长度或内存限制。上线前的 `npm run content:validate` 是仓库级最终检查：它会读取所有 Place、Photo 和 Journal，检查字段、唯一 ID、地点层级、GeoJSON 环以及文章中的图片引用。两者使用同一份 Schema，但浏览器不会承担整个内容库的关系审计。
 
@@ -81,7 +81,7 @@ agent 应该按以下顺序工作：
 
 ## 图片引用约定
 
-编辑器导出的草稿使用内嵌图片数据，不写 R2 URL。正式 MDX 阶段由 agent 将图片转换成项目组件引用：
+编辑器导出的草稿使用内嵌图片数据，不写 R2 URL。正式 MDX 阶段由 agent 将独立图片转换成 `PhotoEmbed`，把两段文字间连续出现的多张图片转换成 `PhotoSequence`；图片仍只在 `content/photos` 中保留一份记录。Journal 导出 JSON 时会把序列中的每张图片按原顺序写回正文；重新执行项目 staging 脚本时，再根据相邻图片占位符生成显式 `PhotoSequence`，JSON 协议不额外保存一套展示分组字段：
 
 发布阶段由 agent 确保 `content/photos/*.json` 中的 `id`、唯一 `placeId`、尺寸、替代文本、R2 路径和版权字段完整；每篇 Journal 的 frontmatter 必须包含一个 `placeId`，并确认文章主地点。每张图片仍单独记录实际 `placeId`，跨地点文章无需复制照片或虚构主地点。组件会统一生成：
 
@@ -90,6 +90,14 @@ import { PhotoEmbed } from "../../src/components/PhotoEmbed";
 
 <PhotoEmbed id="2026-coast-window" caption="海岸线旁的车窗" />
 ```
+
+```mdx
+import { PhotoSequence } from "../../src/components/PhotoSequence";
+
+<PhotoSequence ids={["2026-coast-01", "2026-coast-02", "2026-coast-03"]} />
+```
+
+`PhotoSequence` 至少包含两张图片，保持原始顺序；单张图片始终使用 `PhotoEmbed`。桌面端按真实宽高比排版，窄屏恢复单列。独立画廊文章继续使用一个 `PhotoGallery`，不与正文照片序列混用。三种组件只表达展示关系，引用的仍是同一份 Photo metadata，不会复制图片或改变照片自己的 `placeId`。
 
 ```text
 https://images.zer.dpdns.org/cdn-cgi/image/width=640,format=auto,quality=82/...

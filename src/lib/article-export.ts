@@ -1,7 +1,7 @@
 import type { JournalFrontmatter } from "./content";
 import { articleDraftSchema, type ArticleDraft, type ArticleImage } from "./content-schema";
 import { replaceArticleMediaWithImages } from "./article-document";
-import justifiedLayout from "justified-layout";
+import { createJustifiedGeometry } from "./photo-layout";
 
 export type ExportRatio = "1:1" | "2:3" | "3:4" | "9:16";
 export type ExportFormat = "png" | "jpg" | "pdf";
@@ -450,13 +450,7 @@ function imageAspectRatio(image: HTMLImageElement) {
 }
 
 function createImageGroup(images: HTMLImageElement[], contentWidth: number) {
-  const geometry = justifiedLayout(images.map(imageAspectRatio), {
-    containerWidth: contentWidth,
-    targetRowHeight: Math.max(260, Math.min(430, contentWidth / 2.5)),
-    boxSpacing: 20,
-    containerPadding: 0,
-    showWidows: true,
-  });
+  const geometry = createJustifiedGeometry(images.map(imageAspectRatio), contentWidth, "export");
   const group = document.createElement("div");
   group.className = "article-export-image-group";
   const hasCaptions = images.some((image) => image.closest("figure")?.querySelector("figcaption")?.textContent?.trim());
@@ -659,7 +653,7 @@ async function renderPages(
     const height = Math.ceil(page.getBoundingClientRect().height);
     images.push({
       image: await render(page, {
-        backgroundColor: "#f5f3ee",
+        backgroundColor: "#f8f4eb",
         cacheBust: false,
         height,
         pixelRatio: 1,

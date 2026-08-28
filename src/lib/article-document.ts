@@ -51,11 +51,15 @@ export function appendImagesToHtml(html: string, images: ArticleImage[]) {
 export function replaceArticleMediaWithImages(html: string) {
   const body = parseHtml(html);
   body.querySelectorAll(".article-media").forEach((media) => {
-    const img = media.querySelector("img");
-    if (!img) return media.remove();
-    const paragraph = document.createElement("p");
-    paragraph.append(img.cloneNode(true));
-    media.replaceWith(paragraph);
+    const images = [...media.querySelectorAll("img")];
+    if (!images.length) return media.remove();
+    const fragment = document.createDocumentFragment();
+    for (const image of images) {
+      const paragraph = document.createElement("p");
+      paragraph.append(image.cloneNode(true));
+      fragment.append(paragraph);
+    }
+    media.replaceWith(fragment);
   });
   return body.innerHTML;
 }

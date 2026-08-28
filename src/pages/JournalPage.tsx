@@ -33,7 +33,7 @@ export function JournalPage() {
         ? createPortal(<div className="journal-actions">{exportMenu}</div>, headerActions)
         : null}
       <article ref={articleRef} data-journal-article="true" className="journal-article page-shell">
-        <div className="journal-intro">
+        <div className="journal-intro page-header">
           <div className="journal-header">
             <p className="journal-meta">
               创建于{" "}
@@ -54,7 +54,7 @@ export function JournalPage() {
             {journal.frontmatter.title}
           </h1>
         </div>
-        <div className="prose-jewel">
+        <div className="page-content prose-jewel">
           <Content />
         </div>
       </article>

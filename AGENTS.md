@@ -35,6 +35,8 @@ R2 的账户、bucket、图片域名和 Image Transformations 开通步骤见 [`
 - `src/lib/content-validation.ts`：不依赖运行环境的字段诊断和跨文件引用检查。
 - `src/lib/media.ts`：唯一的 Cloudflare 图片 URL 生成入口。
 
+正式 inline Journal 用 `PhotoEmbed` 表示单张图片、用 `PhotoSequence` 表示文字块之间至少两张连续图片；gallery Journal 使用一个 `PhotoGallery`。这些组件只引用 `content/photos` 中的同一份记录，保持图片顺序，不在运行时推断分组或兼容旧布局。
+
 原始 RAW、编辑工程和高分辨率母版不应提交到此仓库或公开 R2 bucket。
 
 图片发布遵循“本地确认 → 上传 R2 → 检查 URL → 提交 manifest → 部署站点”的顺序；不要让 GitHub 先发布一个尚未上传 R2 的图片路径。

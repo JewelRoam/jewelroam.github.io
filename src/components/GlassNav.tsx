@@ -22,10 +22,11 @@ const navItems = [
 
 export function GlassNav() {
   return (
-    <nav aria-label="Primary navigation">
+    <nav aria-label="页面导航">
       <GlassMenu
-        label="Open navigation"
-        closeLabel="Close navigation"
+        label="打开页面导航"
+        closeLabel="关闭页面导航"
+        tooltip="页面导航"
         variant="primary"
         menuId="primary-navigation"
         icon={(open) => open

@@ -20,6 +20,10 @@ Formal MDX under `content/journals/*.mdx` uses:
 
 An editor export uses `schemaVersion: 4` and singular `placeId` / `placeName` fields. `placeId` may be empty for a newly named destination that still needs a formal Place record; confirm the destination, create its Place record with coordinates and geometry, then replace the empty ID before publication. Older schema versions and the former `places` field are rejected.
 
+## MDX photo references
+
+Formal inline Journals use `PhotoEmbed` for one independent image and `PhotoSequence` for at least two consecutive images between text blocks. Gallery Journals use one `PhotoGallery`. All referenced IDs must resolve to the same canonical records under `content/photos/`; grouping changes presentation only and never duplicates Photo metadata or changes a Photo's `placeId`.
+
 ## Place record
 
 Each `content/places/*.json` record uses:

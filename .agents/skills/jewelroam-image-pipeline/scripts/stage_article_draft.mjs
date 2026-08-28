@@ -156,9 +156,18 @@ const bodySource = sourceHtml
   .replace(/\n{3,}/g, "\n\n")
   .trim();
 const imageIds = images.map((image) => `${slug}-${String(image.index).padStart(2, "0")}`);
+function inlineMdx(source) {
+  return source
+    .replace(/@@IMAGE_\d{2}@@(?:\s*@@IMAGE_\d{2}@@)+/g, (sequence) => {
+      const ids = [...sequence.matchAll(/@@IMAGE_(\d{2})@@/g)]
+        .map(([, index]) => `${slug}-${index}`);
+      return `\n<PhotoSequence ids={${JSON.stringify(ids)}} />\n`;
+    })
+    .replace(/@@IMAGE_(\d{2})@@/g, (_, index) => `\n<PhotoEmbed id="${slug}-${index}" />\n`);
+}
 const body = mediaLayout === "gallery"
   ? `${bodySource.replace(/@@IMAGE_(\d{2})@@/g, "").trim()}\n\n<PhotoGallery ids={${JSON.stringify(imageIds)}} />`
-  : bodySource.replace(/@@IMAGE_(\d{2})@@/g, (_, index) => `\n<PhotoEmbed id="${slug}-${index}" />\n`);
+  : inlineMdx(bodySource);
 
 const source = {
   schemaVersion: 4,
@@ -220,7 +229,10 @@ const frontmatter = [
   "",
   mediaLayout === "gallery"
     ? 'import { PhotoGallery } from "../../../src/components/ArticleMedia";'
-    : 'import { PhotoEmbed } from "../../../src/components/PhotoEmbed";',
+    : [
+        body.includes("<PhotoEmbed") ? 'import { PhotoEmbed } from "../../../src/components/PhotoEmbed";' : "",
+        body.includes("<PhotoSequence") ? 'import { PhotoSequence } from "../../../src/components/PhotoSequence";' : "",
+      ].filter(Boolean).join("\n"),
   "",
 ].join("\n");
 

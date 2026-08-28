@@ -1,4 +1,7 @@
+import { useEffect, useState } from "react";
 import { ArrowUpRight, Music2 } from "lucide-react";
+
+const PLAYER_SLOW_TIMEOUT = 6000;
 
 type PlaylistItem = {
   title: string;
@@ -65,10 +68,24 @@ function ExternalPlaylistLink({ item }: { item: PlaylistItem }) {
 }
 
 export function PlaylistEmbed({ item }: { item: PlaylistItem }) {
+  const [shouldLoad, setShouldLoad] = useState(false);
+  const [status, setStatus] = useState<"loading" | "ready" | "slow" | "error">("loading");
   const embedUrl =
     item.platform === "Apple Music"
       ? getAppleMusicEmbedUrl(item.href)
       : getNeteaseMusicEmbedUrl(item.href);
+
+  useEffect(() => {
+    if (!embedUrl) return undefined;
+    const frame = window.requestAnimationFrame(() => setShouldLoad(true));
+    return () => window.cancelAnimationFrame(frame);
+  }, [embedUrl]);
+
+  useEffect(() => {
+    if (!embedUrl || !shouldLoad || status === "ready" || status === "error") return undefined;
+    const timeout = window.setTimeout(() => setStatus("slow"), PLAYER_SLOW_TIMEOUT);
+    return () => window.clearTimeout(timeout);
+  }, [embedUrl, shouldLoad, status]);
 
   if (!embedUrl) return <ExternalPlaylistLink item={item} />;
 
@@ -85,14 +102,35 @@ export function PlaylistEmbed({ item }: { item: PlaylistItem }) {
           {item.platform} <ArrowUpRight size={14} strokeWidth={1.6} aria-hidden="true" />
         </a>
       </figcaption>
-      <iframe
-        className={`playlist-embed playlist-embed--${platformClass}`}
-        src={embedUrl}
-        title={`${item.title} · ${item.platform}`}
-        loading={item.platform === "Apple Music" ? "lazy" : "eager"}
-        allow="autoplay *; encrypted-media *;"
-        frameBorder="0"
-      />
+      <div className={`playlist-embed-shell playlist-embed-shell--${status}`}>
+        {!shouldLoad && (
+          <div className={`playlist-embed playlist-embed--${platformClass} playlist-embed-placeholder`} role="status">
+            正在加载播放器…
+          </div>
+        )}
+        {shouldLoad && (
+          <iframe
+            className={`playlist-embed playlist-embed--${platformClass}`}
+            src={embedUrl}
+            title={`${item.title} · ${item.platform}`}
+            loading="eager"
+            allow="autoplay *; encrypted-media *;"
+            frameBorder="0"
+            onLoad={() => setStatus("ready")}
+            onError={() => setStatus("error")}
+          />
+        )}
+        {status === "slow" && (
+          <p className="playlist-embed-status" role="status">
+            播放器加载较慢，<a href={item.href} target="_blank" rel="noreferrer">打开 {item.platform}</a>
+          </p>
+        )}
+        {status === "error" && (
+          <p className="playlist-embed-status" role="alert">
+            播放器暂时不可用，<a href={item.href} target="_blank" rel="noreferrer">打开 {item.platform}</a>
+          </p>
+        )}
+      </div>
     </figure>
   );
 }

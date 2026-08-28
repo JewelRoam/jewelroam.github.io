@@ -83,7 +83,7 @@ export function JewelRoamPage() {
       }
     >
       <div className="space-y-6 text-lg leading-9 text-[#20211f]/75">
-        <section className="history-section border-t border-[#20211f]/10 pt-8">
+        <section className="history-section">
           <h2 className="font-serif text-2xl text-[#20211f]">History</h2>
           <div className="history-timeline mt-6 text-base leading-7">
             <p className="history-lede text-[#20211f]/60">

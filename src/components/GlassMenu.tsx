@@ -15,6 +15,7 @@ type GlassMenuProps = {
   menuId?: string;
   menuRole?: "menu";
   closeLabel?: string;
+  tooltip?: string;
   children: (open: boolean, close: () => void) => ReactNode;
 };
 
@@ -26,6 +27,7 @@ export function GlassMenu({
   menuId,
   menuRole,
   closeLabel,
+  tooltip,
   children,
 }: GlassMenuProps) {
   const [open, setOpen] = useState(false);
@@ -34,6 +36,7 @@ export function GlassMenu({
   const menuRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const pendingFocusRef = useRef<"first" | "last" | null>(null);
+  const triggerLabel = open ? closeLabel ?? label : label;
 
   const close = useCallback(() => setOpen(false), []);
   const closeAndRestoreFocus = useCallback(() => {
@@ -162,8 +165,8 @@ export function GlassMenu({
         aria-controls={resolvedMenuId}
         aria-expanded={open}
         aria-haspopup={menuRole}
-        aria-label={open ? closeLabel ?? label : label}
-        title={open ? closeLabel ?? label : label}
+        aria-label={triggerLabel}
+        title={tooltip ? undefined : triggerLabel}
         onKeyDown={(event) => {
           const focusTarget = {
             ArrowDown: "first",
@@ -190,6 +193,7 @@ export function GlassMenu({
       >
         {typeof icon === "function" ? icon(open) : icon}
       </button>
+      {tooltip ? <span className="glass-menu__tooltip" aria-hidden="true">{tooltip}</span> : null}
     </div>
   );
 }

@@ -97,10 +97,11 @@ function parseStaticExpression(source: string) {
 
 function extractPhotoIds(source: string, file: string) {
   const ids: string[] = [];
-  for (const match of source.matchAll(/<\s+(PhotoEmbed|PhotoGallery)\b/g)) {
+  const mediaNames = "PhotoEmbed|PhotoSequence|PhotoGallery";
+  for (const match of source.matchAll(new RegExp(`<\\s+(${mediaNames})\\b`, "g"))) {
     issues.push({ source: file, path: "article", message: `${match[1]} must start without whitespace after <` });
   }
-  const tags = source.matchAll(/<(PhotoEmbed|PhotoGallery)\b[^>]*?(\/?>)/g);
+  const tags = source.matchAll(new RegExp(`<(${mediaNames})\\b[^>]*?(\\/?>)`, "g"));
 
   for (const match of tags) {
     const name = match[1];
@@ -117,18 +118,21 @@ function extractPhotoIds(source: string, file: string) {
       continue;
     }
 
-    const gallery = tag.match(/\bids\s*=\s*\{(\[[\s\S]*?\])\}/);
-    if (!gallery) {
-      issues.push({ source: file, path: "article.PhotoGallery", message: "PhotoGallery requires a static ids array" });
+    const collection = tag.match(/\bids\s*=\s*\{(\[[\s\S]*?\])\}/);
+    if (!collection) {
+      issues.push({ source: file, path: `article.${name}`, message: `${name} requires a static ids array` });
       continue;
     }
 
     try {
-      const result = z.array(z.string().min(1)).safeParse(parseStaticExpression(gallery[1]));
+      const schema = name === "PhotoSequence"
+        ? z.array(z.string().min(1)).min(2)
+        : z.array(z.string().min(1));
+      const result = schema.safeParse(parseStaticExpression(collection[1]));
       if (result.success) ids.push(...result.data);
-      else issues.push(...issuesFromZod(result.error, file).map((issue) => ({ ...issue, path: `article.PhotoGallery${issue.path ? `.${issue.path}` : ""}` })));
+      else issues.push(...issuesFromZod(result.error, file).map((issue) => ({ ...issue, path: `article.${name}${issue.path ? `.${issue.path}` : ""}` })));
     } catch (error) {
-      issues.push({ source: file, path: "article.PhotoGallery", message: error instanceof Error ? error.message : String(error) });
+      issues.push({ source: file, path: `article.${name}`, message: error instanceof Error ? error.message : String(error) });
     }
   }
 

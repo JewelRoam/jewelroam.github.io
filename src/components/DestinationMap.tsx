@@ -41,14 +41,16 @@ const FILL_ID = "jewelroam-destination-fill";
 const OUTLINE_ID = "jewelroam-destination-outline";
 const ROUTE_ID = "jewelroam-destination-route";
 const DESTINATION_PALETTE = [
-  "#55746d", // sage teal
-  "#71816a", // lichen
-  "#687985", // blue gray
-  "#887568", // muted clay
-  "#8a8066", // ochre stone
-  "#777b77", // neutral moss
+  "#4f766f", // oxidized teal
+  "#78845f", // olive ink
+  "#667c9c", // slate blue
+  "#986d72", // faded madder
+  "#9a8457", // ochre ink
+  "#7d6b8a", // muted violet
 ] as const;
 const DEFAULT_MAP_COLOR = DESTINATION_PALETTE[0];
+const MAP_BACKGROUND_COLOR = "#d9d2c7";
+const MAP_ROUTE_EDGE_COLOR = "#f8f4eb";
 
 /** Keep a place's visual identity stable when the destination list is reordered. */
 function colorForDestination(destination: Pick<Destination, "id" | "color">) {
@@ -143,7 +145,7 @@ function styleFor(data: FeatureCollection<DestinationGeometry>): StyleSpecificat
       [SOURCE_ID]: { type: "geojson", data, promoteId: "id" },
     },
     layers: [
-      { id: "jewelroam-background", type: "background", paint: { "background-color": "#e9e4d9" } },
+      { id: "jewelroam-background", type: "background", paint: { "background-color": MAP_BACKGROUND_COLOR } },
       {
         id: "jewelroam-osm",
         type: "raster",
@@ -194,7 +196,7 @@ function styleFor(data: FeatureCollection<DestinationGeometry>): StyleSpecificat
         type: "line",
         source: SOURCE_ID,
         filter: ["!=", ["get", "kind"], "route"],
-        paint: { "line-color": "#fffdf8", "line-width": 1.5, "line-opacity": 0.94 },
+        paint: { "line-color": MAP_ROUTE_EDGE_COLOR, "line-width": 1.5, "line-opacity": 0.94 },
       },
       {
         id: ROUTE_ID,

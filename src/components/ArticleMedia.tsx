@@ -6,14 +6,24 @@ import { ResponsiveImage } from "./ResponsiveImage";
 
 type ArticleMediaProps = {
   children: ReactNode;
-  layout?: "single" | "gallery";
+  layout?: "single" | "sequence" | "gallery";
 };
 
 export function ArticleMedia({ children, layout = "single" }: ArticleMediaProps) {
   return <div className={`article-media article-media--${layout}`}>{children}</div>;
 }
 
-export function ArticleImage({ photo, caption }: { photo: Photo; caption?: string }) {
+export function ArticleImage({
+  photo,
+  caption,
+  fill = false,
+  sizes = "(min-width: 768px) 48rem, 100vw",
+}: {
+  photo: Photo;
+  caption?: string;
+  fill?: boolean;
+  sizes?: string;
+}) {
   return (
     <ImageFrame
       className="article-media__item"
@@ -21,8 +31,8 @@ export function ArticleImage({ photo, caption }: { photo: Photo; caption?: strin
     >
       <ResponsiveImage
         photo={photo}
-        sizes="(min-width: 768px) 48rem, 100vw"
-        className="media-frame__image media-frame__image--bounded article-image"
+        sizes={sizes}
+        className={`media-frame__image article-image${fill ? " article-image--fill" : " media-frame__image--bounded"}`}
       />
     </ImageFrame>
   );

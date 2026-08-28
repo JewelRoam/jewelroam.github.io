@@ -39,6 +39,7 @@ import { useExportTask } from "../hooks/useExportTask";
 import { ExportDialog } from "./ExportDialog";
 import { exportProgressLabel, ExportProgressPanel } from "./ExportProgressDialog";
 import { ImageFrame } from "./ImageFrame";
+import { Page } from "./Page";
 
 const MAX_IMAGE_SIZE = 100 * 1024 * 1024;
 const IMAGE_READ_CONCURRENCY = 2;
@@ -316,12 +317,11 @@ export function ArticleEditor() {
   };
 
   return (
-    <section className="page-shell editor-shell">
-      <header className="editor-header page-header">
-        <h1 className="page-title font-serif">Capture</h1>
-        <p className="editor-intro page-intro">我曾偶尔使用 Apple 的 Notes 或 Journal app 记录想法，但它们始终没有提供一个足够顺手的图文编辑工作流，于是自己做了这个编辑器。图片支持同时拖入、粘贴或选择多张，暂存在浏览器 IndexedDB 中，并嵌入为 Base64 编码，随文章一起导出为 JSON，方便后续交给 Agent 继续整理与上线。</p>
-      </header>
-
+    <Page
+      className="editor-shell"
+      title="Capture"
+      intro="我曾偶尔使用 Apple 的 Notes 或 Journal app 记录想法，但它们始终没有提供一个足够顺手的图文编辑工作流，于是自己做了这个编辑器。图片支持同时拖入、粘贴或选择多张，暂存在浏览器 IndexedDB 中，并嵌入为 Base64 编码，随文章一起导出为 JSON，方便后续交给 Agent 继续整理与上线。"
+    >
       <div className="editor-meta">
         <div className="editor-title-fields">
           <label className="editor-title-label" htmlFor="editor-title">文章标题</label>
@@ -506,6 +506,6 @@ export function ArticleEditor() {
           onClose={clearExportError}
         />
       </ExportDialog>
-    </section>
+    </Page>
   );
 }
