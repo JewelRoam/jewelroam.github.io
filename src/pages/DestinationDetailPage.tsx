@@ -66,6 +66,7 @@ export function DestinationDetailPage() {
                 <JournalListItem
                   key={journal.frontmatter.slug}
                   journal={journal.frontmatter}
+                  dateMode="exact"
                   headingLevel="h3"
                   className="py-6 first:pt-0"
                 />

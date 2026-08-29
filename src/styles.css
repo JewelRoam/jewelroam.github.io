@@ -580,7 +580,7 @@ a {
 .journal-list-item__content {
   min-width: 0;
 }
-.journal-list-item__year,
+.journal-list-item__date,
 .journal-list-item__arrow {
   display: none;
 }
@@ -626,18 +626,16 @@ a {
 .journal-archive .journal-list-item:first-child {
   padding-top: 1.25rem;
 }
-.journal-archive .journal-list-item__year {
+.journal-archive .journal-list-item__date {
   background: var(--paper);
-  color: var(--ink);
-  display: block;
-  font-family: var(--font-display);
-  font-size: 1.15rem;
-  line-height: 1.2;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
   padding-right: 0.85rem;
   position: relative;
   z-index: 1;
 }
-.journal-archive .journal-list-item__year::after {
+.journal-archive .journal-list-item__date::after {
   background: var(--accent);
   border: 2px solid var(--paper);
   border-radius: 50%;
@@ -647,6 +645,26 @@ a {
   right: -0.25rem;
   top: 0.35rem;
   width: 0.45rem;
+}
+.journal-archive .journal-list-item__date--continuation {
+  background: transparent;
+}
+.journal-archive .journal-list-item__date--continuation::after {
+  display: none;
+}
+.journal-archive .journal-list-item__year {
+  color: var(--ink);
+  display: block;
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  line-height: 1.2;
+}
+.journal-archive .journal-list-item__month {
+  color: var(--quiet);
+  font-size: 0.68rem;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.08em;
+  line-height: 1.1;
 }
 .journal-archive .journal-list-item__meta {
   font-variant-numeric: tabular-nums;
@@ -2067,20 +2085,31 @@ a {
   .journal-archive .journal-list-item:first-child {
     padding-top: 1.25rem;
   }
-  .journal-archive .journal-list-item__year {
+  .journal-archive .journal-list-item__date {
     background: transparent;
+    align-items: baseline;
+    flex-direction: row;
+    gap: 0.4rem;
+    grid-column: 1;
+    grid-row: 1;
+    padding: 0;
+  }
+  .journal-archive .journal-list-item__date::after {
+    display: none;
+  }
+  .journal-archive .journal-list-item__year {
     color: var(--quiet);
     font-family: var(--font-body);
     font-size: 0.72rem;
-    grid-column: 1;
-    grid-row: 1;
     letter-spacing: 0.1em;
     line-height: 1.4;
-    padding: 0;
     text-transform: uppercase;
   }
-  .journal-archive .journal-list-item__year::after {
-    display: none;
+  .journal-archive .journal-list-item__month {
+    color: rgb(var(--ink-rgb) / 0.46);
+    font-size: 0.66rem;
+    letter-spacing: 0.06em;
+    line-height: 1.4;
   }
   .journal-archive .journal-list-item__content {
     grid-column: 1 / -1;
