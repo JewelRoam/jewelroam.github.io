@@ -1,0 +1,39 @@
+{
+  "id": "ala-archa",
+  "slug": "ala-archa",
+  "name": "Ala-Archa",
+  "parentId": "bishkek",
+  "country": "吉尔吉斯斯坦",
+  "region": "楚河州",
+  "coordinates": {
+    "latitude": 42.53,
+    "longitude": 74.48
+  },
+  "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+      [
+        [
+          74.25,
+          42.35
+        ],
+        [
+          74.75,
+          42.35
+        ],
+        [
+          74.75,
+          42.7
+        ],
+        [
+          74.25,
+          42.7
+        ],
+        [
+          74.25,
+          42.35
+        ]
+      ]
+    ]
+  }
+}

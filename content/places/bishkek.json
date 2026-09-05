@@ -1,0 +1,38 @@
+{
+  "id": "bishkek",
+  "slug": "bishkek",
+  "name": "Bishkek",
+  "country": "吉尔吉斯斯坦",
+  "region": "比什凯克市",
+  "coordinates": {
+    "latitude": 42.8746,
+    "longitude": 74.5698
+  },
+  "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+      [
+        [
+          74.35,
+          42.72
+        ],
+        [
+          74.78,
+          42.72
+        ],
+        [
+          74.83,
+          43.02
+        ],
+        [
+          74.42,
+          43.08
+        ],
+        [
+          74.35,
+          42.72
+        ]
+      ]
+    ]
+  }
+}
