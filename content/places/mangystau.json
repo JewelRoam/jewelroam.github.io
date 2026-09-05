@@ -1,0 +1,38 @@
+{
+  "id": "mangystau",
+  "slug": "mangystau",
+  "name": "Mangystau",
+  "country": "哈萨克斯坦",
+  "region": "曼格斯套州",
+  "coordinates": {
+    "latitude": 43.5,
+    "longitude": 54
+  },
+  "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+      [
+        [
+          50,
+          41
+        ],
+        [
+          57,
+          41
+        ],
+        [
+          57,
+          45
+        ],
+        [
+          50,
+          45
+        ],
+        [
+          50,
+          41
+        ]
+      ]
+    ]
+  }
+}

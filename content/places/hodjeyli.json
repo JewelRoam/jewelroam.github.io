@@ -1,0 +1,38 @@
+{
+  "id": "hodjeyli",
+  "slug": "hodjeyli",
+  "name": "Hodjeyli",
+  "country": "乌兹别克斯坦",
+  "region": "卡拉卡尔帕克斯坦共和国 · 霍吉伊利",
+  "coordinates": {
+    "latitude": 42.4358972222222,
+    "longitude": 59.5158666666667
+  },
+  "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+      [
+        [
+          59.35,
+          42.37
+        ],
+        [
+          59.58,
+          42.37
+        ],
+        [
+          59.58,
+          42.49
+        ],
+        [
+          59.35,
+          42.49
+        ],
+        [
+          59.35,
+          42.37
+        ]
+      ]
+    ]
+  }
+}
