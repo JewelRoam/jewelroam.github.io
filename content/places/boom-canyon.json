@@ -1,0 +1,39 @@
+{
+  "id": "boom-canyon",
+  "slug": "boom-canyon",
+  "name": "Boom Canyon",
+  "parentId": "issyk-kul",
+  "country": "吉尔吉斯斯坦",
+  "region": "楚河州",
+  "coordinates": {
+    "latitude": 42.52,
+    "longitude": 75.83
+  },
+  "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+      [
+        [
+          75.65,
+          42.4
+        ],
+        [
+          76.05,
+          42.4
+        ],
+        [
+          76.05,
+          42.7
+        ],
+        [
+          75.65,
+          42.7
+        ],
+        [
+          75.65,
+          42.4
+        ]
+      ]
+    ]
+  }
+}

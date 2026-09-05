@@ -1,0 +1,38 @@
+{
+  "id": "issyk-kul",
+  "slug": "issyk-kul",
+  "name": "Issyk-Kul",
+  "country": "吉尔吉斯斯坦",
+  "region": "伊塞克湖州",
+  "coordinates": {
+    "latitude": 42.45,
+    "longitude": 77.25
+  },
+  "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+      [
+        [
+          76,
+          42.1
+        ],
+        [
+          78.7,
+          42.1
+        ],
+        [
+          78.75,
+          43.05
+        ],
+        [
+          76,
+          43.05
+        ],
+        [
+          76,
+          42.1
+        ]
+      ]
+    ]
+  }
+}
