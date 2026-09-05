@@ -1,0 +1,38 @@
+{
+  "id": "aktau",
+  "slug": "aktau",
+  "name": "Aktau",
+  "country": "哈萨克斯坦",
+  "region": "曼吉斯套州 · 阿克套",
+  "coordinates": {
+    "latitude": 43.6358,
+    "longitude": 51.1693
+  },
+  "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+      [
+        [
+          50.95,
+          43.48
+        ],
+        [
+          51.38,
+          43.48
+        ],
+        [
+          51.38,
+          43.86
+        ],
+        [
+          50.95,
+          43.86
+        ],
+        [
+          50.95,
+          43.48
+        ]
+      ]
+    ]
+  }
+}
