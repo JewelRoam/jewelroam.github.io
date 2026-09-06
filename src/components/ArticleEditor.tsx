@@ -134,7 +134,11 @@ export function ArticleEditor() {
         type: "image",
         attrs: { src, alt: validFiles[index].name, title: validFiles[index].name },
       }));
-      const content = imageNodes.flatMap((node, index) => (index ? [{ type: "paragraph" }, node] : [node]));
+      // Keep an imported batch as one continuous image sequence. A single trailing
+      // paragraph preserves a reliable place to continue writing after the batch.
+      const content = imageNodes.length > 1
+        ? [...imageNodes, { type: "paragraph" }]
+        : imageNodes;
       const chain = currentEditor.chain().focus();
 
       if (position === undefined) chain.insertContent(content).run();
