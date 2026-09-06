@@ -366,11 +366,13 @@ export function DestinationMap({ destinations, onSelect, className, ariaLabel = 
       property: "hovered" | "focused",
       value: boolean,
     ) => {
+      // DOM markers can temporarily swallow map pointer events. Do not let a
+      // previous map feature keep a dense marker layout active after that.
+      if (property === "hovered") mapHoveredIdRef.current = null;
       const state = markerInteractionRef.current.get(id) ?? { hovered: false, focused: false };
       state[property] = value;
       markerInteractionRef.current.set(id, state);
       syncInteraction();
-      scheduleMarkerLayout();
     };
 
     const activateDestination = (id: string) => {
