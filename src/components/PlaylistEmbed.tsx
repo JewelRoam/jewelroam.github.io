@@ -98,7 +98,12 @@ export function PlaylistEmbed({ item }: { item: PlaylistItem }) {
           <Music2 size={16} strokeWidth={1.6} aria-hidden="true" />
           {item.title}
         </span>
-        <a href={item.href} target="_blank" rel="noreferrer">
+        <a
+          href={item.href}
+          target="_blank"
+          rel="noreferrer"
+          className="inline-flex items-center gap-1 whitespace-nowrap"
+        >
           {item.platform} <ArrowUpRight size={14} strokeWidth={1.6} aria-hidden="true" />
         </a>
       </figcaption>
