@@ -18,6 +18,11 @@ const navItems = [
     label: "ZaiChang",
     external: true,
   },
+  {
+    href: "https://jewelroam.github.io/Glyph-Atlas/",
+    label: "Glyph Atlas",
+    external: true,
+  },
 ] satisfies NavItem[];
 
 export function GlassNav() {

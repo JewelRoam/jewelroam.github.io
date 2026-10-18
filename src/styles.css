@@ -190,6 +190,7 @@ a {
 .glass-menu.is-open .glass-menu__item:nth-child(3) { transition-delay: 90ms; }
 .glass-menu.is-open .glass-menu__item:nth-child(4) { transition-delay: 120ms; }
 .glass-menu.is-open .glass-menu__item:nth-child(5) { transition-delay: 150ms; }
+.glass-menu.is-open .glass-menu__item:nth-child(6) { transition-delay: 180ms; }
 .glass-menu.is-open .glass-menu__item:hover,
 .glass-menu.is-open .glass-menu__item:focus-visible {
   transform: translateX(0) translateY(-1px);
