@@ -1,11 +1,11 @@
 import { NavLink } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { GlassMenu } from "./GlassMenu";
+import { embeddedProjects } from "../lib/embedded-projects";
 
 type NavItem = {
   href: string;
   label: string;
-  external?: boolean;
 };
 
 const navItems = [
@@ -13,16 +13,7 @@ const navItems = [
   { href: "/journals", label: "Journals" },
   { href: "/capture", label: "Capture" },
   { href: "/jewelroam", label: "JewelRoam" },
-  {
-    href: "https://jewelroam.github.io/ZaiChang/",
-    label: "ZaiChang",
-    external: true,
-  },
-  {
-    href: "https://jewelroam.github.io/Glyph-Atlas/",
-    label: "Glyph Atlas",
-    external: true,
-  },
+  ...Object.values(embeddedProjects).map(({ path, label }) => ({ href: path, label })),
 ] satisfies NavItem[];
 
 export function GlassNav() {
@@ -40,29 +31,17 @@ export function GlassNav() {
       >
         {(open, close) => (
           <>
-            {navItems.map((item) =>
-              item.external ? (
-                <a
-                  key={item.href}
-                  href={item.href}
-                  onClick={close}
-                  className="glass-menu__item"
-                  tabIndex={open ? 0 : -1}
-                >
-                  {item.label}
-                </a>
-              ) : (
-                <NavLink
-                  key={item.href}
-                  to={item.href}
-                  onClick={close}
-                  className={({ isActive }) => `glass-menu__item${isActive ? " is-active" : ""}`}
-                  tabIndex={open ? 0 : -1}
-                >
-                  {item.label}
-                </NavLink>
-              ),
-            )}
+            {navItems.map((item) => (
+              <NavLink
+                key={item.href}
+                to={item.href}
+                onClick={close}
+                className={({ isActive }) => `glass-menu__item${isActive ? " is-active" : ""}`}
+                tabIndex={open ? 0 : -1}
+              >
+                {item.label}
+              </NavLink>
+            ))}
           </>
         )}
       </GlassMenu>

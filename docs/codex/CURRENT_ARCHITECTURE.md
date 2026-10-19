@@ -2,14 +2,18 @@
 
 ## 页面结构
 
-核心导航固定为四项，另有 `ZaiChang` 和 `Glyph Atlas` 两个子网站外链入口：
+核心导航固定为四项，另有 `ZaiChang`、`Glyph Atlas`、`NexusPilot` 和 `23.5°N GEEKDAY` 四个子站入口；它们分别通过 `/zaichang`、`/glyph-atlas`、`/nexus-pilot` 和 `/geekday` 的站内 iframe 舞台打开，顶部全站导航持续可用：
 
 - `Destinations`：以 MapLibre 渲染的全视口地点地图；地点悬停抬升，点击进入地点归档。生产构建会将 MapLibre worker 及其 shared 模块作为静态资源一并发布，确保 GitHub Pages 上的 GeoJSON 图层正常渲染。
 - `Journals`：按创建日期排列的文章列表与正文；列表时间轴以年份为主刻度、月份为辅助刻度，同一连续年月只在第一篇文章显示时间标签，后续文章保留空的时间轴槽位，列表元信息只展示地点，完整创建日期保留在文章详情和数据协议中；文章右上角提供“比例切分”“张数切分”和“导出 JSON”菜单。比例切分支持固定比例分页，张数切分通过滑动条在 1–18 张内选择，短文章会按可用内容块自动收窄上限；前两项均可选择 PNG、JPG 或 PDF。
 - `Capture`：浏览器本地写作、图片导入、自动保存和 JSON 导入导出工具。图片可选择随文插入或在正文后集中为响应式图集；页面顶部只显示标题与说明，正文底部显示自动保存状态、真实修改时间和草稿动作。
 - `JewelRoam`：个人信息、经历、公开链接、Playlists 与 Rights。Playlist 使用官方 Apple Music / 网易云 iframe，在响应式网格中直接平铺，不再包第二层卡片；标题和外链先渲染，首帧后所有播放器并行挂载，单个播放器超过 6 秒会显示外链提示但继续后台加载；Apple 播放器因底部操作行保留 `392px`，网易云保留 `384px`，不需要 MusicKit 或用户认证。
-- `ZaiChang`：指向独立仓库站点的外链入口，不属于本站内容路由。
-- `Glyph Atlas`：指向 `https://jewelroam.github.io/Glyph-Atlas/` 的子网站入口；与 `ZaiChang` 一样使用普通链接在当前标签页跳转，不经过本站内容路由。
+- `ZaiChang`：通过 `/zaichang` 的站内嵌入舞台加载独立仓库站点，iframe 保留全站导航，并提供新标签页直达入口。
+- `Glyph Atlas`：通过 `/glyph-atlas` 的站内嵌入舞台加载 `https://jewelroam.github.io/Glyph-Atlas/`；与 `ZaiChang` 共用同一套嵌入布局、加载状态和新标签页备用入口。
+- `NexusPilot`：通过 `/nexus-pilot` 的站内嵌入舞台加载 `https://jewelroam.github.io/NexusPilot/`；与其它嵌入项目共用同一套标题、加载状态和新标签页备用入口。
+- `23.5°N GEEKDAY`：通过 `/geekday` 的站内嵌入舞台加载 `https://23-5-n-geekday.github.io/`；标题显示“23.5°N GEEKDAY 北回归线极客节”。
+
+嵌入舞台固定为视口高度，顶部集中显示项目名称、说明和新标签页入口，iframe 占满下方剩余空间；页面不进入普通内容页外壳，也不复制子站自身导航。
 
 根路径和未知路径进入 `JewelRoam`。路由集中在 `src/App.tsx`，页面实现位于 `src/pages/`；可复用界面位于 `src/components/`。
 

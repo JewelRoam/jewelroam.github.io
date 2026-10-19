@@ -1,0 +1,135 @@
+.embedded-project {
+  --embedded-surface: #eef0eb;
+  --embedded-ink: rgb(32 33 31 / 0.62);
+  background: var(--canvas);
+  height: 100svh;
+  height: 100dvh;
+  overflow: hidden;
+}
+
+.embedded-project > .page-header {
+  padding-inline-end: calc(var(--page-gutter) + var(--header-control-size) + var(--header-gap));
+}
+
+.embedded-project--zaichang {
+  --embedded-surface: #e7ece5;
+  --embedded-ink: #315347;
+}
+
+.embedded-project--glyph-atlas {
+  --embedded-surface: #12100e;
+  --embedded-ink: #d6b083;
+}
+
+.embedded-project--nexus-pilot {
+  --embedded-surface: #ffffff;
+  --embedded-ink: #365b44;
+}
+
+.embedded-project--geekday {
+  --embedded-surface: #1b194d;
+  --embedded-ink: #dcd6ff;
+}
+
+.embedded-project__title-link {
+  align-items: flex-start;
+  color: inherit;
+  display: inline-flex;
+  gap: 0.24em;
+  text-decoration: none;
+}
+
+.embedded-project__title-link > span {
+  min-width: 0;
+}
+
+.embedded-project__title-link:focus-visible {
+  outline: 0;
+  box-shadow: 0 0 0 2px var(--focus);
+}
+
+.embedded-project__title-icon {
+  color: var(--quiet);
+  flex: none;
+  height: 0.38em;
+  margin-top: 0.2em;
+  transition:
+    color var(--duration-fast) var(--ease-standard),
+    transform var(--duration-fast) var(--ease-standard);
+  width: 0.38em;
+}
+
+.embedded-project__title-link:hover .embedded-project__title-icon,
+.embedded-project__title-link:focus-visible .embedded-project__title-icon {
+  color: var(--ink);
+  transform: translate(0.04em, -0.04em);
+}
+
+.embedded-project__content {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.embedded-project__viewport {
+  background: var(--embedded-surface);
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  position: relative;
+}
+
+.embedded-project__frame {
+  background: var(--embedded-surface);
+  border: 0;
+  display: block;
+  height: 100%;
+  opacity: 0;
+  transition: opacity 320ms var(--ease-standard);
+  width: 100%;
+}
+
+.embedded-project__viewport[data-loaded="true"] .embedded-project__frame {
+  opacity: 1;
+}
+
+.embedded-project__loading {
+  align-items: center;
+  color: var(--embedded-ink);
+  display: flex;
+  font-size: 0.7rem;
+  gap: 0.65rem;
+  inset: 0;
+  justify-content: center;
+  letter-spacing: 0.08em;
+  position: absolute;
+  transition:
+    opacity 220ms var(--ease-standard),
+    visibility 220ms;
+}
+
+.embedded-project__viewport[data-loaded="true"] .embedded-project__loading {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.embedded-project__spinner {
+  animation: embedded-project-spin 900ms linear infinite;
+  border: 1px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  height: 0.85rem;
+  width: 0.85rem;
+}
+
+@keyframes embedded-project-spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .embedded-project__spinner {
+    animation: none;
+  }
+}

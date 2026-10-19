@@ -1,6 +1,6 @@
 # JewelRoam
 
-这是一个由 Agent 协作维护的个人网站。项目核心界面固定为 `Destinations`、`Journals`、`Capture` 和 `JewelRoam`，菜单另保留 `ZaiChang` 和 `Glyph Atlas` 外链入口；根路径直接进入 `JewelRoam`。
+这是一个由 Agent 协作维护的个人网站。项目核心界面固定为 `Destinations`、`Journals`、`Capture` 和 `JewelRoam`，菜单另保留 `ZaiChang`、`Glyph Atlas`、`NexusPilot` 和 `23.5°N GEEKDAY` 子站入口，通过站内 iframe 舞台打开并保持全站导航可用；根路径直接进入 `JewelRoam`。
 
 ## Agent 约定
 

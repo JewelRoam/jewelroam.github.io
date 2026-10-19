@@ -551,9 +551,16 @@ a {
   justify-content: flex-end;
   padding: var(--page-top-space) var(--page-gutter) 2.75rem;
 }
-.page-title {
-  font-size: 3rem;
+.page-title,
+.journal-title {
+  font-size: clamp(2.25rem, 8vw, 3rem);
   letter-spacing: 0;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  text-wrap: balance;
+  word-break: keep-all;
+}
+.page-title {
   line-height: 1.05;
   margin: 0;
 }
@@ -1154,8 +1161,6 @@ a {
   line-height: 1.5;
 }
 .journal-title {
-  font-size: 3rem;
-  letter-spacing: 0;
   line-height: 1.12;
   margin: 1rem 0 0;
   max-inline-size: 24ch;
@@ -1989,10 +1994,6 @@ a {
   .photo-detail__rights {
     max-inline-size: 30rem;
     text-align: left;
-  }
-  .page-title,
-  .journal-title {
-    font-size: 2.75rem;
   }
   .journal-title {
     max-inline-size: calc(100% - 3.5rem);
