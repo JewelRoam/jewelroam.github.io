@@ -123,9 +123,9 @@ a {
   transform: translateX(0) scale(1);
   transform-origin: right center;
   transition:
-    opacity 260ms var(--ease-standard),
-    transform 420ms var(--ease-spring),
-    visibility 260ms;
+    opacity 560ms var(--ease-standard),
+    transform 980ms var(--ease-spring),
+    visibility 560ms;
   visibility: visible;
   white-space: nowrap;
   -webkit-backdrop-filter: blur(22px) saturate(145%);
@@ -171,8 +171,8 @@ a {
   transition:
     background-color var(--duration-fast) var(--ease-standard),
     color var(--duration-fast) var(--ease-standard),
-    opacity 300ms var(--ease-standard),
-    transform 420ms var(--ease-spring);
+    opacity 620ms var(--ease-standard),
+    transform 980ms var(--ease-spring);
 }
 .glass-menu__items > .glass-menu__item:hover,
 .glass-menu__items > .glass-menu__item:focus-visible {
@@ -185,12 +185,14 @@ a {
   opacity: 1;
   transform: translateX(0);
 }
-.glass-menu.is-open .glass-menu__item:nth-child(1) { transition-delay: 30ms; }
-.glass-menu.is-open .glass-menu__item:nth-child(2) { transition-delay: 60ms; }
-.glass-menu.is-open .glass-menu__item:nth-child(3) { transition-delay: 90ms; }
-.glass-menu.is-open .glass-menu__item:nth-child(4) { transition-delay: 120ms; }
-.glass-menu.is-open .glass-menu__item:nth-child(5) { transition-delay: 150ms; }
-.glass-menu.is-open .glass-menu__item:nth-child(6) { transition-delay: 180ms; }
+.glass-menu.is-open .glass-menu__item:nth-child(1) { transition-delay: 70ms; }
+.glass-menu.is-open .glass-menu__item:nth-child(2) { transition-delay: 140ms; }
+.glass-menu.is-open .glass-menu__item:nth-child(3) { transition-delay: 210ms; }
+.glass-menu.is-open .glass-menu__item:nth-child(4) { transition-delay: 280ms; }
+.glass-menu.is-open .glass-menu__item:nth-child(5) { transition-delay: 350ms; }
+.glass-menu.is-open .glass-menu__item:nth-child(6) { transition-delay: 420ms; }
+.glass-menu.is-open .glass-menu__item:nth-child(7) { transition-delay: 490ms; }
+.glass-menu.is-open .glass-menu__item:nth-child(8) { transition-delay: 560ms; }
 .glass-menu.is-open .glass-menu__item:hover,
 .glass-menu.is-open .glass-menu__item:focus-visible {
   transform: translateX(0) translateY(-1px);
@@ -223,7 +225,7 @@ a {
     background-color var(--duration-fast) var(--ease-standard),
     box-shadow var(--duration-fast) var(--ease-standard),
     color var(--duration-fast) var(--ease-standard),
-    transform 420ms var(--ease-spring);
+    transform 760ms var(--ease-spring);
   width: var(--header-control-size);
   -webkit-backdrop-filter: blur(22px) saturate(145%);
   backdrop-filter: blur(22px) saturate(145%);

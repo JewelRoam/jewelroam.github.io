@@ -1,4 +1,4 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { GlassMenu } from "./GlassMenu";
 import { embeddedProjects } from "../lib/embedded-projects";
@@ -17,6 +17,9 @@ const navItems = [
 ] satisfies NavItem[];
 
 export function GlassNav() {
+  const { pathname } = useLocation();
+  const openOnEntry = pathname === "/";
+
   return (
     <nav aria-label="页面导航">
       <GlassMenu
@@ -24,6 +27,8 @@ export function GlassNav() {
         closeLabel="关闭页面导航"
         tooltip="页面导航"
         variant="primary"
+        defaultOpen={openOnEntry}
+        autoFocusOnOpen={!openOnEntry}
         menuId="primary-navigation"
         icon={(open) => open
           ? <X size={18} strokeWidth={1.7} aria-hidden="true" />

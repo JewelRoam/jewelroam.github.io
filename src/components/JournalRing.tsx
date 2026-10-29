@@ -14,6 +14,9 @@ function seededOffset(index: number, salt: number) {
   return value - Math.floor(value) - 0.5;
 }
 
+const AUTO_RESUME_DELAY_MS = 1200;
+const AUTO_FLOW_SPEED = 0.00014;
+
 export function JournalRing() {
   const entries = useMemo(() => journals.map(({ frontmatter }) => ({
     ...frontmatter,
@@ -113,8 +116,8 @@ export function JournalRing() {
       frame = 0;
       const dt = Math.min(32, now - (lastFrame || now - 16));
       lastFrame = now;
-      if (!reduced && !drag && !coasting && position === target && now - lastInteraction > 3600) {
-        position += dt * 0.000075;
+      if (!reduced && !drag && !coasting && position === target && now - lastInteraction > AUTO_RESUME_DELAY_MS) {
+        position += dt * AUTO_FLOW_SPEED;
         target = position;
       }
       if (coasting) {

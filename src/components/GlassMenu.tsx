@@ -12,22 +12,29 @@ type GlassMenuProps = {
   label: string;
   icon: ReactNode | ((open: boolean) => ReactNode);
   variant?: "primary" | "action";
+  defaultOpen?: boolean;
   menuId?: string;
   menuRole?: "menu";
   closeLabel?: string;
   tooltip?: string;
+  autoFocusOnOpen?: boolean;
   children: (open: boolean, close: () => void) => ReactNode;
 };
+
+const AUTO_OPEN_DELAY_MS = 120;
+const AUTO_OPEN_HOLD_MS = 2600;
 
 /** Shared glass menu shell used by primary navigation and contextual actions. */
 export function GlassMenu({
   label,
   icon,
   variant = "action",
+  defaultOpen = false,
   menuId,
   menuRole,
   closeLabel,
   tooltip,
+  autoFocusOnOpen = true,
   children,
 }: GlassMenuProps) {
   const [open, setOpen] = useState(false);
@@ -36,9 +43,13 @@ export function GlassMenu({
   const menuRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const pendingFocusRef = useRef<"first" | "last" | null>(null);
+  const autoSequenceRef = useRef(0);
   const triggerLabel = open ? closeLabel ?? label : label;
 
   const close = useCallback(() => setOpen(false), []);
+  const cancelAutoSequence = useCallback(() => {
+    autoSequenceRef.current += 1;
+  }, []);
   const closeAndRestoreFocus = useCallback(() => {
     close();
     const restoreFocus = () => {
@@ -97,7 +108,30 @@ export function GlassMenu({
   };
 
   useEffect(() => {
-    if (!open) {
+    if (!defaultOpen) return;
+    const sequence = autoSequenceRef.current + 1;
+    let openTimer = 0;
+    let closeTimer = 0;
+    autoSequenceRef.current = sequence;
+    const frame = window.requestAnimationFrame(() => {
+      openTimer = window.setTimeout(() => {
+        if (autoSequenceRef.current !== sequence) return;
+        setOpen(true);
+        closeTimer = window.setTimeout(() => {
+          if (autoSequenceRef.current !== sequence) return;
+          setOpen(false);
+        }, AUTO_OPEN_HOLD_MS);
+      }, AUTO_OPEN_DELAY_MS);
+    });
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.clearTimeout(openTimer);
+      window.clearTimeout(closeTimer);
+    };
+  }, [defaultOpen]);
+
+  useEffect(() => {
+    if (!open || (!autoFocusOnOpen && pendingFocusRef.current === null)) {
       pendingFocusRef.current = null;
       return;
     }
@@ -111,7 +145,7 @@ export function GlassMenu({
         ? items[0]
         : currentItem ?? items[0];
     if (initialItem) focusItem(initialItem, items);
-  }, [focusItem, getEnabledItems, open]);
+  }, [autoFocusOnOpen, focusItem, getEnabledItems, open]);
 
   useEffect(() => {
     if (!open) return;
@@ -143,6 +177,8 @@ export function GlassMenu({
     <div
       ref={menuRef}
       className={`glass-menu glass-menu--${variant}${open ? " is-open" : ""}`}
+      onPointerEnter={cancelAutoSequence}
+      onFocusCapture={cancelAutoSequence}
       onBlur={(event) => {
         if (!event.currentTarget.contains(event.relatedTarget)) close();
       }}
@@ -168,6 +204,7 @@ export function GlassMenu({
         aria-label={triggerLabel}
         title={tooltip ? undefined : triggerLabel}
         onKeyDown={(event) => {
+          cancelAutoSequence();
           const focusTarget = {
             ArrowDown: "first",
             ArrowUp: "last",
@@ -187,6 +224,7 @@ export function GlassMenu({
           }
         }}
         onClick={() => {
+          cancelAutoSequence();
           if (open) close();
           else setOpen(true);
         }}
