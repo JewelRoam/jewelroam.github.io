@@ -1,0 +1,10 @@
+.journals-page { background: var(--canvas); }
+.journals-page__index {
+  padding: 3rem var(--page-gutter) 5rem;
+  background: var(--paper);
+  border-top: 1px solid var(--rule);
+  scroll-margin-top: 2rem;
+}
+@media (max-width: 640px) {
+  .journals-page__index { padding-top: 2rem; }
+}
