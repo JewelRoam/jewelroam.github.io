@@ -8,11 +8,12 @@ import { JournalsPage } from "./pages/JournalsPage";
 import { PhotoPage } from "./pages/PhotoPage";
 import { RightsPage } from "./pages/RightsPage";
 import { EmbeddedProjectPage } from "./pages/EmbeddedProjectPage";
+import { BoardingPage } from "./pages/BoardingPage";
 
 export function App() {
   return (
     <Routes>
-      <Route path="/" element={<Navigate to="/jewelroam" replace />} />
+      <Route path="/" element={<BoardingPage />} />
       <Route path="/destinations" element={<DestinationsPage />} />
       <Route path="/destinations/:slug" element={<DestinationDetailPage />} />
       <Route path="/photos/:id" element={<PhotoPage />} />
