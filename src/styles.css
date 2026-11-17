@@ -63,19 +63,23 @@
 }
 html {
   background: var(--canvas);
+  color-scheme: light;
   min-height: 100%;
 }
 body {
   background: var(--canvas);
+  color-scheme: light;
   margin: 0;
   min-width: 320px;
 }
 #root {
   background: var(--canvas);
+  color-scheme: light;
   min-height: 100dvh;
 }
 .site-root {
   background: var(--canvas);
+  color-scheme: light;
   color: var(--ink);
   min-height: 100dvh;
 }
@@ -207,13 +211,15 @@ a {
 }
 .glass-circle-button {
   align-items: center;
-  background: var(--glass-fill);
+  appearance: none;
+  background-color: var(--glass-fill);
   border: 1px solid var(--glass-border);
   border-radius: 50%;
   box-shadow:
     0 12px 30px rgb(32 33 31 / 0.14),
     inset 0 1px 0 rgb(255 255 255 / 0.95);
   color: rgb(var(--ink-rgb) / 0.68);
+  color-scheme: light;
   cursor: pointer;
   display: flex;
   height: var(--header-control-size);
@@ -227,6 +233,8 @@ a {
     color var(--duration-fast) var(--ease-standard),
     transform 760ms var(--ease-spring);
   width: var(--header-control-size);
+  -webkit-appearance: none;
+  -webkit-text-fill-color: currentColor;
   -webkit-backdrop-filter: blur(22px) saturate(145%);
   backdrop-filter: blur(22px) saturate(145%);
   z-index: 2;
@@ -1472,10 +1480,12 @@ a {
 }
 .export-dialog__close {
   align-items: center;
+  appearance: none;
   background: transparent;
   border: 0;
   border-radius: 50%;
   color: rgb(32 33 31 / 0.54);
+  color-scheme: light;
   cursor: pointer;
   display: inline-flex;
   flex: 0 0 2rem;
@@ -1483,6 +1493,8 @@ a {
   justify-content: center;
   padding: 0;
   width: 2rem;
+  -webkit-appearance: none;
+  -webkit-text-fill-color: currentColor;
 }
 .export-dialog__close:hover,
 .export-dialog__close:focus-visible {
@@ -1849,10 +1861,14 @@ a {
   min-height: 2.5rem;
 }
 .editor-toolbar .editor-tool-button {
+  appearance: none;
   border-radius: 50%;
+  color-scheme: light;
   flex: 0 0 2.5rem;
   padding: 0;
   width: 2.5rem;
+  -webkit-appearance: none;
+  -webkit-text-fill-color: currentColor;
 }
 .editor-image-button {
   flex: 0 0 auto;
@@ -1999,10 +2015,12 @@ a {
 }
 .editor-gallery__item button {
   align-items: center;
+  appearance: none;
   background: rgb(var(--sheet-rgb) / 0.9);
   border: 1px solid rgb(32 33 31 / 0.12);
   border-radius: 50%;
   color: rgb(32 33 31 / 0.7);
+  color-scheme: light;
   cursor: pointer;
   display: flex;
   height: 1.8rem;
@@ -2011,6 +2029,8 @@ a {
   right: 0.45rem;
   top: 0.45rem;
   width: 1.8rem;
+  -webkit-appearance: none;
+  -webkit-text-fill-color: currentColor;
 }
 .editor-gallery__item button:hover {
   background: var(--sheet);

@@ -163,6 +163,8 @@
 }
 
 .journal-ring__arrow {
+  appearance: none;
+  -webkit-appearance: none;
   display: grid;
   place-items: center;
   width: 2.75rem;
@@ -171,11 +173,13 @@
   border-radius: 50%;
   background: rgb(var(--canvas-rgb) / 0.55);
   color: var(--ink);
+  color-scheme: light;
   cursor: pointer;
   pointer-events: auto;
   transition: background 160ms ease, border-color 160ms ease;
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
+  -webkit-text-fill-color: currentColor;
 }
 
 .journal-ring__arrow:hover {
