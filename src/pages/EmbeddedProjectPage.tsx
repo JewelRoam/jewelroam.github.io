@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { ArrowUpRight } from "lucide-react";
 import { PageHeader } from "../components/Page";
+import { LoadingIndicator } from "../components/LoadingIndicator";
 import { embeddedProjects, type EmbeddedProjectId } from "../lib/embedded-projects";
 import "./EmbeddedProjectPage.css";
 
@@ -48,9 +49,12 @@ export function EmbeddedProjectPage({ projectId }: { projectId: EmbeddedProjectI
           aria-busy={!loaded}
         >
           {!loaded && (
-            <div className="embedded-project__loading" role="status">
-              <span className="embedded-project__spinner" aria-hidden="true" />
-              <span>正在载入 {project.label}</span>
+            <div
+              className="embedded-project__loading"
+              role="status"
+              aria-label={`连接 ${project.label}`}
+            >
+              <LoadingIndicator size="medium" />
             </div>
           )}
           {frameSrc && (

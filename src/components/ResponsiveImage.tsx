@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type ImgHTMLAttributes } from "react";
 import type { Photo } from "../lib/content";
 import { imageFallbackUrl, imageSrcSet, type ImageWidth, transformImageUrl } from "../lib/media";
+import { LoadingIndicator } from "./LoadingIndicator";
 
 type ImageProps = Omit<ImgHTMLAttributes<HTMLImageElement>, "src" | "srcSet" | "alt" | "width" | "height"> & {
   photo: Photo;
@@ -108,6 +109,7 @@ function PhotoImageInstance({ photo, src, srcSet, sizes, priority = false, ...pr
           <a href={fallbackUrl} target="_blank" rel="noreferrer">打开原图</a>
         </span>
       )}
+      {state === "loading" && <LoadingIndicator size="medium" label="读取图片" />}
     </span>
   );
 }

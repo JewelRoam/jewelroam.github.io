@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { ArrowUpRight, Music2 } from "lucide-react";
+import { LoadingIndicator } from "./LoadingIndicator";
 
 const PLAYER_SLOW_TIMEOUT = 6000;
 
@@ -109,8 +110,12 @@ export function PlaylistEmbed({ item }: { item: PlaylistItem }) {
       </figcaption>
       <div className={`playlist-embed-shell playlist-embed-shell--${status}`}>
         {!shouldLoad && (
-          <div className={`playlist-embed playlist-embed--${platformClass} playlist-embed-placeholder`} role="status">
-            正在加载播放器…
+          <div
+            className={`playlist-embed playlist-embed--${platformClass} playlist-embed-placeholder`}
+            role="status"
+            aria-label={`连接 ${item.platform}`}
+          >
+            <LoadingIndicator size="medium" />
           </div>
         )}
         {shouldLoad && (
@@ -124,16 +129,6 @@ export function PlaylistEmbed({ item }: { item: PlaylistItem }) {
             onLoad={() => setStatus("ready")}
             onError={() => setStatus("error")}
           />
-        )}
-        {status === "slow" && (
-          <p className="playlist-embed-status" role="status">
-            播放器加载较慢，<a href={item.href} target="_blank" rel="noreferrer">打开 {item.platform}</a>
-          </p>
-        )}
-        {status === "error" && (
-          <p className="playlist-embed-status" role="alert">
-            播放器暂时不可用，<a href={item.href} target="_blank" rel="noreferrer">打开 {item.platform}</a>
-          </p>
         )}
       </div>
     </figure>

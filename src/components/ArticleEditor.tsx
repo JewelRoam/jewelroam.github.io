@@ -39,6 +39,7 @@ import { useExportTask } from "../hooks/useExportTask";
 import { ExportDialog } from "./ExportDialog";
 import { exportProgressLabel, ExportProgressPanel } from "./ExportProgressDialog";
 import { ImageFrame } from "./ImageFrame";
+import { LoadingIndicator } from "./LoadingIndicator";
 import { Page } from "./Page";
 
 const MAX_IMAGE_SIZE = 100 * 1024 * 1024;
@@ -201,9 +202,9 @@ export function ArticleEditor() {
   } = useArticleDraftPersistence({ editor, revision, createDraft, applyDraft });
 
   const persistenceMessage = persistenceState === "loading"
-    ? "正在读取本地草稿…"
+    ? "读取草稿"
     : persistenceState === "saving"
-      ? "保存中…"
+      ? "保存中"
       : persistenceState === "saved"
         ? "已自动保存"
         : persistenceState === "error"
@@ -476,7 +477,10 @@ export function ArticleEditor() {
       )}
       <footer className="editor-footer">
         <div className="editor-save-state">
-          <p className="editor-hint" role="status">{status}</p>
+          <p className={`editor-hint${persistenceState === "loading" || persistenceState === "saving" ? " editor-hint--busy" : ""}`} role="status">
+            {(persistenceState === "loading" || persistenceState === "saving") && <LoadingIndicator size="small" />}
+            <span>{status}</span>
+          </p>
           <p className="editor-updated-at">最近修改 <time dateTime={updatedAt}>{updatedAt ? new Date(updatedAt).toLocaleString() : "尚未保存"}</time></p>
         </div>
         <div className="editor-actions">

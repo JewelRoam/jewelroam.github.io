@@ -1,4 +1,5 @@
 import type { ExportProgress } from "../lib/article-export";
+import { LoadingIndicator } from "./LoadingIndicator";
 
 export function exportProgressLabel(progress: ExportProgress | null) {
   if (!progress) return "准备中…";
@@ -16,10 +17,9 @@ export function exportProgressLabel(progress: ExportProgress | null) {
 export function ExportProgressPanel({ label, error, onClose }: { label: string; error?: string; onClose: () => void }) {
   return (
     <div className="export-dialog__progress-content">
-      {!error && <span className="export-dialog__spinner" aria-hidden="true" />}
+      {!error && <LoadingIndicator size="large" />}
       <div>
-        <p className="export-dialog__eyebrow">{error ? "EXPORT ERROR" : "EXPORTING"}</p>
-        <h2 id="export-progress-title">{error ? "导出失败" : "正在导出"}</h2>
+        <h2 id="export-progress-title">{error ? "导出失败" : "导出文件"}</h2>
         <p className="export-dialog__progress-label" role={error ? "alert" : "status"} aria-live="polite">{error || label}</p>
         {error && (
           <button type="button" className="export-dialog__progress-button" onClick={onClose}>关闭</button>

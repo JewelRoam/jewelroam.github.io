@@ -96,6 +96,30 @@ a {
 .font-serif {
   font-family: var(--font-display);
 }
+.loading-indicator {
+  animation: loading-indicator-spin 820ms linear infinite;
+  border: 1px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  display: inline-block;
+  flex: 0 0 auto;
+  vertical-align: middle;
+}
+.loading-indicator--small {
+  height: 0.75rem;
+  width: 0.75rem;
+}
+.loading-indicator--medium {
+  height: 1rem;
+  width: 1rem;
+}
+.loading-indicator--large {
+  height: 1.35rem;
+  width: 1.35rem;
+}
+@keyframes loading-indicator-spin {
+  to { transform: rotate(360deg); }
+}
 .glass-menu {
   align-items: center;
   display: flex;
@@ -572,27 +596,6 @@ a {
   opacity: 0.72;
 }
 
-.playlist-embed-status {
-  background: rgb(var(--canvas-rgb) / 0.9);
-  border: 1px solid rgb(var(--ink-rgb) / 0.1);
-  bottom: 0.75rem;
-  color: rgb(var(--ink-rgb) / 0.62);
-  font-size: 0.72rem;
-  left: 0.75rem;
-  margin: 0;
-  padding: 0.45rem 0.6rem;
-  position: absolute;
-  right: 0.75rem;
-  text-align: center;
-  -webkit-backdrop-filter: blur(8px);
-  backdrop-filter: blur(8px);
-}
-
-.playlist-embed-status a {
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
-
 /* The official Apple player includes a bottom action row below its track list. */
 .playlist-embed--apple {
   height: 24.5rem;
@@ -1026,25 +1029,8 @@ a {
   background: rgb(var(--ink-rgb) / 0.045);
   overflow: hidden;
 }
-.photo-image-shell[data-image-state="loading"]::before {
-  background: linear-gradient(
-    105deg,
-    transparent 24%,
-    rgb(255 255 255 / 0.32) 48%,
-    transparent 72%
-  );
-  content: "";
-  inset: 0;
-  pointer-events: none;
-  position: absolute;
-  transform: translateX(-100%);
-  animation: image-loading-sweep 1.8s var(--ease-standard) infinite;
-}
 .photo-image-shell[data-image-state="error"]::before {
   display: none;
-}
-@keyframes image-loading-sweep {
-  to { transform: translateX(100%); }
 }
 .photo-image-shell[data-image-state="loading"] > img,
 .photo-image-shell[data-image-state="error"] > img {
@@ -1065,6 +1051,13 @@ a {
   padding: 1rem;
   position: absolute;
   text-align: center;
+}
+.photo-image-shell > .loading-indicator {
+  color: var(--quiet);
+  left: 50%;
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
 }
 .photo-image-error a {
   color: var(--ink);
@@ -1421,26 +1414,11 @@ a {
   gap: 1rem;
   padding: 1.35rem;
 }
-.export-dialog__spinner {
-  animation: export-spin 800ms linear infinite;
-  border: 1px solid rgb(32 33 31 / 0.16);
-  border-radius: 50%;
-  border-top-color: #20211f;
-  flex: 0 0 auto;
-  height: 1.25rem;
-  width: 1.25rem;
-}
 .export-dialog--progress h2 {
   font-family: var(--font-display);
   font-size: 1.35rem;
   font-weight: 400;
   margin: 0.25rem 0 0;
-}
-.export-dialog__eyebrow {
-  color: rgb(32 33 31 / 0.42);
-  font-size: 0.62rem;
-  letter-spacing: 0.14em;
-  margin: 0;
 }
 .export-dialog__progress-label {
   color: rgb(32 33 31 / 0.58);
@@ -2056,6 +2034,11 @@ a {
   line-height: 1.6;
   margin: 0;
 }
+.editor-hint--busy {
+  align-items: center;
+  display: inline-flex;
+  gap: 0.45rem;
+}
 .editor-footer {
   align-items: center;
   display: flex;
@@ -2433,9 +2416,8 @@ a {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .photo-image-shell[data-image-state="loading"]::before {
+  .loading-indicator {
     animation: none;
-    transform: none;
   }
   .glass-menu__items,
   .glass-menu__item,

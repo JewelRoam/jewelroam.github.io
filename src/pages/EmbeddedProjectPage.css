@@ -99,11 +99,8 @@
   align-items: center;
   color: var(--embedded-ink);
   display: flex;
-  font-size: 0.7rem;
-  gap: 0.65rem;
   inset: 0;
   justify-content: center;
-  letter-spacing: 0.08em;
   position: absolute;
   transition:
     opacity 220ms var(--ease-standard),
@@ -113,23 +110,4 @@
 .embedded-project__viewport[data-loaded="true"] .embedded-project__loading {
   opacity: 0;
   visibility: hidden;
-}
-
-.embedded-project__spinner {
-  animation: embedded-project-spin 900ms linear infinite;
-  border: 1px solid currentColor;
-  border-right-color: transparent;
-  border-radius: 50%;
-  height: 0.85rem;
-  width: 0.85rem;
-}
-
-@keyframes embedded-project-spin {
-  to { transform: rotate(360deg); }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .embedded-project__spinner {
-    animation: none;
-  }
 }
