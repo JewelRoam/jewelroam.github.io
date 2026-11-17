@@ -1,5 +1,7 @@
 .journals-page { background: var(--canvas); }
 .journals-page__index {
+  position: relative;
+  z-index: 1;
   padding: 3rem var(--page-gutter) 5rem;
   background: var(--paper);
   border-top: 1px solid var(--rule);
