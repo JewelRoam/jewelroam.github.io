@@ -261,7 +261,7 @@ function topFeature(features: maplibregl.MapGeoJSONFeature[] | undefined) {
   )[0];
 }
 
-export function DestinationMap({ destinations, onSelect, className, ariaLabel = "Destinations map" }: DestinationMapProps) {
+export function DestinationMap({ destinations, onSelect, className, ariaLabel = "Map of places" }: DestinationMapProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<MapLibreMap | null>(null);
   const hoveredIdRef = useRef<string | number | null>(null);

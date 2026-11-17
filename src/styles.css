@@ -306,10 +306,213 @@ a {
 .glass-back-button:hover {
   transform: translateY(-1px);
 }
+.write-button:hover,
+.write-button:focus-visible {
+  transform: none;
+}
 .glass-circle-button:focus-visible,
 .glass-menu__item:focus-visible {
   outline: 2px solid var(--focus);
   outline-offset: 3px;
+}
+.fullscreen-nav-shell {
+  display: block;
+  height: var(--header-control-size);
+  pointer-events: auto;
+  position: relative;
+  width: var(--header-control-size);
+  z-index: 1;
+}
+.fullscreen-nav__trigger {
+  position: relative;
+  right: auto;
+  top: auto;
+  transform: none;
+  z-index: 3;
+}
+.fullscreen-nav__trigger:hover,
+.fullscreen-nav__trigger.is-open:hover {
+  transform: translateY(-1px);
+}
+.fullscreen-nav__trigger.is-open {
+  background: transparent;
+  border-color: rgb(var(--canvas-rgb) / 0.4);
+  box-shadow: none;
+  color: var(--canvas);
+}
+.fullscreen-nav__trigger.is-open::before {
+  border-color: rgb(var(--canvas-rgb) / 0.22);
+}
+.fullscreen-nav {
+  background: var(--ink);
+  color: var(--canvas);
+  display: flex;
+  flex-direction: column;
+  inset: 0;
+  min-height: 100svh;
+  overflow: auto;
+  padding: clamp(1.5rem, 3vw, 2.5rem) var(--page-gutter) clamp(1.5rem, 3vw, 2.5rem);
+  position: fixed;
+  z-index: 1;
+  animation: fullscreen-nav-drop 560ms var(--ease-spring) both;
+  transform: translateY(-100%);
+}
+.fullscreen-nav.is-closing {
+  animation: fullscreen-nav-lift 520ms var(--ease-spring) both;
+  pointer-events: none;
+}
+.fullscreen-nav__body {
+  display: grid;
+  flex: 1;
+  gap: clamp(2rem, 8vw, 9rem);
+  grid-template-columns: minmax(0, 1fr) minmax(15rem, 24rem);
+  align-items: center;
+  margin: clamp(5rem, 12vh, 9rem) auto clamp(4rem, 10vh, 8rem);
+  max-width: 94rem;
+  position: relative;
+  width: 100%;
+  z-index: 1;
+}
+.fullscreen-nav__primary {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.4rem, 1.2vh, 1.1rem);
+}
+.fullscreen-nav__main-link {
+  align-items: baseline;
+  background: transparent;
+  border: 0;
+  color: rgb(var(--canvas-rgb) / 0.86);
+  cursor: pointer;
+  display: flex;
+  font-family: var(--font-display);
+  font-size: clamp(3.4rem, 9.6vw, 8.8rem);
+  font-weight: 400;
+  gap: clamp(0.8rem, 2vw, 2rem);
+  letter-spacing: -0.055em;
+  line-height: 0.82;
+  padding: 0.08em 0 0.12em;
+  position: relative;
+  text-align: left;
+  transition:
+    color 240ms var(--ease-standard),
+    letter-spacing 360ms var(--ease-spring),
+    opacity 240ms var(--ease-standard),
+    transform 420ms var(--ease-spring);
+  width: fit-content;
+}
+.fullscreen-nav__main-link--jewelroam {
+  --menu-section-accent: #d1775e;
+}
+.fullscreen-nav__main-link--destinations {
+  --menu-section-accent: #79a8a0;
+}
+.fullscreen-nav__main-link--projects {
+  --menu-section-accent: #d6a75f;
+}
+.fullscreen-nav__main-link::before {
+  background: var(--menu-section-accent, var(--accent));
+  content: "";
+  height: 0.08em;
+  left: -0.02em;
+  opacity: 0;
+  position: absolute;
+  right: 0;
+  top: 48%;
+  transform: scaleX(0.18);
+  transform-origin: left center;
+  transition:
+    opacity 220ms var(--ease-standard),
+    transform 520ms var(--ease-spring);
+}
+.fullscreen-nav__main-link:hover,
+.fullscreen-nav__main-link:focus-visible {
+  color: var(--menu-section-accent, var(--accent));
+  outline: 0;
+  letter-spacing: -0.015em;
+  transform: translateX(0.35rem) scale(1.035);
+}
+.fullscreen-nav__main-link.is-expanded {
+  color: var(--menu-section-accent, var(--accent));
+  letter-spacing: -0.015em;
+  transform: translateX(0.35rem) scale(1.035);
+}
+.fullscreen-nav__main-link.is-active::before {
+  opacity: 1;
+  transform: scaleX(1);
+}
+.fullscreen-nav__main-button {
+  appearance: none;
+}
+.fullscreen-nav__secondary {
+  min-height: 12rem;
+  padding-left: clamp(1.25rem, 5vw, 5rem);
+}
+.fullscreen-nav__secondary--destinations {
+  --menu-section-accent: #79a8a0;
+}
+.fullscreen-nav__secondary--projects {
+  --menu-section-accent: #d6a75f;
+}
+.fullscreen-nav__subsection {
+  animation: fullscreen-nav-reveal 520ms var(--ease-spring) both;
+}
+.fullscreen-nav__subitems {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+.fullscreen-nav__subitem {
+  align-items: baseline;
+  color: rgb(var(--canvas-rgb) / 0.82);
+  display: flex;
+  gap: 0.8rem;
+  justify-content: flex-start;
+  padding: 0 0 0.7rem;
+  transition:
+    color 180ms var(--ease-standard);
+}
+.fullscreen-nav__subitem:hover,
+.fullscreen-nav__subitem:focus-visible,
+.fullscreen-nav__subitem[aria-current="page"] {
+  color: var(--menu-section-accent, var(--canvas));
+  outline: 0;
+}
+.fullscreen-nav__subitem span {
+  font-size: 1.05rem;
+  letter-spacing: 0.01em;
+}
+.fullscreen-nav__main-link:focus-visible,
+.fullscreen-nav__subitem:focus-visible,
+.fullscreen-nav__trigger:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 5px;
+}
+@keyframes fullscreen-nav-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(1rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes fullscreen-nav-drop {
+  from {
+    transform: translateY(-100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+@keyframes fullscreen-nav-lift {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-100%);
+  }
 }
 .copy-text {
   align-items: baseline;
@@ -2173,6 +2376,42 @@ a {
   }
 }
 
+@media (max-width: 640px) {
+  .fullscreen-nav {
+    padding: 1.25rem var(--page-gutter) 1.25rem;
+  }
+
+  .fullscreen-nav__body {
+    display: block;
+    margin: 6.5rem 0 4rem;
+  }
+
+  .fullscreen-nav__primary {
+    gap: 0.75rem;
+  }
+
+  .fullscreen-nav__main-link {
+    align-items: flex-start;
+    flex-direction: column;
+    font-size: clamp(3.25rem, 17vw, 5.5rem);
+    gap: 0.4rem;
+    line-height: 0.78;
+    width: 100%;
+  }
+
+  .fullscreen-nav__secondary {
+    margin-top: 3.5rem;
+    min-height: 0;
+    padding: 1.5rem 0 0;
+  }
+
+  .fullscreen-nav__subitem {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .photo-image-shell[data-image-state="loading"]::before {
     animation: none;
@@ -2182,6 +2421,15 @@ a {
   .glass-menu__item,
   .glass-menu__tooltip,
   .glass-circle-button {
+    transition-duration: 0.01ms;
+  }
+  .fullscreen-nav__main-link,
+  .fullscreen-nav__main-link::before,
+  .fullscreen-nav__subsection,
+  .fullscreen-nav__subitem,
+  .fullscreen-nav__trigger,
+  .fullscreen-nav {
+    animation: none;
     transition-duration: 0.01ms;
   }
 }

@@ -1,13 +1,13 @@
 # JewelRoam
 
-这是一个由 Agent 协作维护的个人网站。项目核心界面固定为 `Destinations`、`Journals`、`Capture` 和 `JewelRoam`，菜单另保留 `ZaiChang`、`Glyph Atlas`、`NexusPilot` 和 `23.5°N GEEKDAY` 子站入口，通过站内 iframe 舞台打开并保持全站导航可用；根路径直接进入 `JewelRoam`。
+这是一个由 Agent 协作维护的个人网站。公开导航以 `JewelRoam`、`Destinations` 和 `Projects` 为主；`Destinations` 下包含 `Map` 与 `Journals`，`Write` 是内部写作工具。`ZaiChang`、`Glyph Atlas`、`NexusPilot` 和 `23.5°N GEEKDAY` 通过站内 iframe 舞台打开并保持全站导航可用；根路径直接进入 `JewelRoam`。
 
 ## Agent 约定
 
-- 优先遵循本文件和 `docs/codex/` 中的项目规则；框架默认约定不能覆盖项目已有的数据协议。
+- 优先遵循本文件和 `docs/` 中的项目规则；框架默认约定不能覆盖项目已有的数据协议。
 - 如果代码实现与当前对话上下文或项目文档不一致，可能代表其它 Agent 正在推进不同的更新意图；不要擅自覆盖，及时向用户确认。
 - 保持代码简洁、明确、可维护；少写注释，避免无意义的薄转发、重复协议和过度抽象。
-- 项目流程文档写入 `docs/codex/`；`docs/manus/` 是历史研究文档，不要改动，除非用户明确要求。
+- 项目流程文档统一写入 `docs/`，这里是项目文档的唯一标准位置。
 - 项目专属可复用流程放在仓库内的 `.agents/skills/`，不依赖本机全局 skill。
 - 修改完成后按风险运行相关检查；常规代码改动至少运行 `npm run typecheck`，内容或构建相关改动追加 `npm run content:validate` 和 `npm run build`。
 - 不要自动提交或推送，除非用户明确要求。
@@ -20,18 +20,18 @@ npm install
 npm run dev
 ```
 
-开发服务器端口以 Vite 终端输出为准。页面采用 React Router：普通页面共用一致的响应式 gutter，不设置全局最大宽度；`Destinations` 是独立的全视口地图页。
+开发服务器端口以 Vite 终端输出为准。页面采用 React Router：普通页面共用一致的响应式 gutter，不设置全局最大宽度；`/map` 是独立的全视口地图页，导航名称为 `Destinations`。
 
 图片地址通过 `VITE_MEDIA_BASE_URL` 配置，默认使用 `https://images.zer.dpdns.org`。R2 中的公开图片由 Cloudflare Image Transformations 按需生成缩略图并缓存。
 
-R2 的账户、bucket、图片域名和 Image Transformations 开通步骤见 [`docs/codex/R2_SETUP.md`](docs/codex/R2_SETUP.md)。
+R2 的账户、bucket、图片域名和 Image Transformations 开通步骤见 [`docs/R2_SETUP.md`](docs/R2_SETUP.md)。
 
 ## 内容
 
 - `content/journals/*.mdx`：Journal 正文和元数据；每篇 Journal 必须绑定一个 `placeId`。
 - `content/places/*.json`：目的地名称、坐标和地图几何；一个地点可以关联多篇 Journal 与多张照片。
 - `content/photos/*.json`：图片尺寸、替代文本、R2 路径、版权信息和唯一 `placeId`。
-- `src/lib/content-schema.ts`：浏览器和 Node 共用的内容协议；文章 Capture/Journal 导出仍然是单个 JSON 文件。
+- `src/lib/content-schema.ts`：浏览器和 Node 共用的内容协议；文章 Write/Journal 导出仍然是单个 JSON 文件。
 - `src/lib/content-validation.ts`：不依赖运行环境的字段诊断和跨文件引用检查。
 - `src/lib/media.ts`：唯一的 Cloudflare 图片 URL 生成入口。
 
@@ -41,11 +41,11 @@ R2 的账户、bucket、图片域名和 Image Transformations 开通步骤见 [`
 
 图片发布遵循“本地确认 → 上传 R2 → 检查 URL → 提交 manifest → 部署站点”的顺序；不要让 GitHub 先发布一个尚未上传 R2 的图片路径。
 
-日常写作和图片交接流程见 [`docs/codex/CONTENT_WORKFLOW.md`](docs/codex/CONTENT_WORKFLOW.md)。本地启动后打开 `/capture`，即可直接写文章并把图片拖进正文；确认后再导出 JSON 交给 Agent 上传 R2。
+日常写作和图片交接流程见 [`docs/CONTENT_WORKFLOW.md`](docs/CONTENT_WORKFLOW.md)。本地启动后打开 `/write`，即可直接写文章并把图片拖进正文；确认后再导出 JSON 交给 Agent 上传 R2。
 
-Capture 的页面动作按编辑流程分层：顶部只保留页面说明，文章信息集中在标题、摘要、地点和创建日期区域，格式工具固定在编辑区上方，自动保存状态、最近修改时间、清空和 `JSON` 导出位于正文底部。窄屏下图片导入动作会单独换行，避免工具按钮被截断。
+Write 的页面动作按编辑流程分层：顶部只保留页面说明，文章信息集中在标题、摘要、地点和创建日期区域，格式工具固定在编辑区上方，自动保存状态、最近修改时间、清空和 `JSON` 导出位于正文底部。窄屏下图片导入动作会单独换行，避免工具按钮被截断。
 
-当前页面结构、浮层关系和数据边界见 [`docs/codex/CURRENT_ARCHITECTURE.md`](docs/codex/CURRENT_ARCHITECTURE.md)。
+当前页面结构、浮层关系和数据边界见 [`docs/CURRENT_ARCHITECTURE.md`](docs/CURRENT_ARCHITECTURE.md)。
 
 ## 检查与构建
 

@@ -125,7 +125,7 @@ export function PhotoPage() {
   const id = decodeURIComponent(useParams().id || "");
   const photo = getPhoto(id);
 
-  if (!photo) return <Navigate to="/destinations" replace />;
+  if (!photo) return <Navigate to="/map" replace />;
 
   const place = getPlace(photo.placeId);
   const placePhotos = [...getPlacePhotos(photo.placeId)].sort(comparePhotos);

@@ -91,7 +91,7 @@ GitHub Actions 校验并部署站点
 
 不要在 manifest 已经提交后才上传图片，否则 GitHub Pages 可能先发布一个指向不存在资源的页面。图片上传失败时不要提交该 manifest；图片替换时使用新的文件路径或版本号，不要依赖 CDN 立刻刷新被覆盖的旧对象。
 
-尚未确认发布的图片保留在 `content/inbox/`，通过 Capture 的 Base64 草稿或 inbox 预览检查，不写入正式 manifest。`content/inbox/` 默认是本地素材目录，不应因为正式内容提交而自动加入 Git；当前运行时代码没有 `public/media` 回退；正式 `content/photos/*.json` 只引用已经上传并验证的 R2 对象。
+尚未确认发布的图片保留在 `content/inbox/`，通过 Write 的 Base64 草稿或 inbox 预览检查，不写入正式 manifest。`content/inbox/` 默认是本地素材目录，不应因为正式内容提交而自动加入 Git；当前运行时代码没有 `public/media` 回退；正式 `content/photos/*.json` 只引用已经上传并验证的 R2 对象。
 
 不要直接把带 EXIF Orientation 的 JPEG 上传到公开 R2。`content:prepare-release` 会把 8 种方向物理写入像素、保留 ICC 色彩配置并移除 EXIF/XMP，再生成一份全尺寸 JPEG。Cloudflare Image Transformations 负责网页缩略图；R2 不会自动压缩原对象。已经发布的对象使用 immutable 缓存；替换图片时使用 `--revision <tag> --only <indices>` 生成新路径，并同步 photo metadata，不要覆盖旧 URL 期待缓存刷新。
 

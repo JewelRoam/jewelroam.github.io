@@ -1,5 +1,5 @@
 import { ArticleEditor } from "../components/ArticleEditor";
 
-export function CapturePage() {
+export function WritePage() {
   return <ArticleEditor />;
 }

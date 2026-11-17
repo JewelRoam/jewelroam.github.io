@@ -323,7 +323,7 @@ export function ArticleEditor() {
   return (
     <Page
       className="editor-shell"
-      title="Capture"
+      title="Write"
       intro="我曾偶尔使用 Apple 的 Notes 或 Journal app 记录想法，但它们始终没有提供一个足够顺手的图文编辑工作流，于是自己做了这个编辑器。图片支持同时拖入、粘贴或选择多张，暂存在浏览器 IndexedDB 中，并嵌入为 Base64 编码，随文章一起导出为 JSON，方便后续交给 Agent 继续整理与上线。"
     >
       <div className="editor-meta">

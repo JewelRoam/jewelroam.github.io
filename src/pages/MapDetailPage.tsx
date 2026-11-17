@@ -5,11 +5,11 @@ import { JournalListItem } from "../components/JournalListItem";
 import { ResponsiveImage } from "../components/ResponsiveImage";
 import { getPlace, getPlaceJournals, getPlacePhotos } from "../lib/content";
 
-export function DestinationDetailPage() {
+export function MapDetailPage() {
   const slug = decodeURIComponent(useParams().slug || "");
   const place = getPlace(slug);
 
-  if (!place) return <Navigate to="/destinations" replace />;
+  if (!place) return <Navigate to="/map" replace />;
 
   const placePhotos = getPlacePhotos(place.id);
   const placeJournals = getPlaceJournals(place.id);

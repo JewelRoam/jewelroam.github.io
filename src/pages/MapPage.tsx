@@ -1,7 +1,7 @@
 import { DestinationMap } from "../components/DestinationMap";
 import { places } from "../lib/content";
 
-export function DestinationsPage() {
+export function MapPage() {
   const destinations = places.map((place) => ({
     id: place.id,
     slug: place.slug,
@@ -16,26 +16,21 @@ export function DestinationsPage() {
   }));
 
   return (
-    <section className="destinations-stage">
+    <section className="map-stage">
       <DestinationMap
-        className="destinations-stage__map"
+        className="map-stage__map"
         destinations={destinations}
         onSelect={(place) => {
-          window.location.href = `/destinations/${place.slug}`;
+          window.location.href = `/map/${place.slug}`;
         }}
       />
-      <div className="destinations-stage__intro">
-        <h1 className="page-title font-serif">Destinations</h1>
-        <p className="page-intro">
-          在地图上回看那些曾经停留的地方。
-        </p>
-      </div>
-      <nav className="destinations-stage__fallback" aria-label="目的地列表">
-        <h2>Browse destinations</h2>
+      <h1 className="map-stage__title page-title font-serif">Destinations on Map</h1>
+      <nav className="map-stage__places" aria-label="地图地点列表">
+        <h2>Browse places</h2>
         <ul>
           {destinations.map((place) => (
             <li key={place.id}>
-              <a href={`/destinations/${place.slug}`}>
+              <a href={`/map/${place.slug}`}>
                 {place.name}
               </a>
             </li>

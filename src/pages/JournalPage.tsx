@@ -43,7 +43,7 @@ export function JournalPage() {
               {journalPlace ? (
                 <span>
                   {" "}·{" "}
-                  <Link className="underline underline-offset-4" to={`/destinations/${journalPlace.slug}`}>
+                  <Link className="underline underline-offset-4" to={`/map/${journalPlace.slug}`}>
                     {journalPlace.name}
                   </Link>
                 </span>

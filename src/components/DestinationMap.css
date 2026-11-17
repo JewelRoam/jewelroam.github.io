@@ -6,7 +6,7 @@
   background: var(--map-canvas);
 }
 
-.destinations-stage {
+.map-stage {
   position: relative;
   width: 100%;
   height: 100svh;
@@ -15,24 +15,25 @@
   overflow: hidden;
 }
 
-.destination-map.destinations-stage__map {
+.destination-map.map-stage__map {
   position: absolute;
   inset: 0;
   height: 100%;
   min-height: 0;
 }
 
-.destinations-stage__intro {
+.map-stage__title {
   position: absolute;
   z-index: 10;
   top: var(--page-top-space);
   left: var(--page-gutter);
+  margin: 0;
   max-width: min(36rem, calc(100vw - 6rem));
   pointer-events: none;
   text-shadow: 0 1px 18px rgb(var(--paper-rgb) / 0.95);
 }
 
-.destinations-stage__fallback {
+.map-stage__places {
   clip-path: inset(50%);
   height: 1px;
   overflow: hidden;
@@ -41,7 +42,7 @@
   width: 1px;
 }
 
-.destinations-stage__fallback:focus-within {
+.map-stage__places:focus-within {
   background: rgb(var(--paper-rgb) / 0.94);
   border: 1px solid rgb(32 33 31 / 0.16);
   border-radius: var(--radius-surface);
@@ -60,7 +61,7 @@
   backdrop-filter: blur(16px) saturate(120%);
 }
 
-.destinations-stage__fallback h2 {
+.map-stage__places h2 {
   font-size: 0.68rem;
   font-weight: 500;
   letter-spacing: 0.1em;
@@ -68,24 +69,24 @@
   text-transform: uppercase;
 }
 
-.destinations-stage__fallback ul {
+.map-stage__places ul {
   list-style: none;
   margin: 0;
   padding: 0;
 }
 
-.destinations-stage__fallback li + li {
+.map-stage__places li + li {
   border-top: 1px solid var(--rule);
 }
 
-.destinations-stage__fallback a {
+.map-stage__places a {
   color: var(--ink);
   display: block;
   font-size: 0.8rem;
   padding: 0.45rem 0;
 }
 
-.destinations-stage__fallback a:focus-visible {
+.map-stage__places a:focus-visible {
   outline: 2px solid var(--focus);
   outline-offset: 2px;
 }
@@ -221,8 +222,9 @@
 }
 
 @media (max-width: 640px) {
-  .destination-map.destinations-stage__map { min-height: 0; }
-  .destinations-stage__intro {
+  .destination-map.map-stage__map { min-height: 0; }
+
+  .map-stage__title {
     left: max(1.5rem, env(safe-area-inset-left));
     max-width: calc(100vw - 5rem);
   }
@@ -243,7 +245,7 @@
 
 @media (prefers-reduced-transparency: reduce) {
   .destination-map__marker,
-  .destinations-stage__fallback {
+  .map-stage__places {
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
     background: var(--paper);

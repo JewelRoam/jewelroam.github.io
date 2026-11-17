@@ -3,9 +3,8 @@ import { useLocation, useNavigate } from "react-router-dom";
 
 const primaryPaths = new Set([
   "/",
-  "/destinations",
+  "/map",
   "/journals",
-  "/capture",
   "/jewelroam",
   "/zaichang",
   "/glyph-atlas",
@@ -14,8 +13,9 @@ const primaryPaths = new Set([
 ]);
 
 function fallbackPath(pathname: string) {
-  if (pathname.startsWith("/destinations/")) return "/destinations";
+  if (pathname.startsWith("/map/")) return "/map";
   if (pathname.startsWith("/journals/") || pathname.startsWith("/photos/")) return "/journals";
+  if (pathname === "/write") return "/journals";
   return "/jewelroam";
 }
 
