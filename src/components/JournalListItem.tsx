@@ -9,6 +9,7 @@ type JournalListItemProps = {
   dateMode: "timeline" | "continuation" | "exact";
   headingLevel?: "h2" | "h3";
   className?: string;
+  onPreview?: () => void;
 };
 
 export function JournalListItem({
@@ -17,6 +18,7 @@ export function JournalListItem({
   dateMode,
   headingLevel = "h2",
   className = "py-7 first:pt-0",
+  onPreview,
 }: JournalListItemProps) {
   const Heading = headingLevel;
   const { year, month } = getJournalDateParts(journal.createdAt);
@@ -40,7 +42,12 @@ export function JournalListItem({
     : placeName;
 
   return (
-    <Link to={`/journals/${journal.slug}`} className={`journal-list-item ${className}`}>
+    <Link
+      to={`/journals/${journal.slug}`}
+      className={`journal-list-item ${className}`}
+      onMouseEnter={onPreview}
+      onFocus={onPreview}
+    >
       {timelineDate}
       <div className="journal-list-item__content">
         {metadata ? <p className="journal-list-item__meta">{metadata}</p> : null}

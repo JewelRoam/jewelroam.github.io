@@ -50,6 +50,11 @@
   --article-image-max-height: min(60dvh, 32rem);
   --page-gutter: 1.5rem;
   --page-top-space: 48px;
+  --measure-body: 68ch;
+  --split-rail-min: 24rem;
+  --split-rail-ideal: 38.2vw;
+  --split-rail-max: 35rem;
+  --split-rail-width: clamp(var(--split-rail-min), var(--split-rail-ideal), var(--split-rail-max));
   color-scheme: light;
   font-family: var(--font-body);
   color: var(--ink);
@@ -824,7 +829,7 @@ a {
   color: var(--muted);
   line-height: 1.75;
   margin: 0.65rem 0 0;
-  max-inline-size: 68ch;
+  max-inline-size: var(--measure-body);
 }
 .journal-archive {
   position: relative;

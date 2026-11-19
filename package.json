@@ -33,6 +33,7 @@
     "react-dom": "^19.1.1",
     "react-router-dom": "^7.8.2",
     "react-select": "^5.10.2",
+    "three": "^0.187.0",
     "zod": "^3.25.76"
   },
   "devDependencies": {
@@ -42,6 +43,7 @@
     "@types/node": "^22.15.14",
     "@types/react": "^19.1.10",
     "@types/react-dom": "^19.1.7",
+    "@types/three": "^0.187.0",
     "@vitejs/plugin-react": "^5.0.2",
     "knip": "^6.32.2",
     "simple-git-hooks": "^2.13.1",

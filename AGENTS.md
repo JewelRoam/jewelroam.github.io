@@ -20,7 +20,7 @@ npm install
 npm run dev
 ```
 
-开发服务器端口以 Vite 终端输出为准。页面采用 React Router：普通页面共用一致的响应式 gutter，不设置全局最大宽度；`/map` 是独立的全视口地图页，导航名称为 `Destinations`。
+开发服务器端口以 Vite 终端输出为准。页面采用 React Router：普通页面共用一致的响应式 gutter（`--page-gutter`），不设置全局最大宽度；双栏页面统一使用 `--split-rail-width`（`clamp(24rem, 38.2vw, 35rem)`，主流横屏呈 `38.2% : 61.8%` 黄金分割、超宽屏封顶可读行宽），并在 `(min-width: 1024px) and (min-height: 560px) and (min-aspect-ratio: 6 / 5)` 之下自动切回上下布局；`/map` 是独立的全视口地图页，导航名称为 `Destinations`。
 
 图片地址通过 `VITE_MEDIA_BASE_URL` 配置，默认使用 `https://images.zer.dpdns.org`。R2 中的公开图片由 Cloudflare Image Transformations 按需生成缩略图并缓存。
 

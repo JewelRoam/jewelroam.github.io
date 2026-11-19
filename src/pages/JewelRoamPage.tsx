@@ -309,6 +309,19 @@ export function JewelRoamPage() {
             </Link>
           </div>
         </section>
+
+        <section className="border-t border-[#20211f]/10 pt-8">
+          <h2 className="font-serif text-2xl text-[#20211f]">Reference</h2>
+          <div className="mt-6 text-base leading-7">
+            <p>
+              Journals 页面的画廊参考了{" "}
+              <ExternalLink href="https://experiment.obys.agency/">
+                Obys Experiment Space
+              </ExternalLink>
+              。
+            </p>
+          </div>
+        </section>
       </div>
     </Page>
   );
